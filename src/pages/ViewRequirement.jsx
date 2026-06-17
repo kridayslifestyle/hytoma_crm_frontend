@@ -18,12 +18,65 @@ function ViewRequirement() {
 
     setRequirement(data);
 
-    // ⭐ IMPORTANT: load existing items from backend
-    if (data?.quotation_items?.length > 0) {
-      setItems(data.quotation_items);
-    } else {
-      setItems([]);
-    }
+    const autoItems = [];
+
+    // Switch Boards
+    data.switch_boards?.forEach((sb) => {
+      autoItems.push({
+        description: `Switch Board - ${sb.location} (${sb.size})`,
+        quantity: sb.quantity,
+        rate: 0,
+        gst: 18,
+      });
+    });
+
+    // Sensors
+    data.sensors?.forEach((s) => {
+      autoItems.push({
+        description: `${s.sensor_type} Sensor`,
+        quantity: s.quantity,
+        rate: 0,
+        gst: 18,
+      });
+    });
+
+    // Locks
+    if (data.face_lock_qty)
+      autoItems.push({
+        description: "Face Lock",
+        quantity: data.face_lock_qty,
+        rate: 0,
+        gst: 18,
+      });
+
+    if (data.handle_lock_qty)
+      autoItems.push({
+        description: "Handle Lock",
+        quantity: data.handle_lock_qty,
+        rate: 0,
+        gst: 18,
+      });
+
+    if (data.motorized_lock_qty)
+      autoItems.push({
+        description: "Motorized Lock",
+        quantity: data.motorized_lock_qty,
+        rate: 0,
+        gst: 18,
+      });
+
+    // Curtains
+    data.curtains?.forEach((c) => {
+      autoItems.push({
+        description: `Curtain - ${c.room}`,
+        quantity: 1,
+        rate: 0,
+        gst: 18,
+      });
+    });
+
+    // 🔥 IMPORTANT FIX
+    setItems(autoItems);
   };
   if (!requirement) {
     return <div className="text-center mt-10 text-xl">Loading...</div>;

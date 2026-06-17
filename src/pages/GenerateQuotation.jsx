@@ -31,7 +31,15 @@ function GenerateQuotation() {
 
   const loadRequirement = async () => {
     const data = await getRequirementById(id);
+
     setRequirement(data);
+
+    // 🔥 IMPORTANT FIX
+    if (data?.quotation_items?.length > 0) {
+      setItems(data.quotation_items);
+    } else {
+      setItems([]);
+    }
   };
 
   const handleQuotationChange = (e) => {

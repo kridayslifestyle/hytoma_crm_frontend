@@ -179,11 +179,65 @@ function App() {
           }
         />
 
-        <Route path="/requirements" element={<ClientRequirements />} />
+        <Route
+          path="/requirements"
+          element={
+            <ProtectedRoute>
+              <RoleRoute
+                allowed={["admin", "sales", "revathi", "inventory_manager"]}
+              >
+                <Layout>
+                  <ClientRequirements />
+                </Layout>
+              </RoleRoute>
+            </ProtectedRoute>
+          }
+        />
 
-        <Route path="/add-requirement" element={<AddRequirement />} />
-        <Route path="/requirements/:id" element={<ViewRequirement />} />
-        <Route path="/requirements/edit/:id" element={<EditRequirement />} />
+        <Route
+          path="/add-requirement"
+          element={
+            <ProtectedRoute>
+              <RoleRoute
+                allowed={["admin", "sales", "revathi", "inventory_manager"]}
+              >
+                <Layout>
+                  <AddRequirement />
+                </Layout>
+              </RoleRoute>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/requirements/:id"
+          element={
+            <ProtectedRoute>
+              <RoleRoute
+                allowed={["admin", "sales", "revathi", "inventory_manager"]}
+              >
+                <Layout>
+                  <ViewRequirement />
+                </Layout>
+              </RoleRoute>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/requirements/edit/:id"
+          element={
+            <ProtectedRoute>
+              <RoleRoute
+                allowed={["admin", "sales", "revathi", "inventory_manager"]}
+              >
+                <Layout>
+                  <EditRequirement />
+                </Layout>
+              </RoleRoute>
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

@@ -34,12 +34,62 @@ function GenerateQuotation() {
 
     setRequirement(data);
 
-    // 🔥 IMPORTANT FIX
-    if (data?.quotation_items?.length > 0) {
-      setItems(data.quotation_items);
-    } else {
-      setItems([]);
-    }
+    // AUTO BUILD ITEMS FROM REQUIREMENT
+    const autoItems = [];
+
+    data.switch_boards?.forEach((sb) => {
+      autoItems.push({
+        description: `Switch Board - ${sb.location} (${sb.size})`,
+        quantity: sb.quantity,
+        rate: 0,
+        gst: 18,
+      });
+    });
+
+    data.sensors?.forEach((s) => {
+      autoItems.push({
+        description: `${s.sensor_type} Sensor`,
+        quantity: s.quantity,
+        rate: 0,
+        gst: 18,
+      });
+    });
+
+    if (data.face_lock_qty)
+      autoItems.push({
+        description: "Face Lock",
+        quantity: data.face_lock_qty,
+        rate: 0,
+        gst: 18,
+      });
+
+    if (data.handle_lock_qty)
+      autoItems.push({
+        description: "Handle Lock",
+        quantity: data.handle_lock_qty,
+        rate: 0,
+        gst: 18,
+      });
+
+    if (data.motorized_lock_qty)
+      autoItems.push({
+        description: "Motorized Lock",
+        quantity: data.motorized_lock_qty,
+        rate: 0,
+        gst: 18,
+      });
+
+    data.curtains?.forEach((c) => {
+      autoItems.push({
+        description: `Curtain - ${c.room}`,
+        quantity: 1,
+        rate: 0,
+        gst: 18,
+      });
+    });
+
+    // 🔥 THIS IS THE KEY FIX
+    setItems(autoItems);
   };
 
   const handleQuotationChange = (e) => {

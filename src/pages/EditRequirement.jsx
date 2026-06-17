@@ -15,9 +15,7 @@ function AddRequirement() {
   });
 
   const { id } = useParams();
-const navigate = useNavigate();
-
-
+  const navigate = useNavigate();
 
   const [switchBoards, setSwitchBoards] = useState([
     {
@@ -178,38 +176,49 @@ const navigate = useNavigate();
   };
 
   const handleSubmit = async () => {
-  try {
-    const data = {
-      ...formData,
+    if (
+      !formData.customer_name ||
+      !formData.phone ||
+      !formData.address ||
+      !formData.project_type
+    ) {
+      alert("Please fill customer details");
 
-      switch_boards: switchBoards,
+      return;
+    }
 
-      curtains,
+    try {
+      const data = {
+        ...formData,
 
-      sensors,
+        switch_boards: switchBoards,
 
-      ...controlPoints,
+        curtains,
 
-      ...locks,
+        sensors,
 
-      ...gateDetails,
+        ...controlPoints,
 
-      ...voiceAssistant,
+        ...locks,
 
-      ...quotation,
-    };
+        ...gateDetails,
 
-    await updateRequirement(id, data);
+        ...voiceAssistant,
 
-    alert("Requirement updated successfully");
+        ...quotation,
+      };
 
-    navigate("/requirements");
-  } catch (error) {
-    console.log(error);
+      const response = await createRequirement(data);
 
-    alert("Failed to update requirement");
-  }
-};
+      console.log(response);
+
+      alert("Requirement added successfully");
+    } catch (error) {
+      console.log(error);
+
+      alert("Failed to save requirement");
+    }
+  };
 
   const handleControlChange = (e) => {
     setControlPoints({
@@ -247,71 +256,69 @@ const navigate = useNavigate();
   };
 
   useEffect(() => {
-  fetchRequirement();
-}, []);
+    fetchRequirement();
+  }, []);
 
-const fetchRequirement = async () => {
-  try {
-    const data = await getRequirementById(id);
+  const fetchRequirement = async () => {
+    try {
+      const data = await getRequirementById(id);
 
-    setFormData({
-      customer_name: data.customer_name,
-      phone: data.phone,
-      address: data.address,
-      project_type: data.project_type,
-    });
+      setFormData({
+        customer_name: data.customer_name,
+        phone: data.phone,
+        address: data.address,
+        project_type: data.project_type,
+      });
 
-    setSwitchBoards(data.switch_boards || []);
-    setCurtains(data.curtains || []);
-    setSensors(data.sensors || []);
+      setSwitchBoards(data.switch_boards || []);
+      setCurtains(data.curtains || []);
+      setSensors(data.sensors || []);
 
-    setControlPoints({
-      light_controls: data.light_controls,
-      fan_controls: data.fan_controls,
-      ac_controls: data.ac_controls,
-      curtain_controls: data.curtain_controls,
-      geyser_controls: data.geyser_controls,
-      exhaust_controls: data.exhaust_controls,
-    });
+      setControlPoints({
+        light_controls: data.light_controls,
+        fan_controls: data.fan_controls,
+        ac_controls: data.ac_controls,
+        curtain_controls: data.curtain_controls,
+        geyser_controls: data.geyser_controls,
+        exhaust_controls: data.exhaust_controls,
+      });
 
-    setLocks({
-      face_lock_qty: data.face_lock_qty,
-      handle_lock_qty: data.handle_lock_qty,
-      motorized_lock_qty: data.motorized_lock_qty,
-    });
+      setLocks({
+        face_lock_qty: data.face_lock_qty,
+        handle_lock_qty: data.handle_lock_qty,
+        motorized_lock_qty: data.motorized_lock_qty,
+      });
 
-    setGateDetails({
-      gate_type: data.gate_type,
-      gate_weight: data.gate_weight,
-      gate_width: data.gate_width,
-      no_of_gates: data.no_of_gates,
-      motor_capacity: data.motor_capacity,
-    });
+      setGateDetails({
+        gate_type: data.gate_type,
+        gate_weight: data.gate_weight,
+        gate_width: data.gate_width,
+        no_of_gates: data.no_of_gates,
+        motor_capacity: data.motor_capacity,
+      });
 
-    setVoiceAssistant({
-      alexa_required: data.alexa_required,
-      google_home_required: data.google_home_required,
-    });
+      setVoiceAssistant({
+        alexa_required: data.alexa_required,
+        google_home_required: data.google_home_required,
+      });
 
-    setQuotation({
-      switch_boards_cost: data.switch_boards_cost,
-      locks_cost: data.locks_cost,
-      sensor_cost: data.sensor_cost,
-      curtain_motor_cost: data.curtain_motor_cost,
-      gate_motor_cost: data.gate_motor_cost,
-      other_cost: data.other_cost,
-      installation_charges: data.installation_charges,
-      gst_percentage: data.gst_percentage,
-      discount: data.discount,
-      advance_amount: data.advance_amount,
-      grand_total: data.grand_total,
-    });
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-
+      setQuotation({
+        switch_boards_cost: data.switch_boards_cost,
+        locks_cost: data.locks_cost,
+        sensor_cost: data.sensor_cost,
+        curtain_motor_cost: data.curtain_motor_cost,
+        gate_motor_cost: data.gate_motor_cost,
+        other_cost: data.other_cost,
+        installation_charges: data.installation_charges,
+        gst_percentage: data.gst_percentage,
+        discount: data.discount,
+        advance_amount: data.advance_amount,
+        grand_total: data.grand_total,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <div>

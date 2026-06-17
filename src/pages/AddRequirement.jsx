@@ -237,6 +237,21 @@ function AddRequirement() {
     });
   };
 
+  const subtotal =
+    quotation.switch_boards_cost +
+    quotation.locks_cost +
+    quotation.sensor_cost +
+    quotation.curtain_motor_cost +
+    quotation.gate_motor_cost +
+    quotation.other_cost +
+    quotation.installation_charges;
+
+  const gstAmount = (subtotal * quotation.gst_percentage) / 100;
+
+  const grandTotal = subtotal + gstAmount - quotation.discount;
+
+  const pendingAmount = grandTotal - quotation.advance_amount;
+
   return (
     <div>
       {/* Header */}
@@ -725,46 +740,183 @@ function AddRequirement() {
           </label>
         </div>
       </div>
+      {/* QUOTATION DETAILS */}
 
       <div className="bg-white rounded-xl shadow p-6 mt-8">
-        <h2 className="text-xl font-semibold mb-6">Quotation Details</h2>
+        <h2 className="text-2xl font-semibold mb-6">Quotation Details</h2>
 
-        <div className="grid md:grid-cols-3 gap-6"></div>
-        <div>
-          <label className="block mb-2">Switch Boards Cost</label>
+        <div className="grid md:grid-cols-3 gap-6">
+          {/* Switch Board Cost */}
+          <div>
+            <label className="block mb-2">Switch Boards Cost</label>
 
-          <input
-            type="number"
-            name="switch_boards_cost"
-            value={quotation.switch_boards_cost}
-            onChange={handleQuotationChange}
-            className="w-full border rounded-lg p-3"
-          />
-        </div>
-        <div>
-          <label className="block mb-2">Locks Cost</label>
+            <input
+              type="number"
+              value={quotation.switch_boards_cost}
+              onChange={(e) =>
+                setQuotation({
+                  ...quotation,
+                  switch_boards_cost: Number(e.target.value),
+                })
+              }
+              className="w-full border p-3 rounded-lg"
+            />
+          </div>
 
-          <input
-            type="number"
-            name="locks_cost"
-            value={quotation.locks_cost}
-            onChange={handleQuotationChange}
-            className="w-full border rounded-lg p-3"
-          />
-        </div>
-        <div>
-          <label className="block mb-2">Sensor Cost</label>
+          {/* Locks Cost */}
+          <div>
+            <label className="block mb-2">Locks Cost</label>
 
-          <input
-            type="number"
-            name="sensor_cost"
-            value={quotation.sensor_cost}
-            onChange={handleQuotationChange}
-            className="w-full border rounded-lg p-3"
-          />
+            <input
+              type="number"
+              value={quotation.locks_cost}
+              onChange={(e) =>
+                setQuotation({
+                  ...quotation,
+                  locks_cost: Number(e.target.value),
+                })
+              }
+              className="w-full border p-3 rounded-lg"
+            />
+          </div>
+
+          {/* Sensor Cost */}
+          <div>
+            <label className="block mb-2">Sensor Cost</label>
+
+            <input
+              type="number"
+              value={quotation.sensor_cost}
+              onChange={(e) =>
+                setQuotation({
+                  ...quotation,
+                  sensor_cost: Number(e.target.value),
+                })
+              }
+              className="w-full border p-3 rounded-lg"
+            />
+          </div>
+
+          {/* Curtain Motor Cost */}
+          <div>
+            <label className="block mb-2">Curtain Motor Cost</label>
+
+            <input
+              type="number"
+              value={quotation.curtain_motor_cost}
+              onChange={(e) =>
+                setQuotation({
+                  ...quotation,
+                  curtain_motor_cost: Number(e.target.value),
+                })
+              }
+              className="w-full border p-3 rounded-lg"
+            />
+          </div>
+
+          {/* Gate Motor Cost */}
+          <div>
+            <label className="block mb-2">Gate Motor Cost</label>
+
+            <input
+              type="number"
+              value={quotation.gate_motor_cost}
+              onChange={(e) =>
+                setQuotation({
+                  ...quotation,
+                  gate_motor_cost: Number(e.target.value),
+                })
+              }
+              className="w-full border p-3 rounded-lg"
+            />
+          </div>
+
+          {/* Other Cost */}
+          <div>
+            <label className="block mb-2">Other Cost</label>
+
+            <input
+              type="number"
+              value={quotation.other_cost}
+              onChange={(e) =>
+                setQuotation({
+                  ...quotation,
+                  other_cost: Number(e.target.value),
+                })
+              }
+              className="w-full border p-3 rounded-lg"
+            />
+          </div>
+
+          {/* Installation Charges */}
+          <div>
+            <label className="block mb-2">Installation Charges</label>
+
+            <input
+              type="number"
+              value={quotation.installation_charges}
+              onChange={(e) =>
+                setQuotation({
+                  ...quotation,
+                  installation_charges: Number(e.target.value),
+                })
+              }
+              className="w-full border p-3 rounded-lg"
+            />
+          </div>
+
+          {/* GST */}
+          <div>
+            <label className="block mb-2">GST %</label>
+
+            <input
+              type="number"
+              value={quotation.gst_percentage}
+              onChange={(e) =>
+                setQuotation({
+                  ...quotation,
+                  gst_percentage: Number(e.target.value),
+                })
+              }
+              className="w-full border p-3 rounded-lg"
+            />
+          </div>
+
+          {/* Discount */}
+          <div>
+            <label className="block mb-2">Discount</label>
+
+            <input
+              type="number"
+              value={quotation.discount}
+              onChange={(e) =>
+                setQuotation({
+                  ...quotation,
+                  discount: Number(e.target.value),
+                })
+              }
+              className="w-full border p-3 rounded-lg"
+            />
+          </div>
+
+          {/* Advance Amount */}
+          <div>
+            <label className="block mb-2">Advance Amount</label>
+
+            <input
+              type="number"
+              value={quotation.advance_amount}
+              onChange={(e) =>
+                setQuotation({
+                  ...quotation,
+                  advance_amount: Number(e.target.value),
+                })
+              }
+              className="w-full border p-3 rounded-lg"
+            />
+          </div>
         </div>
       </div>
-
       <div className="mt-10 flex justify-end">
         <button
           type="button"

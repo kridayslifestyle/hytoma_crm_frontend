@@ -13,6 +13,8 @@ import Inventory from "./pages/Inventory";
 import Complaints from "./pages/Complaints";
 import ProductMovement from "./pages/ProductMovement";
 import ComplaintForm from "./pages/ComplaintForm";
+import ClientRequirements from "./pages/ClientRequirements";
+import AddRequirement from "./pages/AddRequirement";
 
 // ✅ Role-based route guard
 const RoleRoute = ({ children, allowed }) => {
@@ -32,86 +34,152 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-
         {/* Public */}
-        <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+        <Route
+          path="/login"
+          element={
+            <PublicRoute>
+              <Login />
+            </PublicRoute>
+          }
+        />
         <Route path="/submit-complaint" element={<ComplaintForm />} />
 
         {/* Home — redirects based on role */}
-        <Route path="/" element={
-          <ProtectedRoute>
-            <Layout><HomeRedirect /></Layout>
-          </ProtectedRoute>
-        } />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <HomeRedirect />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
 
         {/* Sales pages — all roles except simanta */}
-        <Route path="/leads" element={
-          <ProtectedRoute>
-            <RoleRoute allowed={["admin", "sales", "revathi", "inventory_manager"]}>
-              <Layout><Leads /></Layout>
-            </RoleRoute>
-          </ProtectedRoute>
-        } />
+        <Route
+          path="/leads"
+          element={
+            <ProtectedRoute>
+              <RoleRoute
+                allowed={["admin", "sales", "revathi", "inventory_manager"]}
+              >
+                <Layout>
+                  <Leads />
+                </Layout>
+              </RoleRoute>
+            </ProtectedRoute>
+          }
+        />
 
-        <Route path="/add-lead" element={
-          <ProtectedRoute>
-            <RoleRoute allowed={["admin", "sales", "revathi", "inventory_manager"]}>
-              <Layout><AddLead /></Layout>
-            </RoleRoute>
-          </ProtectedRoute>
-        } />
+        <Route
+          path="/add-lead"
+          element={
+            <ProtectedRoute>
+              <RoleRoute
+                allowed={["admin", "sales", "revathi", "inventory_manager"]}
+              >
+                <Layout>
+                  <AddLead />
+                </Layout>
+              </RoleRoute>
+            </ProtectedRoute>
+          }
+        />
 
-        <Route path="/edit/:id" element={
-          <ProtectedRoute>
-            <RoleRoute allowed={["admin", "sales", "revathi", "inventory_manager"]}>
-              <Layout><EditLead /></Layout>
-            </RoleRoute>
-          </ProtectedRoute>
-        } />
+        <Route
+          path="/edit/:id"
+          element={
+            <ProtectedRoute>
+              <RoleRoute
+                allowed={["admin", "sales", "revathi", "inventory_manager"]}
+              >
+                <Layout>
+                  <EditLead />
+                </Layout>
+              </RoleRoute>
+            </ProtectedRoute>
+          }
+        />
 
-        <Route path="/sales" element={
-          <ProtectedRoute>
-            <RoleRoute allowed={["admin", "sales", "revathi", "inventory_manager"]}>
-              <Layout><SalesPerformance /></Layout>
-            </RoleRoute>
-          </ProtectedRoute>
-        } />
+        <Route
+          path="/sales"
+          element={
+            <ProtectedRoute>
+              <RoleRoute
+                allowed={["admin", "sales", "revathi", "inventory_manager"]}
+              >
+                <Layout>
+                  <SalesPerformance />
+                </Layout>
+              </RoleRoute>
+            </ProtectedRoute>
+          }
+        />
 
-        <Route path="/sales-report" element={
-          <ProtectedRoute>
-            <RoleRoute allowed={["admin", "sales", "revathi", "inventory_manager"]}>
-              <Layout><SalesReport /></Layout>
-            </RoleRoute>
-          </ProtectedRoute>
-        } />
+        <Route
+          path="/sales-report"
+          element={
+            <ProtectedRoute>
+              <RoleRoute
+                allowed={["admin", "sales", "revathi", "inventory_manager"]}
+              >
+                <Layout>
+                  <SalesReport />
+                </Layout>
+              </RoleRoute>
+            </ProtectedRoute>
+          }
+        />
 
         {/* Inventory — admin, revathi, inventory_manager only */}
-        <Route path="/inventory" element={
-          <ProtectedRoute>
-            <RoleRoute allowed={["admin", "revathi", "inventory_manager","simanta"]}>
-              <Layout><Inventory /></Layout>
-            </RoleRoute>
-          </ProtectedRoute>
-        } />
+        <Route
+          path="/inventory"
+          element={
+            <ProtectedRoute>
+              <RoleRoute
+                allowed={["admin", "revathi", "inventory_manager", "simanta"]}
+              >
+                <Layout>
+                  <Inventory />
+                </Layout>
+              </RoleRoute>
+            </ProtectedRoute>
+          }
+        />
 
         {/* Complaints — admin and simanta only */}
-        <Route path="/complaints" element={
-          <ProtectedRoute>
-            <RoleRoute allowed={["admin", "simanta", "venkatesh"]}>
-              <Layout><Complaints /></Layout>
-            </RoleRoute>
-          </ProtectedRoute>
-        } />
+        <Route
+          path="/complaints"
+          element={
+            <ProtectedRoute>
+              <RoleRoute allowed={["admin", "simanta", "venkatesh"]}>
+                <Layout>
+                  <Complaints />
+                </Layout>
+              </RoleRoute>
+            </ProtectedRoute>
+          }
+        />
 
         {/* Product Movement — admin only */}
-        <Route path="/product-movement" element={
-          <ProtectedRoute>
-            <RoleRoute allowed={["admin","inventory_manager"]}>
-              <Layout><ProductMovement /></Layout>
-            </RoleRoute>
-          </ProtectedRoute>
-        } />
+        <Route
+          path="/product-movement"
+          element={
+            <ProtectedRoute>
+              <RoleRoute allowed={["admin", "inventory_manager"]}>
+                <Layout>
+                  <ProductMovement />
+                </Layout>
+              </RoleRoute>
+            </ProtectedRoute>
+          }
+        />
 
+        <Route path="/requirements" element={<ClientRequirements />} />
+
+        <Route path="/add-requirement" element={<AddRequirement />} />
       </Routes>
     </BrowserRouter>
   );

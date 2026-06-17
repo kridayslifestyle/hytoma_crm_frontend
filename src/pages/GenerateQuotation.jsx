@@ -11,6 +11,7 @@ function GenerateQuotation() {
   const [requirement, setRequirement] = useState(null);
 
   const [quotation, setQuotation] = useState({
+    installation_charges: 0,
     discount: 0,
     advance_amount: 0,
   });
@@ -63,19 +64,15 @@ function GenerateQuotation() {
   };
 
   const subtotal = items.reduce(
-    (sum, item) =>
-      sum + Number(item.quantity) * Number(item.rate),
-    0
+    (sum, item) => sum + Number(item.quantity) * Number(item.rate),
+    0,
   );
 
   const gstAmount = items.reduce(
     (sum, item) =>
       sum +
-      (Number(item.quantity) *
-        Number(item.rate) *
-        Number(item.gst)) /
-        100,
-    0
+      (Number(item.quantity) * Number(item.rate) * Number(item.gst)) / 100,
+    0,
   );
 
   const cgst = gstAmount / 2;
@@ -84,12 +81,11 @@ function GenerateQuotation() {
 
   const grandTotal =
     subtotal +
-    gstAmount -
+    gstAmount +
+    Number(quotation.installation_charges) -
     Number(quotation.discount);
 
-  const pendingAmount =
-    grandTotal -
-    Number(quotation.advance_amount);
+  const pendingAmount = grandTotal - Number(quotation.advance_amount);
 
   const handleSave = async () => {
     const updatedData = {
@@ -97,9 +93,13 @@ function GenerateQuotation() {
 
       quotation_items: items,
 
-      discount: quotation.discount,
+      installation_charges: Number(quotation.installation_charges),
 
-      advance_amount: quotation.advance_amount,
+      discount: Number(quotation.discount),
+
+      advance_amount: Number(quotation.advance_amount),
+
+      pending_amount: pendingAmount,
 
       amount: subtotal,
 
@@ -117,19 +117,12 @@ function GenerateQuotation() {
 
   return (
     <div>
-
-      <h1 className="text-3xl font-bold mb-8">
-        Generate Quotation
-      </h1>
+      <h1 className="text-3xl font-bold mb-8">Generate Quotation</h1>
 
       {/* Products */}
       <div className="bg-white rounded-xl shadow p-6">
-
         <div className="flex justify-between mb-6">
-
-          <h2 className="text-2xl font-semibold">
-            Products
-          </h2>
+          <h2 className="text-2xl font-semibold">Products</h2>
 
           <button
             onClick={addItem}
@@ -137,96 +130,61 @@ function GenerateQuotation() {
           >
             + Add Product
           </button>
-
         </div>
 
-        {
-          items.map((item, index) => (
+        {items.map((item, index) => (
+          <div key={index} className="grid md:grid-cols-5 gap-4 mb-4">
+            <input
+              type="text"
+              placeholder="Description"
+              value={item.description}
+              onChange={(e) =>
+                handleItemChange(index, "description", e.target.value)
+              }
+              className="border p-3 rounded-lg"
+            />
 
-            <div
-              key={index}
-              className="grid md:grid-cols-5 gap-4 mb-4"
+            <input
+              type="number"
+              placeholder="Qty"
+              value={item.quantity}
+              onChange={(e) =>
+                handleItemChange(index, "quantity", e.target.value)
+              }
+              className="border p-3 rounded-lg"
+            />
+
+            <input
+              type="number"
+              placeholder="Rate"
+              value={item.rate}
+              onChange={(e) => handleItemChange(index, "rate", e.target.value)}
+              className="border p-3 rounded-lg"
+            />
+
+            <input
+              type="number"
+              placeholder="GST %"
+              value={item.gst}
+              onChange={(e) => handleItemChange(index, "gst", e.target.value)}
+              className="border p-3 rounded-lg"
+            />
+
+            <button
+              onClick={() => removeItem(index)}
+              className="bg-red-500 text-white rounded-lg"
             >
-
-              <input
-                type="text"
-                placeholder="Description"
-                value={item.description}
-                onChange={(e) =>
-                  handleItemChange(
-                    index,
-                    "description",
-                    e.target.value
-                  )
-                }
-                className="border p-3 rounded-lg"
-              />
-
-              <input
-                type="number"
-                placeholder="Qty"
-                value={item.quantity}
-                onChange={(e) =>
-                  handleItemChange(
-                    index,
-                    "quantity",
-                    e.target.value
-                  )
-                }
-                className="border p-3 rounded-lg"
-              />
-
-              <input
-                type="number"
-                placeholder="Rate"
-                value={item.rate}
-                onChange={(e) =>
-                  handleItemChange(
-                    index,
-                    "rate",
-                    e.target.value
-                  )
-                }
-                className="border p-3 rounded-lg"
-              />
-
-              <input
-                type="number"
-                placeholder="GST %"
-                value={item.gst}
-                onChange={(e) =>
-                  handleItemChange(
-                    index,
-                    "gst",
-                    e.target.value
-                  )
-                }
-                className="border p-3 rounded-lg"
-              />
-
-              <button
-                onClick={() => removeItem(index)}
-                className="bg-red-500 text-white rounded-lg"
-              >
-                Remove
-              </button>
-
-            </div>
-
-          ))
-        }
-
+              Remove
+            </button>
+          </div>
+        ))}
       </div>
 
       {/* Extra Details */}
       <div className="bg-white rounded-xl shadow p-6 mt-8">
-
-        <h2 className="text-2xl font-semibold mb-6">
-          Additional Details
-        </h2>
+        <h2 className="text-2xl font-semibold mb-6">Additional Details</h2>
 
         <div className="grid md:grid-cols-2 gap-6">
-
           <div>
             <label>Discount</label>
 
@@ -250,39 +208,27 @@ function GenerateQuotation() {
               className="w-full border rounded-lg p-3"
             />
           </div>
-
         </div>
-
       </div>
 
       {/* Summary */}
       <div className="bg-white rounded-xl shadow p-6 mt-8">
-
-        <h2 className="text-2xl font-semibold mb-6">
-          Summary
-        </h2>
+        <h2 className="text-2xl font-semibold mb-6">Summary</h2>
 
         <div className="grid md:grid-cols-3 gap-6">
-
           <div>
             <h3>Amount</h3>
-            <p className="text-2xl text-orange-500">
-              ₹ {subtotal.toFixed(2)}
-            </p>
+            <p className="text-2xl text-orange-500">₹ {subtotal.toFixed(2)}</p>
           </div>
 
           <div>
             <h3>CGST</h3>
-            <p className="text-2xl text-orange-500">
-              ₹ {cgst.toFixed(2)}
-            </p>
+            <p className="text-2xl text-orange-500">₹ {cgst.toFixed(2)}</p>
           </div>
 
           <div>
             <h3>SGST</h3>
-            <p className="text-2xl text-orange-500">
-              ₹ {sgst.toFixed(2)}
-            </p>
+            <p className="text-2xl text-orange-500">₹ {sgst.toFixed(2)}</p>
           </div>
 
           <div>
@@ -298,22 +244,17 @@ function GenerateQuotation() {
               ₹ {pendingAmount.toFixed(2)}
             </p>
           </div>
-
         </div>
-
       </div>
 
       <div className="mt-8">
-
         <button
           onClick={handleSave}
           className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-lg"
         >
           Save Quotation
         </button>
-
       </div>
-
     </div>
   );
 }

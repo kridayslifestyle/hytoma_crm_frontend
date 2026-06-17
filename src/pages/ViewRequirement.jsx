@@ -7,19 +7,87 @@ function ViewRequirement() {
   const { id } = useParams();
 
   const [requirement, setRequirement] = useState(null);
+  const [items, setItems] = useState([]);
 
   useEffect(() => {
-    fetchRequirement();
+    loadRequirement();
   }, []);
 
-  const fetchRequirement = async () => {
-    try {
-      const data = await getRequirementById(id);
-      setRequirement(data);
-    } catch (error) {
-      console.log(error);
+  const loadRequirement = async () => {
+    const data = await getRequirementById(id);
+    setRequirement(data);
+
+    const autoItems = [];
+
+    // Switch Boards
+    data.switch_boards?.forEach((sb) => {
+      autoItems.push({
+        description: `Switch Board - ${sb.location} (${sb.size})`,
+        quantity: sb.quantity,
+        rate: 0, // editable
+        gst: 18,
+      });
+    });
+
+    // Sensors
+    data.sensors?.forEach((s) => {
+      autoItems.push({
+        description: `${s.sensor_type} Sensor`,
+        quantity: s.quantity,
+        rate: 0,
+        gst: 18,
+      });
+    });
+
+    // Locks
+    if (data.face_lock_qty > 0) {
+      autoItems.push({
+        description: "Face Lock",
+        quantity: data.face_lock_qty,
+        rate: 0,
+        gst: 18,
+      });
     }
+
+    if (data.handle_lock_qty > 0) {
+      autoItems.push({
+        description: "Handle Lock",
+        quantity: data.handle_lock_qty,
+        rate: 0,
+        gst: 18,
+      });
+    }
+
+    if (data.motorized_lock_qty > 0) {
+      autoItems.push({
+        description: "Motorized Lock",
+        quantity: data.motorized_lock_qty,
+        rate: 0,
+        gst: 18,
+      });
+    }
+
+    // Curtains
+    data.curtains?.forEach((c) => {
+      autoItems.push({
+        description: `Curtain - ${c.room}`,
+        quantity: 1,
+        rate: 0,
+        gst: 18,
+      });
+    });
+
+    setItems(autoItems);
   };
+
+  //   const fetchRequirement = async () => {
+  //     try {
+  //       const data = await getRequirementById(id);
+  //       setRequirement(data);
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   };
 
   if (!requirement) {
     return <div className="text-center mt-10 text-xl">Loading...</div>;
@@ -53,6 +121,33 @@ function ViewRequirement() {
         >
           Download PDF
         </a>
+      </div>
+
+      {/* AUTO QUOTATION PREVIEW */}
+      <div className="bg-white rounded-xl shadow p-6 mt-8">
+        <h2 className="text-xl font-semibold mb-4">
+          Auto Generated Quotation Preview
+        </h2>
+
+        <table className="w-full">
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th>Qty</th>
+              <th>Rate</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {items.map((item, index) => (
+              <tr key={index}>
+                <td>{item.description}</td>
+                <td>{item.quantity}</td>
+                <td>₹ {item.rate}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
       {/* Customer Information */}

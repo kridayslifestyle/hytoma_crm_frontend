@@ -24,7 +24,7 @@ function ViewRequirement() {
       autoItems.push({
         description: `Switch Board - ${sb.location} (${sb.size})`,
         quantity: sb.quantity,
-        rate: 0, // editable
+        rate: 0,
         gst: 18,
       });
     });
@@ -79,15 +79,6 @@ function ViewRequirement() {
 
     setItems(autoItems);
   };
-
-  //   const fetchRequirement = async () => {
-  //     try {
-  //       const data = await getRequirementById(id);
-  //       setRequirement(data);
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   };
 
   if (!requirement) {
     return <div className="text-center mt-10 text-xl">Loading...</div>;

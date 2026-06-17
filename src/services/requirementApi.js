@@ -14,15 +14,15 @@ export const getRequirements = async () => {
 };
 
 
-export const getRequirementById = async (id) => {
+// export const getRequirementById = async (id) => {
 
-    const response = await fetch(
-        `${API_URL}/${id}`
-    );
+//     const response = await fetch(
+//         `${API_URL}/${id}`
+//     );
 
-    return response.json();
+//     return response.json();
 
-};
+// };
 
 // Create requirement
 export const createRequirement = async (data) => {

@@ -17,6 +17,7 @@ import ClientRequirements from "./pages/ClientRequirements";
 import AddRequirement from "./pages/AddRequirement";
 import ViewRequirement from "./pages/ViewRequirement";
 import EditRequirement from "./pages/EditRequirement";
+import GenerateQuotation from "./pages/GenerateQuotation";
 
 // ✅ Role-based route guard
 const RoleRoute = ({ children, allowed }) => {
@@ -236,6 +237,14 @@ function App() {
                 </Layout>
               </RoleRoute>
             </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/generate-quotation/:id"
+          element={
+            <Layout>
+              <GenerateQuotation />
+            </Layout>
           }
         />
       </Routes>

@@ -11,26 +11,22 @@ export const getRequirements = async () => {
 
 // Create requirement
 export const createRequirement = async (data) => {
+  const response = await fetch(`${API_URL}/requirements`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+    body: JSON.stringify(data),
+  });
 
-    const response = await fetch(
-        `${API_URL}/requirements`,
-        {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            credentials: "include",
-            body: JSON.stringify(data)
-        }
-    );
+  if (!response.ok) {
+    const error = await response.json();
+    console.log(error);
+    throw new Error("Failed to save requirement");
+  }
 
-    if (!response.ok) {
-        const error = await response.json();
-        console.log(error);
-        throw new Error("Failed to save requirement");
-    }
-
-    return response.json();
+  return response.json();
 };
 
 // Get single requirement

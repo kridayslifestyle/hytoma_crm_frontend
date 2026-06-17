@@ -14,6 +14,16 @@ export const getRequirements = async () => {
 };
 
 
+export const getRequirementById = async (id) => {
+
+    const response = await fetch(
+        `${API_URL}/${id}`
+    );
+
+    return response.json();
+
+};
+
 // Create requirement
 export const createRequirement = async (data) => {
     const response = await fetch(
@@ -46,20 +56,27 @@ export const getRequirementById = async (id) => {
 
 
 // Update requirement
-export const updateRequirement = async (id, data) => {
+export const updateRequirement = async (
+    id,
+    data
+) => {
+
     const response = await fetch(
-        `${API_URL}/requirements/${id}`,
+        `${API_URL}/${id}`,
         {
             method: "PUT",
+
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type":
+                    "application/json",
             },
-            credentials: "include",
-            body: JSON.stringify(data)
+
+            body: JSON.stringify(data),
         }
     );
 
     return response.json();
+
 };
 
 

@@ -15,6 +15,8 @@ import ProductMovement from "./pages/ProductMovement";
 import ComplaintForm from "./pages/ComplaintForm";
 import ClientRequirements from "./pages/ClientRequirements";
 import AddRequirement from "./pages/AddRequirement";
+import ViewRequirement from "./pages/ViewRequirement";
+import EditRequirement from "./pages/EditRequirement";
 
 // ✅ Role-based route guard
 const RoleRoute = ({ children, allowed }) => {
@@ -180,6 +182,8 @@ function App() {
         <Route path="/requirements" element={<ClientRequirements />} />
 
         <Route path="/add-requirement" element={<AddRequirement />} />
+        <Route path="/requirements/:id" element={<ViewRequirement />} />
+        <Route path="/requirements/edit/:id" element={<EditRequirement />} />
       </Routes>
     </BrowserRouter>
   );

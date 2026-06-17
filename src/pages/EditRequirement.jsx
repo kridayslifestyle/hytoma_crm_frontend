@@ -1,6 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 
-import { createRequirement } from "../services/requirementApi";
+import {
+  getRequirementById,
+  updateRequirement,
+} from "../services/requirementApi";
 
 function AddRequirement() {
   const [formData, setFormData] = useState({
@@ -9,6 +13,11 @@ function AddRequirement() {
     address: "",
     project_type: "",
   });
+
+  const { id } = useParams();
+const navigate = useNavigate();
+
+
 
   const [switchBoards, setSwitchBoards] = useState([
     {
@@ -169,38 +178,38 @@ function AddRequirement() {
   };
 
   const handleSubmit = async () => {
-    try {
-      const data = {
-        ...formData,
+  try {
+    const data = {
+      ...formData,
 
-        switch_boards: switchBoards,
+      switch_boards: switchBoards,
 
-        curtains,
+      curtains,
 
-        sensors,
+      sensors,
 
-        ...controlPoints,
+      ...controlPoints,
 
-        ...locks,
+      ...locks,
 
-        ...gateDetails,
+      ...gateDetails,
 
-        ...voiceAssistant,
+      ...voiceAssistant,
 
-        ...quotation,
-      };
+      ...quotation,
+    };
 
-      const response = await createRequirement(data);
+    await updateRequirement(id, data);
 
-      console.log(response);
+    alert("Requirement updated successfully");
 
-      alert("Requirement added successfully");
-    } catch (error) {
-      console.error(error);
+    navigate("/requirements");
+  } catch (error) {
+    console.log(error);
 
-      alert("Failed to save requirement");
-    }
-  };
+    alert("Failed to update requirement");
+  }
+};
 
   const handleControlChange = (e) => {
     setControlPoints({
@@ -237,13 +246,80 @@ function AddRequirement() {
     });
   };
 
+  useEffect(() => {
+  fetchRequirement();
+}, []);
+
+const fetchRequirement = async () => {
+  try {
+    const data = await getRequirementById(id);
+
+    setFormData({
+      customer_name: data.customer_name,
+      phone: data.phone,
+      address: data.address,
+      project_type: data.project_type,
+    });
+
+    setSwitchBoards(data.switch_boards || []);
+    setCurtains(data.curtains || []);
+    setSensors(data.sensors || []);
+
+    setControlPoints({
+      light_controls: data.light_controls,
+      fan_controls: data.fan_controls,
+      ac_controls: data.ac_controls,
+      curtain_controls: data.curtain_controls,
+      geyser_controls: data.geyser_controls,
+      exhaust_controls: data.exhaust_controls,
+    });
+
+    setLocks({
+      face_lock_qty: data.face_lock_qty,
+      handle_lock_qty: data.handle_lock_qty,
+      motorized_lock_qty: data.motorized_lock_qty,
+    });
+
+    setGateDetails({
+      gate_type: data.gate_type,
+      gate_weight: data.gate_weight,
+      gate_width: data.gate_width,
+      no_of_gates: data.no_of_gates,
+      motor_capacity: data.motor_capacity,
+    });
+
+    setVoiceAssistant({
+      alexa_required: data.alexa_required,
+      google_home_required: data.google_home_required,
+    });
+
+    setQuotation({
+      switch_boards_cost: data.switch_boards_cost,
+      locks_cost: data.locks_cost,
+      sensor_cost: data.sensor_cost,
+      curtain_motor_cost: data.curtain_motor_cost,
+      gate_motor_cost: data.gate_motor_cost,
+      other_cost: data.other_cost,
+      installation_charges: data.installation_charges,
+      gst_percentage: data.gst_percentage,
+      discount: data.discount,
+      advance_amount: data.advance_amount,
+      grand_total: data.grand_total,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+
+
   return (
     <div>
       {/* Header */}
 
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-800">
-          Add Client Requirement
+          Edit Client Requirement
         </h1>
 
         <p className="text-gray-500 mt-1">Fill customer project requirements</p>

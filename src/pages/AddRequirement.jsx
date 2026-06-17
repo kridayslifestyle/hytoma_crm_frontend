@@ -21,8 +21,8 @@ function AddRequirement() {
   const [curtains, setCurtains] = useState([
     {
       room: "",
-      width: "",
-      height: "",
+      width: 0,
+      height: 0,
       curtain_type: "",
     },
   ]);

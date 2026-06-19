@@ -153,52 +153,90 @@ function GenerateQuotation() {
           </button>
         </div>
 
-        {items.map((item, index) => (
-          <div key={index} className="grid md:grid-cols-5 gap-4 mb-4">
-            <input
-              type="text"
-              placeholder="Description"
-              value={item.description}
-              onChange={(e) =>
-                handleItemChange(index, "description", e.target.value)
-              }
-              className="border p-3 rounded-lg"
-            />
+        {items.map((item, index) => {
+          const taxable = Number(item.quantity || 0) * Number(item.rate || 0);
+          const gstRate = Number(item.gst || 18);
+          const lineCgst = (taxable * (gstRate / 2)) / 100;
+          const lineSgst = (taxable * (gstRate / 2)) / 100;
+          const lineTotal = taxable + lineCgst + lineSgst;
 
-            <input
-              type="number"
-              placeholder="Qty"
-              value={item.quantity}
-              onChange={(e) =>
-                handleItemChange(index, "quantity", e.target.value)
-              }
-              className="border p-3 rounded-lg"
-            />
+          return (
+            <div key={index} className="mb-4 border rounded-lg p-4">
+              <div className="grid md:grid-cols-5 gap-4">
+                <input
+                  type="text"
+                  placeholder="Description"
+                  value={item.description}
+                  onChange={(e) =>
+                    handleItemChange(index, "description", e.target.value)
+                  }
+                  className="border p-3 rounded-lg"
+                />
 
-            <input
-              type="number"
-              placeholder="Rate"
-              value={item.rate}
-              onChange={(e) => handleItemChange(index, "rate", e.target.value)}
-              className="border p-3 rounded-lg"
-            />
+                <input
+                  type="number"
+                  placeholder="Qty"
+                  value={item.quantity}
+                  onChange={(e) =>
+                    handleItemChange(index, "quantity", e.target.value)
+                  }
+                  className="border p-3 rounded-lg"
+                />
 
-            <input
-              type="number"
-              placeholder="GST %"
-              value={item.gst}
-              onChange={(e) => handleItemChange(index, "gst", e.target.value)}
-              className="border p-3 rounded-lg"
-            />
+                <input
+                  type="number"
+                  placeholder="Rate"
+                  value={item.rate}
+                  onChange={(e) => handleItemChange(index, "rate", e.target.value)}
+                  className="border p-3 rounded-lg"
+                />
 
-            <button
-              onClick={() => removeItem(index)}
-              className="bg-red-500 text-white rounded-lg"
-            >
-              Remove
-            </button>
-          </div>
-        ))}
+                <input
+                  type="number"
+                  placeholder="GST %"
+                  value={item.gst}
+                  onChange={(e) => handleItemChange(index, "gst", e.target.value)}
+                  className="border p-3 rounded-lg"
+                />
+
+                <button
+                  onClick={() => removeItem(index)}
+                  className="bg-red-500 text-white rounded-lg"
+                >
+                  Remove
+                </button>
+              </div>
+
+              {/* Read-only computed breakdown for this line, CGST/SGST split 50/50 */}
+              <div className="grid md:grid-cols-4 gap-4 mt-3 text-sm text-gray-600">
+                <div>
+                  Taxable Value:{" "}
+                  <span className="font-medium text-gray-800">
+                    ₹ {taxable.toFixed(2)}
+                  </span>
+                </div>
+                <div>
+                  CGST ({(gstRate / 2).toFixed(1)}%):{" "}
+                  <span className="font-medium text-gray-800">
+                    ₹ {lineCgst.toFixed(2)}
+                  </span>
+                </div>
+                <div>
+                  SGST ({(gstRate / 2).toFixed(1)}%):{" "}
+                  <span className="font-medium text-gray-800">
+                    ₹ {lineSgst.toFixed(2)}
+                  </span>
+                </div>
+                <div>
+                  Amount:{" "}
+                  <span className="font-semibold text-orange-600">
+                    ₹ {lineTotal.toFixed(2)}
+                  </span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {/* Extra Details */}

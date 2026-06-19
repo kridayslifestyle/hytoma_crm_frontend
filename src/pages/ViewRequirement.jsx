@@ -73,23 +73,33 @@ function ViewRequirement() {
                 <th className="text-left py-3">Description</th>
                 <th className="text-left py-3">Qty</th>
                 <th className="text-left py-3">Rate</th>
-                <th className="text-left py-3">GST %</th>
+                <th className="text-left py-3">Taxable Value</th>
+                <th className="text-left py-3">CGST (9%)</th>
+                <th className="text-left py-3">SGST (9%)</th>
                 <th className="text-left py-3">Amount</th>
               </tr>
             </thead>
 
             <tbody>
-              {items.map((item, index) => (
-                <tr key={index} className="border-b">
-                  <td className="py-3">{item.description}</td>
-                  <td className="py-3">{item.quantity}</td>
-                  <td className="py-3">₹ {Number(item.rate).toFixed(2)}</td>
-                  <td className="py-3">{item.gst}%</td>
-                  <td className="py-3">
-                    ₹ {(Number(item.quantity) * Number(item.rate)).toFixed(2)}
-                  </td>
-                </tr>
-              ))}
+              {items.map((item, index) => {
+                const taxable = Number(item.quantity) * Number(item.rate);
+                const gstRate = Number(item.gst || 18);
+                const cgst = (taxable * (gstRate / 2)) / 100;
+                const sgst = (taxable * (gstRate / 2)) / 100;
+                const total = taxable + cgst + sgst;
+
+                return (
+                  <tr key={index} className="border-b">
+                    <td className="py-3">{item.description}</td>
+                    <td className="py-3">{item.quantity}</td>
+                    <td className="py-3">₹ {Number(item.rate).toFixed(2)}</td>
+                    <td className="py-3">₹ {taxable.toFixed(2)}</td>
+                    <td className="py-3">₹ {cgst.toFixed(2)}</td>
+                    <td className="py-3">₹ {sgst.toFixed(2)}</td>
+                    <td className="py-3 font-medium">₹ {total.toFixed(2)}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}

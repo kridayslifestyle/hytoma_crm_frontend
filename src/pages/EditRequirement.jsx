@@ -6,7 +6,7 @@ import {
   updateRequirement,
 } from "../services/requirementApi";
 
-function AddRequirement() {
+function EditRequirement() {
   const [formData, setFormData] = useState({
     customer_name: "",
     phone: "",
@@ -18,27 +18,15 @@ function AddRequirement() {
   const navigate = useNavigate();
 
   const [switchBoards, setSwitchBoards] = useState([
-    {
-      location: "",
-      size: "",
-      quantity: 1,
-    },
+    { location: "", size: "", quantity: 1 },
   ]);
 
   const [curtains, setCurtains] = useState([
-    {
-      room: "",
-      width: "",
-      height: "",
-      curtain_type: "",
-    },
+    { room: "", width: "", height: "", curtain_type: "" },
   ]);
 
   const [sensors, setSensors] = useState([
-    {
-      sensor_type: "",
-      quantity: 1,
-    },
+    { sensor_type: "", quantity: 1 },
   ]);
 
   const [controlPoints, setControlPoints] = useState({
@@ -69,109 +57,69 @@ function AddRequirement() {
     google_home_required: false,
   });
 
-  const [quotation, setQuotation] = useState({
-    switch_boards_cost: 0,
-
-    locks_cost: 0,
-
-    sensor_cost: 0,
-
-    curtain_motor_cost: 0,
-
-    gate_motor_cost: 0,
-
-    other_cost: 0,
-
+  // Quotation fields belong to the Requirement model. PUT replaces the
+  // whole document, so we must carry these through unchanged or the
+  // quotation saved on the Generate Quotation page gets wiped out.
+  const [quotationFields, setQuotationFields] = useState({
+    quotation_items: [],
     installation_charges: 0,
-
-    gst_percentage: 18,
-
     discount: 0,
-
     advance_amount: 0,
-
+    amount: 0,
+    cgst: 0,
+    sgst: 0,
     grand_total: 0,
   });
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const addBoard = () => {
-    setSwitchBoards([
-      ...switchBoards,
-      {
-        location: "",
-        size: "",
-        quantity: 1,
-      },
-    ]);
+    setSwitchBoards([...switchBoards, { location: "", size: "", quantity: 1 }]);
   };
 
   const addCurtain = () => {
     setCurtains([
       ...curtains,
-      {
-        room: "",
-        width: "",
-        height: "",
-        curtain_type: "",
-      },
+      { room: "", width: "", height: "", curtain_type: "" },
     ]);
   };
 
   const addSensor = () => {
-    setSensors([
-      ...sensors,
-      {
-        sensor_type: "",
-        quantity: 1,
-      },
-    ]);
+    setSensors([...sensors, { sensor_type: "", quantity: 1 }]);
   };
 
   const handleSensorChange = (index, field, value) => {
     const updated = [...sensors];
-
     updated[index][field] = value;
-
     setSensors(updated);
   };
 
   const removeSensor = (index) => {
     if (sensors.length === 1) return;
-
     setSensors(sensors.filter((_, i) => i !== index));
   };
 
   const handleCurtainChange = (index, field, value) => {
     const updated = [...curtains];
-
     updated[index][field] = value;
-
     setCurtains(updated);
   };
 
   const removeCurtain = (index) => {
     if (curtains.length === 1) return;
-
     setCurtains(curtains.filter((_, i) => i !== index));
   };
 
   const handleBoardChange = (index, field, value) => {
     const updatedBoards = [...switchBoards];
-
     updatedBoards[index][field] = value;
-
     setSwitchBoards(updatedBoards);
   };
 
   const removeBoard = (index) => {
     if (switchBoards.length === 1) return;
-
     setSwitchBoards(switchBoards.filter((_, i) => i !== index));
   };
 
@@ -183,39 +131,30 @@ function AddRequirement() {
       !formData.project_type
     ) {
       alert("Please fill customer details");
-
       return;
     }
 
     try {
       const data = {
         ...formData,
-
         switch_boards: switchBoards,
-
         curtains,
-
         sensors,
-
         ...controlPoints,
-
         ...locks,
-
         ...gateDetails,
-
         ...voiceAssistant,
-
-        ...quotation,
+        // Carry through unchanged so this full-object PUT doesn't wipe
+        // quotation data saved separately on Generate Quotation.
+        ...quotationFields,
       };
 
-      const response = await createRequirement(data);
-
+      const response = await updateRequirement(id, data);
       console.log(response);
-
-      alert("Requirement added successfully");
+      alert("Requirement updated successfully");
+      navigate(`/requirements/${id}`);
     } catch (error) {
       console.log(error);
-
       alert("Failed to save requirement");
     }
   };
@@ -228,30 +167,17 @@ function AddRequirement() {
   };
 
   const handleLockChange = (e) => {
-    setLocks({
-      ...locks,
-      [e.target.name]: Number(e.target.value),
-    });
+    setLocks({ ...locks, [e.target.name]: Number(e.target.value) });
   };
 
   const handleGateChange = (e) => {
-    setGateDetails({
-      ...gateDetails,
-      [e.target.name]: e.target.value,
-    });
+    setGateDetails({ ...gateDetails, [e.target.name]: e.target.value });
   };
 
   const handleVoiceChange = (e) => {
     setVoiceAssistant({
       ...voiceAssistant,
       [e.target.name]: e.target.checked,
-    });
-  };
-
-  const handleQuotationChange = (e) => {
-    setQuotation({
-      ...quotation,
-      [e.target.name]: Number(e.target.value),
     });
   };
 
@@ -302,18 +228,15 @@ function AddRequirement() {
         google_home_required: data.google_home_required,
       });
 
-      setQuotation({
-        switch_boards_cost: data.switch_boards_cost,
-        locks_cost: data.locks_cost,
-        sensor_cost: data.sensor_cost,
-        curtain_motor_cost: data.curtain_motor_cost,
-        gate_motor_cost: data.gate_motor_cost,
-        other_cost: data.other_cost,
-        installation_charges: data.installation_charges,
-        gst_percentage: data.gst_percentage,
-        discount: data.discount,
-        advance_amount: data.advance_amount,
-        grand_total: data.grand_total,
+      setQuotationFields({
+        quotation_items: data.quotation_items || [],
+        installation_charges: data.installation_charges || 0,
+        discount: data.discount || 0,
+        advance_amount: data.advance_amount || 0,
+        amount: data.amount || 0,
+        cgst: data.cgst || 0,
+        sgst: data.sgst || 0,
+        grand_total: data.grand_total || 0,
       });
     } catch (error) {
       console.log(error);
@@ -322,27 +245,19 @@ function AddRequirement() {
 
   return (
     <div>
-      {/* Header */}
-
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-800">
           Edit Client Requirement
         </h1>
-
         <p className="text-gray-500 mt-1">Fill customer project requirements</p>
       </div>
-
-      {/* Customer Details Card */}
 
       <div className="bg-white rounded-xl shadow p-6">
         <h2 className="text-xl font-semibold mb-6">Customer Information</h2>
 
         <div className="grid md:grid-cols-2 gap-6">
-          {/* Customer Name */}
-
           <div>
             <label className="block mb-2 text-gray-700">Customer Name</label>
-
             <input
               type="text"
               name="customer_name"
@@ -352,11 +267,8 @@ function AddRequirement() {
             />
           </div>
 
-          {/* Phone */}
-
           <div>
             <label className="block mb-2 text-gray-700">Phone Number</label>
-
             <input
               type="text"
               name="phone"
@@ -366,11 +278,8 @@ function AddRequirement() {
             />
           </div>
 
-          {/* Address */}
-
           <div>
             <label className="block mb-2 text-gray-700">Address</label>
-
             <input
               type="text"
               name="address"
@@ -380,11 +289,8 @@ function AddRequirement() {
             />
           </div>
 
-          {/* Project Type */}
-
           <div>
             <label className="block mb-2 text-gray-700">Project Type</label>
-
             <select
               name="project_type"
               value={formData.project_type}
@@ -392,13 +298,9 @@ function AddRequirement() {
               className="w-full border rounded-lg p-3"
             >
               <option value="">Select</option>
-
               <option value="Villa">Villa</option>
-
               <option value="Apartment">Apartment</option>
-
               <option value="Office">Office</option>
-
               <option value="Commercial">Commercial</option>
             </select>
           </div>
@@ -408,7 +310,6 @@ function AddRequirement() {
       <div className="bg-white rounded-xl shadow p-6 mt-8">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">Switch Boards</h2>
-
           <button
             type="button"
             onClick={addBoard}
@@ -424,9 +325,7 @@ function AddRequirement() {
               type="text"
               placeholder="Location"
               value={board.location}
-              onChange={(e) =>
-                handleBoardChange(index, "location", e.target.value)
-              }
+              onChange={(e) => handleBoardChange(index, "location", e.target.value)}
               className="border p-3 rounded-lg"
             />
 
@@ -436,7 +335,6 @@ function AddRequirement() {
               className="border p-3 rounded-lg"
             >
               <option value="">Select Size</option>
-
               <option value="2M">2M</option>
               <option value="4M">4M</option>
               <option value="6M">6M</option>
@@ -450,9 +348,7 @@ function AddRequirement() {
               type="number"
               placeholder="Quantity"
               value={board.quantity}
-              onChange={(e) =>
-                handleBoardChange(index, "quantity", e.target.value)
-              }
+              onChange={(e) => handleBoardChange(index, "quantity", e.target.value)}
               className="border p-3 rounded-lg"
             />
 
@@ -473,7 +369,6 @@ function AddRequirement() {
         <div className="grid md:grid-cols-3 gap-6">
           <div>
             <label className="block mb-2">Light Controls</label>
-
             <input
               type="number"
               name="light_controls"
@@ -485,7 +380,6 @@ function AddRequirement() {
 
           <div>
             <label className="block mb-2">Fan Controls</label>
-
             <input
               type="number"
               name="fan_controls"
@@ -497,7 +391,6 @@ function AddRequirement() {
 
           <div>
             <label className="block mb-2">AC Controls</label>
-
             <input
               type="number"
               name="ac_controls"
@@ -509,7 +402,6 @@ function AddRequirement() {
 
           <div>
             <label className="block mb-2">Curtain Controls</label>
-
             <input
               type="number"
               name="curtain_controls"
@@ -521,7 +413,6 @@ function AddRequirement() {
 
           <div>
             <label className="block mb-2">Geyser Controls</label>
-
             <input
               type="number"
               name="geyser_controls"
@@ -533,7 +424,6 @@ function AddRequirement() {
 
           <div>
             <label className="block mb-2">Exhaust Controls</label>
-
             <input
               type="number"
               name="exhaust_controls"
@@ -551,7 +441,6 @@ function AddRequirement() {
         <div className="grid md:grid-cols-3 gap-6">
           <div>
             <label className="block mb-2">Face Lock Qty</label>
-
             <input
               type="number"
               name="face_lock_qty"
@@ -563,7 +452,6 @@ function AddRequirement() {
 
           <div>
             <label className="block mb-2">Handle Fingerprint Lock Qty</label>
-
             <input
               type="number"
               name="handle_lock_qty"
@@ -575,7 +463,6 @@ function AddRequirement() {
 
           <div>
             <label className="block mb-2">Motorized Fingerprint Lock Qty</label>
-
             <input
               type="number"
               name="motorized_lock_qty"
@@ -590,7 +477,6 @@ function AddRequirement() {
       <div className="bg-white rounded-xl shadow p-6 mt-8">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">Curtains</h2>
-
           <button
             type="button"
             onClick={addCurtain}
@@ -606,9 +492,7 @@ function AddRequirement() {
               type="text"
               placeholder="Room"
               value={curtain.room}
-              onChange={(e) =>
-                handleCurtainChange(index, "room", e.target.value)
-              }
+              onChange={(e) => handleCurtainChange(index, "room", e.target.value)}
               className="border p-3 rounded-lg"
             />
 
@@ -616,9 +500,7 @@ function AddRequirement() {
               type="number"
               placeholder="Width"
               value={curtain.width}
-              onChange={(e) =>
-                handleCurtainChange(index, "width", Number(e.target.value))
-              }
+              onChange={(e) => handleCurtainChange(index, "width", Number(e.target.value))}
               className="border p-3 rounded-lg"
             />
 
@@ -626,17 +508,13 @@ function AddRequirement() {
               type="number"
               placeholder="Height"
               value={curtain.height}
-              onChange={(e) =>
-                handleCurtainChange(index, "height", Number(e.target.value))
-              }
+              onChange={(e) => handleCurtainChange(index, "height", Number(e.target.value))}
               className="border p-3 rounded-lg"
             />
 
             <select
               value={curtain.curtain_type}
-              onChange={(e) =>
-                handleCurtainChange(index, "curtain_type", e.target.value)
-              }
+              onChange={(e) => handleCurtainChange(index, "curtain_type", e.target.value)}
               className="border p-3 rounded-lg"
             >
               <option value="">Type</option>
@@ -659,7 +537,6 @@ function AddRequirement() {
       <div className="bg-white rounded-xl shadow p-6 mt-8">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">Sensors</h2>
-
           <button
             type="button"
             onClick={addSensor}
@@ -673,23 +550,15 @@ function AddRequirement() {
           <div key={index} className="grid md:grid-cols-3 gap-4 mb-4">
             <select
               value={sensor.sensor_type}
-              onChange={(e) =>
-                handleSensorChange(index, "sensor_type", e.target.value)
-              }
+              onChange={(e) => handleSensorChange(index, "sensor_type", e.target.value)}
               className="border p-3 rounded-lg"
             >
               <option value="">Select Sensor</option>
-
               <option value="Motion Sensor">Motion Sensor</option>
-
               <option value="Door Sensor">Door Sensor</option>
-
               <option value="Smoke Sensor">Smoke Sensor</option>
-
               <option value="Gas Sensor">Gas Sensor</option>
-
               <option value="Water Leakage Sensor">Water Leakage Sensor</option>
-
               <option value="PIR Sensor">PIR Sensor</option>
             </select>
 
@@ -697,9 +566,7 @@ function AddRequirement() {
               type="number"
               placeholder="Quantity"
               value={sensor.quantity}
-              onChange={(e) =>
-                handleSensorChange(index, "quantity", Number(e.target.value))
-              }
+              onChange={(e) => handleSensorChange(index, "quantity", Number(e.target.value))}
               className="border p-3 rounded-lg"
             />
 
@@ -720,7 +587,6 @@ function AddRequirement() {
         <div className="grid md:grid-cols-2 gap-6">
           <div>
             <label className="block mb-2">Gate Type</label>
-
             <select
               name="gate_type"
               value={gateDetails.gate_type}
@@ -735,7 +601,6 @@ function AddRequirement() {
 
           <div>
             <label className="block mb-2">Gate Weight (Kg)</label>
-
             <input
               type="number"
               name="gate_weight"
@@ -747,7 +612,6 @@ function AddRequirement() {
 
           <div>
             <label className="block mb-2">Gate Width</label>
-
             <input
               type="number"
               name="gate_width"
@@ -759,7 +623,6 @@ function AddRequirement() {
 
           <div>
             <label className="block mb-2">No Of Gates</label>
-
             <input
               type="number"
               name="no_of_gates"
@@ -771,7 +634,6 @@ function AddRequirement() {
 
           <div>
             <label className="block mb-2">Motor Capacity</label>
-
             <input
               type="text"
               name="motor_capacity"
@@ -809,45 +671,6 @@ function AddRequirement() {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow p-6 mt-8">
-        <h2 className="text-xl font-semibold mb-6">Quotation Details</h2>
-
-        <div className="grid md:grid-cols-3 gap-6"></div>
-        <div>
-          <label className="block mb-2">Switch Boards Cost</label>
-
-          <input
-            type="number"
-            name="switch_boards_cost"
-            value={quotation.switch_boards_cost}
-            onChange={handleQuotationChange}
-            className="w-full border rounded-lg p-3"
-          />
-        </div>
-        <div>
-          <label className="block mb-2">Locks Cost</label>
-
-          <input
-            type="number"
-            name="locks_cost"
-            value={quotation.locks_cost}
-            onChange={handleQuotationChange}
-            className="w-full border rounded-lg p-3"
-          />
-        </div>
-        <div>
-          <label className="block mb-2">Sensor Cost</label>
-
-          <input
-            type="number"
-            name="sensor_cost"
-            value={quotation.sensor_cost}
-            onChange={handleQuotationChange}
-            className="w-full border rounded-lg p-3"
-          />
-        </div>
-      </div>
-
       <div className="mt-10 flex justify-end">
         <button
           type="button"
@@ -861,4 +684,4 @@ function AddRequirement() {
   );
 }
 
-export default AddRequirement;
+export default EditRequirement;

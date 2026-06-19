@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   getRequirementById,
-  updateRequirement,
+  saveQuotation,
 } from "../services/requirementApi";
 
 function GenerateQuotation() {
@@ -26,16 +26,7 @@ function GenerateQuotation() {
   ]);
 
   useEffect(() => {
-    const load = async () => {
-      const data = await getRequirementById(id);
-
-      setRequirement(data);
-
-      // ONLY THIS
-      setItems(data.quotation_items || []);
-    };
-
-    load();
+    loadRequirement();
   }, []);
 
   const loadRequirement = async () => {
@@ -43,8 +34,24 @@ function GenerateQuotation() {
 
     setRequirement(data);
 
-    // ONLY ONE SOURCE OF TRUTH
-    setItems(data.quotation_items || []);
+    setItems(
+      data.quotation_items && data.quotation_items.length > 0
+        ? data.quotation_items
+        : [
+            {
+              description: "",
+              quantity: 1,
+              rate: 0,
+              gst: 18,
+            },
+          ],
+    );
+
+    setQuotation({
+      installation_charges: data.installation_charges || 0,
+      discount: data.discount || 0,
+      advance_amount: data.advance_amount || 0,
+    });
   };
 
   const handleQuotationChange = (e) => {
@@ -119,9 +126,14 @@ function GenerateQuotation() {
       grand_total: grandTotal,
     };
 
-    await updateRequirement(id, payload);
-    await loadRequirement();
-    alert("Quotation saved successfully");
+    try {
+      await saveQuotation(id, payload);
+      await loadRequirement();
+      alert("Quotation saved successfully");
+    } catch (error) {
+      console.error(error);
+      alert("Failed to save quotation");
+    }
   };
 
   return (
@@ -194,6 +206,18 @@ function GenerateQuotation() {
         <h2 className="text-2xl font-semibold mb-6">Additional Details</h2>
 
         <div className="grid md:grid-cols-2 gap-6">
+          <div>
+            <label>Installation Charges</label>
+
+            <input
+              type="number"
+              name="installation_charges"
+              value={quotation.installation_charges}
+              onChange={handleQuotationChange}
+              className="w-full border rounded-lg p-3"
+            />
+          </div>
+
           <div>
             <label>Discount</label>
 

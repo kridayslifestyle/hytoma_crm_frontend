@@ -38,7 +38,7 @@ export const getRequirementById = async (id) => {
   return response.json();
 };
 
-// Update requirement
+// Update requirement (full object only — customer info, switch boards, etc.)
 export const updateRequirement = async (id, data) => {
   const response = await fetch(`${API_URL}/requirements/${id}`, {
     method: "PUT",
@@ -48,6 +48,27 @@ export const updateRequirement = async (id, data) => {
     credentials: "include",
     body: JSON.stringify(data),
   });
+
+  return response.json();
+};
+
+// Save quotation (items + pricing) — hits the dedicated quotation endpoint
+// which accepts a partial dict and won't wipe out other requirement fields.
+export const saveQuotation = async (id, data) => {
+  const response = await fetch(`${API_URL}/requirements/${id}/quotation`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    console.log(error);
+    throw new Error("Failed to save quotation");
+  }
 
   return response.json();
 };

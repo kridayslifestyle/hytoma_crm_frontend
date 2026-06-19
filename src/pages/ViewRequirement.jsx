@@ -14,12 +14,13 @@ function ViewRequirement() {
   }, [id]);
 
   const loadRequirement = async () => {
-  const data = await getRequirementById(id);
+    const data = await getRequirementById(id);
 
-  setRequirement(data);
+    setRequirement(data);
 
-  setItems(data.quotation_items || []);
-};
+    setItems(data.quotation_items || []);
+  };
+
   if (!requirement) {
     return <div className="text-center mt-10 text-xl">Loading...</div>;
   }
@@ -54,36 +55,49 @@ function ViewRequirement() {
         </a>
       </div>
 
-      {/* AUTO QUOTATION PREVIEW */}
+      {/* QUOTATION PREVIEW (line items - single source of truth for pricing) */}
       <div className="bg-white rounded-xl shadow p-6 mt-8">
         <h2 className="text-xl font-semibold mb-4">
-          Auto Generated Quotation Preview
+          Quotation Preview
         </h2>
 
-        <table className="w-full">
-          <thead>
-            <tr>
-              <th>Description</th>
-              <th>Qty</th>
-              <th>Rate</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {items.map((item, index) => (
-              <tr key={index}>
-                <td>{item.description}</td>
-                <td>{item.quantity}</td>
-                <td>₹ {item.rate}</td>
+        {items.length === 0 ? (
+          <p className="text-gray-400">
+            No quotation items yet. Use "Generate Quotation" to add products
+            and pricing.
+          </p>
+        ) : (
+          <table className="w-full">
+            <thead>
+              <tr className="border-b">
+                <th className="text-left py-3">Description</th>
+                <th className="text-left py-3">Qty</th>
+                <th className="text-left py-3">Rate</th>
+                <th className="text-left py-3">GST %</th>
+                <th className="text-left py-3">Amount</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody>
+              {items.map((item, index) => (
+                <tr key={index} className="border-b">
+                  <td className="py-3">{item.description}</td>
+                  <td className="py-3">{item.quantity}</td>
+                  <td className="py-3">₹ {Number(item.rate).toFixed(2)}</td>
+                  <td className="py-3">{item.gst}%</td>
+                  <td className="py-3">
+                    ₹ {(Number(item.quantity) * Number(item.rate)).toFixed(2)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
 
       {/* Customer Information */}
 
-      <div className="bg-white rounded-xl shadow p-6">
+      <div className="bg-white rounded-xl shadow p-6 mt-8">
         <h2 className="text-xl font-semibold mb-6">Customer Information</h2>
 
         <div className="grid md:grid-cols-2 gap-6">
@@ -289,66 +303,57 @@ function ViewRequirement() {
         </p>
       </div>
 
-      {/* Quotation */}
+      {/* Quotation Summary (derived from line items + Generate Quotation page) */}
 
       <div className="bg-white rounded-xl shadow p-6 mt-8 mb-10">
-        <h2 className="text-xl font-semibold mb-6">Quotation Details</h2>
+        <h2 className="text-xl font-semibold mb-6">Quotation Summary</h2>
 
         <div className="grid md:grid-cols-3 gap-6">
           <div>
-            <strong>Switch Boards Cost</strong>
-            <p>₹ {requirement.switch_boards_cost}</p>
+            <strong>Amount</strong>
+            <p>₹ {Number(requirement.amount || 0).toFixed(2)}</p>
           </div>
 
           <div>
-            <strong>Locks Cost</strong>
-            <p>₹ {requirement.locks_cost}</p>
+            <strong>CGST</strong>
+            <p>₹ {Number(requirement.cgst || 0).toFixed(2)}</p>
           </div>
 
           <div>
-            <strong>Sensor Cost</strong>
-            <p>₹ {requirement.sensor_cost}</p>
-          </div>
-
-          <div>
-            <strong>Curtain Motor Cost</strong>
-            <p>₹ {requirement.curtain_motor_cost}</p>
-          </div>
-
-          <div>
-            <strong>Gate Motor Cost</strong>
-            <p>₹ {requirement.gate_motor_cost}</p>
-          </div>
-
-          <div>
-            <strong>Other Cost</strong>
-            <p>₹ {requirement.other_cost}</p>
+            <strong>SGST</strong>
+            <p>₹ {Number(requirement.sgst || 0).toFixed(2)}</p>
           </div>
 
           <div>
             <strong>Installation Charges</strong>
-            <p>₹ {requirement.installation_charges}</p>
-          </div>
-
-          <div>
-            <strong>GST %</strong>
-            <p>{requirement.gst_percentage}%</p>
+            <p>₹ {Number(requirement.installation_charges || 0).toFixed(2)}</p>
           </div>
 
           <div>
             <strong>Discount</strong>
-            <p>₹ {requirement.discount}</p>
+            <p>₹ {Number(requirement.discount || 0).toFixed(2)}</p>
           </div>
 
           <div>
             <strong>Advance Amount</strong>
-            <p>₹ {requirement.advance_amount}</p>
+            <p>₹ {Number(requirement.advance_amount || 0).toFixed(2)}</p>
+          </div>
+
+          <div>
+            <strong>Pending Amount</strong>
+            <p>
+              ₹{" "}
+              {(
+                Number(requirement.grand_total || 0) -
+                Number(requirement.advance_amount || 0)
+              ).toFixed(2)}
+            </p>
           </div>
 
           <div>
             <strong>Grand Total</strong>
             <p className="font-bold text-orange-600 text-lg">
-              ₹ {requirement.grand_total}
+              ₹ {Number(requirement.grand_total || 0).toFixed(2)}
             </p>
           </div>
         </div>

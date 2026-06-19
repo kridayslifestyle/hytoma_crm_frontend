@@ -34,6 +34,8 @@ function GenerateQuotation() {
 
     setRequirement(data);
 
+    setItems(data.quotation_items || []);
+
     // AUTO BUILD ITEMS FROM REQUIREMENT
     const autoItems = [];
 

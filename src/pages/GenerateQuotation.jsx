@@ -120,7 +120,7 @@ function GenerateQuotation() {
     };
 
     await updateRequirement(id, payload);
-
+    await loadRequirement();
     alert("Quotation saved successfully");
   };
 

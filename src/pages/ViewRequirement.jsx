@@ -11,7 +11,7 @@ function ViewRequirement() {
 
   useEffect(() => {
     loadRequirement();
-  }, []);
+  }, [id]);
 
   const loadRequirement = async () => {
   const data = await getRequirementById(id);

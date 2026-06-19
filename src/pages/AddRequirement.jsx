@@ -188,6 +188,7 @@ function AddRequirement() {
         ...voiceAssistant,
 
         ...quotation,
+        quotation_items: [],
       };
 
       const response = await createRequirement(data);

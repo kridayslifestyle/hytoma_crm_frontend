@@ -34,64 +34,71 @@ function GenerateQuotation() {
 
     setRequirement(data);
 
-    setItems(data.quotation_items || []);
+    let finalItems = [];
 
-    // AUTO BUILD ITEMS FROM REQUIREMENT
-    const autoItems = [];
+    // 1. FIRST PRIORITY: saved quotation items
+    if (data.quotation_items && data.quotation_items.length > 0) {
+      finalItems = data.quotation_items;
+    }
+    // 2. SECOND PRIORITY: auto build from requirement
+    else {
+      const autoItems = [];
 
-    data.switch_boards?.forEach((sb) => {
-      autoItems.push({
-        description: `Switch Board - ${sb.location} (${sb.size})`,
-        quantity: sb.quantity,
-        rate: 0,
-        gst: 18,
-      });
-    });
-
-    data.sensors?.forEach((s) => {
-      autoItems.push({
-        description: `${s.sensor_type} Sensor`,
-        quantity: s.quantity,
-        rate: 0,
-        gst: 18,
-      });
-    });
-
-    if (data.face_lock_qty)
-      autoItems.push({
-        description: "Face Lock",
-        quantity: data.face_lock_qty,
-        rate: 0,
-        gst: 18,
+      data.switch_boards?.forEach((sb) => {
+        autoItems.push({
+          description: `Switch Board - ${sb.location} (${sb.size})`,
+          quantity: sb.quantity,
+          rate: 0,
+          gst: 18,
+        });
       });
 
-    if (data.handle_lock_qty)
-      autoItems.push({
-        description: "Handle Lock",
-        quantity: data.handle_lock_qty,
-        rate: 0,
-        gst: 18,
+      data.sensors?.forEach((s) => {
+        autoItems.push({
+          description: `${s.sensor_type} Sensor`,
+          quantity: s.quantity,
+          rate: 0,
+          gst: 18,
+        });
       });
 
-    if (data.motorized_lock_qty)
-      autoItems.push({
-        description: "Motorized Lock",
-        quantity: data.motorized_lock_qty,
-        rate: 0,
-        gst: 18,
+      if (data.face_lock_qty)
+        autoItems.push({
+          description: "Face Lock",
+          quantity: data.face_lock_qty,
+          rate: 0,
+          gst: 18,
+        });
+
+      if (data.handle_lock_qty)
+        autoItems.push({
+          description: "Handle Lock",
+          quantity: data.handle_lock_qty,
+          rate: 0,
+          gst: 18,
+        });
+
+      if (data.motorized_lock_qty)
+        autoItems.push({
+          description: "Motorized Lock",
+          quantity: data.motorized_lock_qty,
+          rate: 0,
+          gst: 18,
+        });
+
+      data.curtains?.forEach((c) => {
+        autoItems.push({
+          description: `Curtain - ${c.room}`,
+          quantity: 1,
+          rate: 0,
+          gst: 18,
+        });
       });
 
-    data.curtains?.forEach((c) => {
-      autoItems.push({
-        description: `Curtain - ${c.room}`,
-        quantity: 1,
-        rate: 0,
-        gst: 18,
-      });
-    });
+      finalItems = autoItems;
+    }
 
-    // 🔥 THIS IS THE KEY FIX
-    setItems(autoItems);
+    setItems(finalItems);
   };
 
   const handleQuotationChange = (e) => {

@@ -42,31 +42,7 @@ function GenerateQuotation() {
     const data = await getRequirementById(id);
 
     setRequirement(data);
-
-    const autoItems = [];
-
-    data.switch_boards?.forEach((sb) => {
-      autoItems.push({
-        description: `Switch Board - ${sb.location} (${sb.size})`,
-        quantity: sb.quantity,
-        rate: 0,
-        gst: 18,
-      });
-    });
-
-    data.sensors?.forEach((s) => {
-      autoItems.push({
-        description: `${s.sensor_type} Sensor`,
-        quantity: s.quantity,
-        rate: 0,
-        gst: 18,
-      });
-    });
-
-    const savedItems = data.quotation_items || [];
-
-    // 🔥 MERGE BOTH (IMPORTANT FIX)
-    setItems([...autoItems, ...savedItems]);
+    setItems(data.quotation_items || []);
   };
 
   const handleQuotationChange = (e) => {
@@ -123,31 +99,27 @@ function GenerateQuotation() {
   const pendingAmount = grandTotal - Number(quotation.advance_amount);
 
   const handleSave = async () => {
-    const updatedData = {
-      ...requirement,
+    const payload = {
+      quotation_items: items.map((item) => ({
+        description: item.description,
+        quantity: Number(item.quantity),
+        rate: Number(item.rate),
+        gst: Number(item.gst || 18),
+      })),
 
-      quotation_items: items,
-
-      installation_charges: Number(quotation.installation_charges),
-
-      discount: Number(quotation.discount),
-
-      advance_amount: Number(quotation.advance_amount),
-
-      pending_amount: pendingAmount,
+      installation_charges: Number(quotation.installation_charges || 0),
+      discount: Number(quotation.discount || 0),
+      advance_amount: Number(quotation.advance_amount || 0),
 
       amount: subtotal,
-
       cgst,
-
       sgst,
-
       grand_total: grandTotal,
     };
 
-    await updateRequirement(id, updatedData);
+    await updateRequirement(id, payload);
 
-    alert("Quotation generated successfully");
+    alert("Quotation saved successfully");
   };
 
   return (

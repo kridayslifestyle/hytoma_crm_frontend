@@ -14,11 +14,12 @@ function ViewRequirement() {
   }, []);
 
   const loadRequirement = async () => {
-    const data = await getRequirementById(id);
+  const data = await getRequirementById(id);
 
-    setRequirement(data);
-    setItems(requirement.quotation_items || []);
-  };
+  setRequirement(data);
+
+  setItems(data.quotation_items || []);
+};
   if (!requirement) {
     return <div className="text-center mt-10 text-xl">Loading...</div>;
   }

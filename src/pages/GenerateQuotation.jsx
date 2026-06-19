@@ -42,6 +42,8 @@ function GenerateQuotation() {
     const data = await getRequirementById(id);
 
     setRequirement(data);
+
+    // ONLY ONE SOURCE OF TRUTH
     setItems(data.quotation_items || []);
   };
 

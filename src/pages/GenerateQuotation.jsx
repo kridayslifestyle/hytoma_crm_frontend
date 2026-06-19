@@ -5,6 +5,89 @@ import {
   saveQuotation,
 } from "../services/requirementApi";
 
+const EMPTY_ITEM = { description: "", quantity: 1, rate: 0, gst: 18 };
+
+// ---------------------------------------------------------------------------
+// Build draft quotation line items from the requirement's product data.
+// Every product the customer asked for becomes a row with its description and
+// quantity pre-filled; rate starts at 0 so the user only fills in price (and
+// can tweak GST / quantity). This runs ONLY when no quotation has been saved
+// yet — once a quotation exists we load the saved items (with their rates).
+// ---------------------------------------------------------------------------
+function buildItemsFromRequirement(data) {
+  const items = [];
+
+  // Switch Boards -> "Switch Board - <location> (<size>)"
+  (data.switch_boards || []).forEach((sb) => {
+    const size = sb.size ? ` (${sb.size})` : "";
+    items.push({
+      description: `Switch Board - ${sb.location || ""}${size}`.trim(),
+      quantity: Number(sb.quantity) || 1,
+      rate: 0,
+      gst: 18,
+    });
+  });
+
+  // Sensors -> "<sensor_type> Sensor"
+  (data.sensors || []).forEach((s) => {
+    const type = (s.sensor_type || "").trim();
+    const label = /sensor/i.test(type) ? type : `${type} Sensor`;
+    items.push({
+      description: label,
+      quantity: Number(s.quantity) || 1,
+      rate: 0,
+      gst: 18,
+    });
+  });
+
+  // Curtains -> "Curtain - <room> (<type>)"
+  (data.curtains || []).forEach((c) => {
+    const ctype = c.curtain_type ? ` (${c.curtain_type})` : "";
+    items.push({
+      description: `Curtain - ${c.room || ""}${ctype}`.trim(),
+      quantity: 1,
+      rate: 0,
+      gst: 18,
+    });
+  });
+
+  // Locks
+  if (Number(data.face_lock_qty) > 0)
+    items.push({ description: "Face Lock", quantity: Number(data.face_lock_qty), rate: 0, gst: 18 });
+  if (Number(data.handle_lock_qty) > 0)
+    items.push({ description: "Handle Lock", quantity: Number(data.handle_lock_qty), rate: 0, gst: 18 });
+  if (Number(data.motorized_lock_qty) > 0)
+    items.push({ description: "Motorized Lock", quantity: Number(data.motorized_lock_qty), rate: 0, gst: 18 });
+
+  // Gate Automation
+  if (data.gate_type) {
+    const motor = data.motor_capacity ? ` (${data.motor_capacity})` : "";
+    items.push({
+      description: `Gate Automation - ${data.gate_type}${motor}`,
+      quantity: Number(data.no_of_gates) || 1,
+      rate: 0,
+      gst: 18,
+    });
+  }
+
+  // Video Door Bell
+  if (Number(data.video_doorbell_qty) > 0)
+    items.push({
+      description: "Video Door Bell",
+      quantity: Number(data.video_doorbell_qty),
+      rate: 0,
+      gst: 18,
+    });
+
+  // Voice Assistants
+  if (data.alexa_required)
+    items.push({ description: "Alexa Voice Assistant", quantity: 1, rate: 0, gst: 18 });
+  if (data.google_home_required)
+    items.push({ description: "Google Home", quantity: 1, rate: 0, gst: 18 });
+
+  return items;
+}
+
 function GenerateQuotation() {
   const { id } = useParams();
 
@@ -16,14 +99,7 @@ function GenerateQuotation() {
     advance_amount: 0,
   });
 
-  const [items, setItems] = useState([
-    {
-      description: "",
-      quantity: 1,
-      rate: 0,
-      gst: 18,
-    },
-  ]);
+  const [items, setItems] = useState([{ ...EMPTY_ITEM }]);
 
   useEffect(() => {
     loadRequirement();
@@ -34,18 +110,17 @@ function GenerateQuotation() {
 
     setRequirement(data);
 
-    setItems(
-      data.quotation_items && data.quotation_items.length > 0
-        ? data.quotation_items
-        : [
-            {
-              description: "",
-              quantity: 1,
-              rate: 0,
-              gst: 18,
-            },
-          ],
-    );
+    // 1) If a quotation was already saved, keep those items (they have rates).
+    // 2) Otherwise pre-fill from the requirement's products (rate = 0).
+    // 3) If the requirement has no products at all, show one empty row.
+    let nextItems;
+    if (data.quotation_items && data.quotation_items.length > 0) {
+      nextItems = data.quotation_items;
+    } else {
+      const fromReq = buildItemsFromRequirement(data);
+      nextItems = fromReq.length > 0 ? fromReq : [{ ...EMPTY_ITEM }];
+    }
+    setItems(nextItems);
 
     setQuotation({
       installation_charges: data.installation_charges || 0,
@@ -63,20 +138,12 @@ function GenerateQuotation() {
 
   const handleItemChange = (index, field, value) => {
     const updatedItems = [...items];
-    updatedItems[index][field] = value;
+    updatedItems[index] = { ...updatedItems[index], [field]: value };
     setItems(updatedItems);
   };
 
   const addItem = () => {
-    setItems([
-      ...items,
-      {
-        description: "",
-        quantity: 1,
-        rate: 0,
-        gst: 18,
-      },
-    ]);
+    setItems([...items, { ...EMPTY_ITEM }]);
   };
 
   const removeItem = (index) => {
@@ -143,11 +210,17 @@ function GenerateQuotation() {
       {/* Products */}
       <div className="bg-white rounded-xl shadow p-6">
         <div className="flex justify-between mb-6">
-          <h2 className="text-2xl font-semibold">Products</h2>
+          <div>
+            <h2 className="text-2xl font-semibold">Products</h2>
+            <p className="text-gray-500 text-sm mt-1">
+              Products are pre-filled from this requirement. Just enter the
+              rate (and adjust GST / quantity if needed).
+            </p>
+          </div>
 
           <button
             onClick={addItem}
-            className="bg-orange-500 text-white px-4 py-2 rounded-lg"
+            className="bg-orange-500 text-white px-4 py-2 rounded-lg h-fit"
           >
             + Add Product
           </button>

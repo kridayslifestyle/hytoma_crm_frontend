@@ -143,6 +143,7 @@ function ViewRequirement() {
             <tr className="border-b">
               <th className="text-left py-3">Location</th>
               <th className="text-left py-3">Size</th>
+              <th className="text-left py-3">Description</th>
               <th className="text-left py-3">Quantity</th>
             </tr>
           </thead>
@@ -152,49 +153,12 @@ function ViewRequirement() {
               <tr key={index} className="border-b">
                 <td className="py-3">{board.location}</td>
                 <td className="py-3">{board.size}</td>
+                <td className="py-3">{board.description}</td>
                 <td className="py-3">{board.quantity}</td>
               </tr>
             ))}
           </tbody>
         </table>
-      </div>
-
-      {/* Controls */}
-
-      <div className="bg-white rounded-xl shadow p-6 mt-8">
-        <h2 className="text-xl font-semibold mb-6">Control Points</h2>
-
-        <div className="grid md:grid-cols-3 gap-6">
-          <div>
-            <strong>Light Controls</strong>
-            <p>{requirement.light_controls}</p>
-          </div>
-
-          <div>
-            <strong>Fan Controls</strong>
-            <p>{requirement.fan_controls}</p>
-          </div>
-
-          <div>
-            <strong>AC Controls</strong>
-            <p>{requirement.ac_controls}</p>
-          </div>
-
-          <div>
-            <strong>Curtain Controls</strong>
-            <p>{requirement.curtain_controls}</p>
-          </div>
-
-          <div>
-            <strong>Geyser Controls</strong>
-            <p>{requirement.geyser_controls}</p>
-          </div>
-
-          <div>
-            <strong>Exhaust Controls</strong>
-            <p>{requirement.exhaust_controls}</p>
-          </div>
-        </div>
       </div>
 
       {/* Smart Locks */}

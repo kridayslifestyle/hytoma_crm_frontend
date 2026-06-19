@@ -18,7 +18,7 @@ function EditRequirement() {
   const navigate = useNavigate();
 
   const [switchBoards, setSwitchBoards] = useState([
-    { location: "", size: "", quantity: 1 },
+    { location: "", size: "", quantity: 1, description: "" },
   ]);
 
   const [curtains, setCurtains] = useState([
@@ -28,15 +28,6 @@ function EditRequirement() {
   const [sensors, setSensors] = useState([
     { sensor_type: "", quantity: 1 },
   ]);
-
-  const [controlPoints, setControlPoints] = useState({
-    light_controls: 0,
-    fan_controls: 0,
-    ac_controls: 0,
-    curtain_controls: 0,
-    geyser_controls: 0,
-    exhaust_controls: 0,
-  });
 
   const [locks, setLocks] = useState({
     face_lock_qty: 0,
@@ -76,7 +67,10 @@ function EditRequirement() {
   };
 
   const addBoard = () => {
-    setSwitchBoards([...switchBoards, { location: "", size: "", quantity: 1 }]);
+    setSwitchBoards([
+      ...switchBoards,
+      { location: "", size: "", quantity: 1, description: "" },
+    ]);
   };
 
   const addCurtain = () => {
@@ -140,7 +134,6 @@ function EditRequirement() {
         switch_boards: switchBoards,
         curtains,
         sensors,
-        ...controlPoints,
         ...locks,
         ...gateDetails,
         ...voiceAssistant,
@@ -157,13 +150,6 @@ function EditRequirement() {
       console.log(error);
       alert("Failed to save requirement");
     }
-  };
-
-  const handleControlChange = (e) => {
-    setControlPoints({
-      ...controlPoints,
-      [e.target.name]: Number(e.target.value),
-    });
   };
 
   const handleLockChange = (e) => {
@@ -199,15 +185,6 @@ function EditRequirement() {
       setSwitchBoards(data.switch_boards || []);
       setCurtains(data.curtains || []);
       setSensors(data.sensors || []);
-
-      setControlPoints({
-        light_controls: data.light_controls,
-        fan_controls: data.fan_controls,
-        ac_controls: data.ac_controls,
-        curtain_controls: data.curtain_controls,
-        geyser_controls: data.geyser_controls,
-        exhaust_controls: data.exhaust_controls,
-      });
 
       setLocks({
         face_lock_qty: data.face_lock_qty,
@@ -320,7 +297,7 @@ function EditRequirement() {
         </div>
 
         {switchBoards.map((board, index) => (
-          <div key={index} className="grid md:grid-cols-4 gap-4 mb-4">
+          <div key={index} className="grid md:grid-cols-5 gap-4 mb-4">
             <input
               type="text"
               placeholder="Location"
@@ -345,6 +322,16 @@ function EditRequirement() {
             </select>
 
             <input
+              type="text"
+              placeholder="Description (e.g. 10 switches + 2 scene)"
+              value={board.description}
+              onChange={(e) =>
+                handleBoardChange(index, "description", e.target.value)
+              }
+              className="border p-3 rounded-lg"
+            />
+
+            <input
               type="number"
               placeholder="Quantity"
               value={board.quantity}
@@ -361,78 +348,6 @@ function EditRequirement() {
             </button>
           </div>
         ))}
-      </div>
-
-      <div className="bg-white rounded-xl shadow p-6 mt-8">
-        <h2 className="text-xl font-semibold mb-6">Control Points</h2>
-
-        <div className="grid md:grid-cols-3 gap-6">
-          <div>
-            <label className="block mb-2">Light Controls</label>
-            <input
-              type="number"
-              name="light_controls"
-              value={controlPoints.light_controls}
-              onChange={handleControlChange}
-              className="w-full border rounded-lg p-3"
-            />
-          </div>
-
-          <div>
-            <label className="block mb-2">Fan Controls</label>
-            <input
-              type="number"
-              name="fan_controls"
-              value={controlPoints.fan_controls}
-              onChange={handleControlChange}
-              className="w-full border rounded-lg p-3"
-            />
-          </div>
-
-          <div>
-            <label className="block mb-2">AC Controls</label>
-            <input
-              type="number"
-              name="ac_controls"
-              value={controlPoints.ac_controls}
-              onChange={handleControlChange}
-              className="w-full border rounded-lg p-3"
-            />
-          </div>
-
-          <div>
-            <label className="block mb-2">Curtain Controls</label>
-            <input
-              type="number"
-              name="curtain_controls"
-              value={controlPoints.curtain_controls}
-              onChange={handleControlChange}
-              className="w-full border rounded-lg p-3"
-            />
-          </div>
-
-          <div>
-            <label className="block mb-2">Geyser Controls</label>
-            <input
-              type="number"
-              name="geyser_controls"
-              value={controlPoints.geyser_controls}
-              onChange={handleControlChange}
-              className="w-full border rounded-lg p-3"
-            />
-          </div>
-
-          <div>
-            <label className="block mb-2">Exhaust Controls</label>
-            <input
-              type="number"
-              name="exhaust_controls"
-              value={controlPoints.exhaust_controls}
-              onChange={handleControlChange}
-              className="w-full border rounded-lg p-3"
-            />
-          </div>
-        </div>
       </div>
 
       <div className="bg-white rounded-xl shadow p-6 mt-8">

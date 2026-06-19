@@ -17,11 +17,14 @@ const EMPTY_ITEM = { description: "", quantity: 1, rate: 0, gst: 18 };
 function buildItemsFromRequirement(data) {
   const items = [];
 
-  // Switch Boards -> "Switch Board - <location> (<size>)"
+  // Switch Boards -> use the sales person's description if provided,
+  // otherwise fall back to "Switch Board - <location> (<size>)".
   (data.switch_boards || []).forEach((sb) => {
     const size = sb.size ? ` (${sb.size})` : "";
+    const auto = `Switch Board - ${sb.location || ""}${size}`.trim();
+    const desc = sb.description && sb.description.trim() ? sb.description.trim() : auto;
     items.push({
-      description: `Switch Board - ${sb.location || ""}${size}`.trim(),
+      description: desc,
       quantity: Number(sb.quantity) || 1,
       rate: 0,
       gst: 18,

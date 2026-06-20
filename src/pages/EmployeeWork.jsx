@@ -1,30 +1,37 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { fetchCurrentUser } from "../services/employeeWorkApi";
 import SalesWorkForm from "./SalesWorkForm";
 import InstallationWorkForm from "./InstallationWorkForm";
 import GeneralWorkForm from "./GeneralWorkForm";
 import AdminWorkDashboard from "./AdminWorkDashboard";
 
-// Adjust this to however your app stores the logged-in user (context, redux, localStorage)
-function getCurrentUser() {
-  try {
-    const raw = localStorage.getItem("user");
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-}
-
 export default function EmployeeWork() {
-  const user = getCurrentUser();
-  const role = (user?.role || "").toLowerCase();
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  if (!user) {
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetchCurrentUser();
+        setUser(res.data);
+      } catch (e) {
+        setError("Please log in to access this page.");
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  if (loading) return <div style={{ padding: 24 }}>Loading…</div>;
+  if (error || !user)
     return (
       <div style={{ padding: 24 }}>
-        <h2>Please log in</h2>
+        <h2>{error || "Not authenticated"}</h2>
       </div>
     );
-  }
+
+  const role = (user.role || "").toLowerCase();
 
   if (role === "admin") return <AdminWorkDashboard />;
   if (role === "sales") return <SalesWorkForm user={user} />;
@@ -34,7 +41,9 @@ export default function EmployeeWork() {
 
   return (
     <div style={{ padding: 24 }}>
-      <h2>No daily work form is configured for your role: <code>{role || "unknown"}</code></h2>
+      <h2>
+        No daily work form is configured for your role: <code>{role || "unknown"}</code>
+      </h2>
       <p>Please contact the admin.</p>
     </div>
   );

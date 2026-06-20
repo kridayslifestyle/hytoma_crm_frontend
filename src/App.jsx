@@ -249,7 +249,16 @@ function App() {
           }
         />
 
-        <Route path="/daily-work" element={<Layout><EmployeeWork /></Layout>} />
+        <Route
+          path="/daily-work"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <EmployeeWork />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

@@ -8,6 +8,7 @@ export default function Layout({ children }) {
 
   // ✅ Permission helper
   const can = (page) => {
+    if (page === "daily-work" && role) return true;
     if (role === "admin") return true;
     if (role === "simanta") return ["complaints", "inventory"].includes(page);
     if (role === "venkatesh") return ["Product movement"].includes(page);
@@ -106,6 +107,14 @@ export default function Layout({ children }) {
             <NavItem
               to="/sales"
               label="Sales Performance"
+              onClick={() => setMenuOpen(false)}
+            />
+          )}
+
+          {can("daily-work") && (
+            <NavItem
+              to="/daily-work"
+              label="Daily Work"
               onClick={() => setMenuOpen(false)}
             />
           )}

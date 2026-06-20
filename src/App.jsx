@@ -18,6 +18,7 @@ import AddRequirement from "./pages/AddRequirement";
 import ViewRequirement from "./pages/ViewRequirement";
 import EditRequirement from "./pages/EditRequirement";
 import GenerateQuotation from "./pages/GenerateQuotation";
+import EmployeeWork from "./pages/EmployeeWork";
 
 // ✅ Role-based route guard
 const RoleRoute = ({ children, allowed }) => {
@@ -247,6 +248,8 @@ function App() {
             </Layout>
           }
         />
+
+        <Route path="/daily-work" element={<Layout><EmployeeWork /></Layout>} />
       </Routes>
     </BrowserRouter>
   );

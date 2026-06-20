@@ -36,7 +36,7 @@ export default function EmployeeWork() {
   if (role === "admin") return <AdminWorkDashboard />;
   if (role === "sales") return <SalesWorkForm user={user} />;
   if (role === "installation") return <InstallationWorkForm user={user} />;
-  if (["marketer", "marketing", "technician", "technical", "digital_marketing"].includes(role))
+  if (["marketer", "marketing", "technical", "technical", "digital_marketing"].includes(role))
     return <GeneralWorkForm user={user} />;
 
   return (

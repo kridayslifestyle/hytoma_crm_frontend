@@ -12,6 +12,7 @@ function AddRequirement() {
 
   const [switchBoards, setSwitchBoards] = useState([
     {
+      brand_code: "",
       location: "",
       size: "",
       quantity: 1,
@@ -65,6 +66,7 @@ function AddRequirement() {
     setSwitchBoards([
       ...switchBoards,
       {
+        brand_code: "",
         location: "",
         size: "",
         quantity: 1,
@@ -301,7 +303,19 @@ function AddRequirement() {
         </div>
 
         {switchBoards.map((board, index) => (
-          <div key={index} className="grid md:grid-cols-5 gap-4 mb-4">
+          <div key={index} className="grid md:grid-cols-6 gap-4 mb-4">
+            <select
+              value={board.brand_code}
+              onChange={(e) =>
+                handleBoardChange(index, "brand_code", e.target.value)
+              }
+              className="border p-3 rounded-lg"
+            >
+              <option value="">Select Brand</option>
+              <option value="HSH">Hytoma (HSH)</option>
+              <option value="HS">Varni (HS)</option>
+            </select>
+
             <input
               type="text"
               placeholder="Location"

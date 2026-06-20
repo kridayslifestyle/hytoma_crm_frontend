@@ -1,13 +1,20 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useParams } from "react-router-dom";
-import { getRequirementById } from "../services/requirementApi";
+import {
+  getRequirementById,
+  sendQuotationWhatsApp,
+  updateQuotationStatus,
+  sendReminderWhatsApp,
+} from "../services/requirementApi";
 
 function ViewRequirement() {
   const { id } = useParams();
 
   const [requirement, setRequirement] = useState(null);
   const [items, setItems] = useState([]);
+  const [busy, setBusy] = useState("");
+  const [feedback, setFeedback] = useState("");
 
   useEffect(() => {
     loadRequirement();
@@ -21,9 +28,64 @@ function ViewRequirement() {
     setItems(data.quotation_items || []);
   };
 
+  const handleSendQuotation = async () => {
+    setBusy("send");
+    setFeedback("");
+    try {
+      const res = await sendQuotationWhatsApp(id);
+      setFeedback(res.message || "Done");
+      await loadRequirement();
+    } catch (error) {
+      console.log(error);
+      setFeedback("Failed to send quotation on WhatsApp");
+    } finally {
+      setBusy("");
+    }
+  };
+
+  const handleStatusChange = async (status) => {
+    setBusy("status");
+    setFeedback("");
+    try {
+      const res = await updateQuotationStatus(id, status);
+      setFeedback(res.message || "Status updated");
+      await loadRequirement();
+    } catch (error) {
+      console.log(error);
+      setFeedback("Failed to update status");
+    } finally {
+      setBusy("");
+    }
+  };
+
+  const handleSendReminder = async () => {
+    setBusy("reminder");
+    setFeedback("");
+    try {
+      const res = await sendReminderWhatsApp(id);
+      setFeedback(res.message || "Reminder sent");
+      await loadRequirement();
+    } catch (error) {
+      console.log(error);
+      setFeedback("Failed to send reminder");
+    } finally {
+      setBusy("");
+    }
+  };
+
   if (!requirement) {
     return <div className="text-center mt-10 text-xl">Loading...</div>;
   }
+
+  const statusColors = {
+    pending: "bg-yellow-100 text-yellow-700",
+    finalized: "bg-green-100 text-green-700",
+    rejected: "bg-red-100 text-red-700",
+  };
+  const brandLabels = { HSH: "Hytoma (HSH)", HS: "Varni (HS)" };
+  const status = requirement.quotation_status || "pending";
+  const hasQuotation = items.length > 0;
+  const fmtDate = (d) => (d ? new Date(d).toLocaleString() : "");
 
   return (
     <div>
@@ -53,6 +115,109 @@ function ViewRequirement() {
         >
           Download PDF
         </a>
+      </div>
+
+      {/* WhatsApp / Quotation Workflow */}
+      <div className="bg-white rounded-xl shadow p-6 mt-8">
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-5">
+          <h2 className="text-xl font-semibold">Quotation Workflow</h2>
+
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Sent badge */}
+            <span
+              className={`px-3 py-1 rounded-full text-sm font-medium ${
+                requirement.quotation_sent
+                  ? "bg-green-100 text-green-700"
+                  : "bg-gray-100 text-gray-600"
+              }`}
+            >
+              {requirement.quotation_sent ? "Sent ✓" : "Not Sent"}
+            </span>
+
+            {/* Status badge */}
+            <span
+              className={`px-3 py-1 rounded-full text-sm font-medium capitalize ${
+                statusColors[status] || "bg-gray-100 text-gray-600"
+              }`}
+            >
+              {status}
+            </span>
+          </div>
+        </div>
+
+        {/* Meta line */}
+        <div className="text-sm text-gray-500 mb-5 space-y-1">
+          {requirement.quotation_sent_at && (
+            <p>Last sent: {fmtDate(requirement.quotation_sent_at)}</p>
+          )}
+          {requirement.reminders_sent > 0 && (
+            <p>
+              Reminders sent: {requirement.reminders_sent}
+              {requirement.last_reminder_at &&
+                ` (last: ${fmtDate(requirement.last_reminder_at)})`}
+            </p>
+          )}
+          {!hasQuotation && (
+            <p className="text-orange-600">
+              Generate a quotation before sending it on WhatsApp.
+            </p>
+          )}
+        </div>
+
+        {/* Actions */}
+        <div className="flex flex-wrap gap-3">
+          <button
+            onClick={handleSendQuotation}
+            disabled={!hasQuotation || busy === "send"}
+            className="bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-5 py-2.5 rounded-lg"
+          >
+            {busy === "send"
+              ? "Sending..."
+              : requirement.quotation_sent
+                ? "Resend Quotation on WhatsApp"
+                : "Send Quotation on WhatsApp"}
+          </button>
+
+          <button
+            onClick={handleSendReminder}
+            disabled={!requirement.quotation_sent || busy === "reminder"}
+            className="bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-5 py-2.5 rounded-lg"
+          >
+            {busy === "reminder" ? "Sending..." : "Send Reminder"}
+          </button>
+
+          <button
+            onClick={() => handleStatusChange("finalized")}
+            disabled={status === "finalized" || busy === "status"}
+            className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-5 py-2.5 rounded-lg"
+          >
+            Mark Finalized
+          </button>
+
+          <button
+            onClick={() => handleStatusChange("rejected")}
+            disabled={status === "rejected" || busy === "status"}
+            className="bg-red-500 hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-5 py-2.5 rounded-lg"
+          >
+            Mark Rejected
+          </button>
+
+          {status !== "pending" && (
+            <button
+              onClick={() => handleStatusChange("pending")}
+              disabled={busy === "status"}
+              className="bg-gray-200 hover:bg-gray-300 disabled:opacity-50 text-gray-700 px-5 py-2.5 rounded-lg"
+            >
+              Reset to Pending
+            </button>
+          )}
+        </div>
+
+        {feedback && (
+          <p className="mt-4 text-sm text-gray-700 bg-gray-50 border rounded-lg px-4 py-2">
+            {feedback}
+          </p>
+        )}
       </div>
 
       {/* QUOTATION PREVIEW (line items - single source of truth for pricing) */}
@@ -141,6 +306,7 @@ function ViewRequirement() {
         <table className="w-full">
           <thead>
             <tr className="border-b">
+              <th className="text-left py-3">Brand</th>
               <th className="text-left py-3">Location</th>
               <th className="text-left py-3">Size</th>
               <th className="text-left py-3">Description</th>
@@ -151,6 +317,9 @@ function ViewRequirement() {
           <tbody>
             {requirement.switch_boards?.map((board, index) => (
               <tr key={index} className="border-b">
+                <td className="py-3">
+                  {brandLabels[board.brand_code] || "-"}
+                </td>
                 <td className="py-3">{board.location}</td>
                 <td className="py-3">{board.size}</td>
                 <td className="py-3">{board.description}</td>

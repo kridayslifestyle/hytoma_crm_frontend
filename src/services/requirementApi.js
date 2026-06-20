@@ -38,7 +38,7 @@ export const getRequirementById = async (id) => {
   return response.json();
 };
 
-// Update requirement (full object only — customer info, switch boards, etc.)
+// Update requirement (full object PUT)
 export const updateRequirement = async (id, data) => {
   const response = await fetch(`${API_URL}/requirements/${id}`, {
     method: "PUT",
@@ -52,16 +52,25 @@ export const updateRequirement = async (id, data) => {
   return response.json();
 };
 
-// Save quotation (items + pricing) — hits the dedicated quotation endpoint
-// which accepts a partial dict and won't wipe out other requirement fields.
-export const saveQuotation = async (id, data) => {
+// Delete requirement
+export const deleteRequirement = async (id) => {
+  const response = await fetch(`${API_URL}/requirements/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+
+  return response.json();
+};
+
+// Save quotation (dedicated endpoint — does NOT touch other requirement fields)
+export const saveQuotation = async (id, payload) => {
   const response = await fetch(`${API_URL}/requirements/${id}/quotation`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     credentials: "include",
-    body: JSON.stringify(data),
+    body: JSON.stringify(payload),
   });
 
   if (!response.ok) {
@@ -73,11 +82,49 @@ export const saveQuotation = async (id, data) => {
   return response.json();
 };
 
-// Delete requirement
-export const deleteRequirement = async (id) => {
-  const response = await fetch(`${API_URL}/requirements/${id}`, {
-    method: "DELETE",
+// ---------------------------------------------------------------------------
+// WhatsApp quotation workflow
+// ---------------------------------------------------------------------------
+
+// Send the quotation PDF to the client on WhatsApp (marks quotation_sent=true)
+export const sendQuotationWhatsApp = async (id) => {
+  const response = await fetch(`${API_URL}/requirements/${id}/send-quotation`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
     credentials: "include",
+  });
+
+  return response.json();
+};
+
+// Update quotation workflow status: "pending" | "finalized" | "rejected"
+export const updateQuotationStatus = async (id, status) => {
+  const response = await fetch(
+    `${API_URL}/requirements/${id}/quotation-status`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({ quotation_status: status }),
+    },
+  );
+
+  return response.json();
+};
+
+// Send a WhatsApp follow-up reminder (optionally a custom message)
+export const sendReminderWhatsApp = async (id, message) => {
+  const response = await fetch(`${API_URL}/requirements/${id}/send-reminder`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+    body: JSON.stringify(message ? { message } : {}),
   });
 
   return response.json();

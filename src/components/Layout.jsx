@@ -10,7 +10,7 @@ export default function Layout({ children }) {
   const can = (page) => {
     if (page === "daily-work" && role) return true;
     if (role === "admin") return true;
-    if (role === "simanta") return ["complaints", "inventory"].includes(page);
+    if (role === "simanta") return ["complaints", "inventory","daily-work"].includes(page);
     if (role === "venkatesh") return ["Product movement"].includes(page);
     if (role === "technical") return ["complaints", "inventory", "daily-work"].includes(page);
     if (role === "installation") return ["product-movement", "daily-work"].includes(page);

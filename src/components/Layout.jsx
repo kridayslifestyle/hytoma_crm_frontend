@@ -12,6 +12,9 @@ export default function Layout({ children }) {
     if (role === "admin") return true;
     if (role === "simanta") return ["complaints", "inventory"].includes(page);
     if (role === "venkatesh") return ["Product movement"].includes(page);
+    if (role === "technical") return ["complaints", "inventory", "daily-work"].includes(page);
+    if (role === "installation")
+  return ["product-movement", "daily-work"].includes(page);
     if (role === "revathi")
       return [
         "dashboard",

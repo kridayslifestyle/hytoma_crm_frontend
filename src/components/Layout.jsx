@@ -27,6 +27,7 @@ export default function Layout({ children }) {
         "inventory",
         "product-movement",
         "requirements",
+        "customer-work",
       ].includes(page);
     if (role === "inventory_manager")
       return [
@@ -38,6 +39,7 @@ export default function Layout({ children }) {
         "inventory",
         "product-movement",
         "requirements",
+        "customer-work",
       ].includes(page);
     if (role === "sales")
       return [
@@ -47,6 +49,7 @@ export default function Layout({ children }) {
         "sales",
         "sales-report",
         "requirements",
+        "customer-work",
       ].includes(page);
     return false;
   };

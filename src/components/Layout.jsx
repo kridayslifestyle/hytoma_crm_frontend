@@ -74,25 +74,18 @@ export default function Layout({ children }) {
           to={role === "simanta" ? "/complaints" : "/"}
           onClick={() => setMenuOpen(false)}
         >
-          <h1 className="text-xl font-bold text-orange-500 mb-8 cursor-pointer hover:text-orange-600 transition">
+          <h1 className="text-xl font-bold text-orange-500 mb-8 cursor-pointer hover:text-orange-600 transition shrink-0">
             Hytoma CRM
           </h1>
         </NavLink>
 
-        <nav className="flex flex-col gap-2">
+        {/* Scrollable menu area */}
+        <nav className="flex flex-col gap-2 flex-1 overflow-y-auto">
           {can("dashboard") && (
-            <NavItem
-              to="/"
-              label="Dashboard"
-              onClick={() => setMenuOpen(false)}
-            />
+            <NavItem to="/" label="Dashboard" onClick={() => setMenuOpen(false)} />
           )}
           {can("leads") && (
-            <NavItem
-              to="/leads"
-              label="Leads"
-              onClick={() => setMenuOpen(false)}
-            />
+            <NavItem to="/leads" label="Leads" onClick={() => setMenuOpen(false)} />
           )}
           {can("requirements") && (
             <NavItem
@@ -102,11 +95,7 @@ export default function Layout({ children }) {
             />
           )}
           {can("add-lead") && (
-            <NavItem
-              to="/add-lead"
-              label="Add Lead"
-              onClick={() => setMenuOpen(false)}
-            />
+            <NavItem to="/add-lead" label="Add Lead" onClick={() => setMenuOpen(false)} />
           )}
           {can("sales") && (
             <NavItem
@@ -115,7 +104,6 @@ export default function Layout({ children }) {
               onClick={() => setMenuOpen(false)}
             />
           )}
-
           {can("daily-work") && (
             <NavItem
               to="/daily-work"
@@ -123,7 +111,6 @@ export default function Layout({ children }) {
               onClick={() => setMenuOpen(false)}
             />
           )}
-
           {can("customer-work") && (
             <NavItem
               to="/customer-work"
@@ -131,7 +118,6 @@ export default function Layout({ children }) {
               onClick={() => setMenuOpen(false)}
             />
           )}
-
           {can("inventory") && (
             <NavItem
               to="/inventory"
@@ -160,18 +146,12 @@ export default function Layout({ children }) {
               onClick={() => setMenuOpen(false)}
             />
           )}
-          {role === "admin" && (
-            <NavItem
-              to="/product-movement"
-              label="Product Movement"
-              onClick={() => setMenuOpen(false)}
-            />
-          )}
         </nav>
 
+        {/* Logout pinned at the bottom */}
         <button
           onClick={logoutUser}
-          className="mt-auto px-4 py-3 rounded-lg text-red-500 hover:bg-red-50 text-left transition font-medium"
+          className="shrink-0 mt-3 px-4 py-3 rounded-lg text-red-500 hover:bg-red-50 text-left transition font-medium"
         >
           Logout
         </button>

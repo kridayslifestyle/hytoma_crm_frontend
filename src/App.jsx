@@ -19,6 +19,7 @@ import ViewRequirement from "./pages/ViewRequirement";
 import EditRequirement from "./pages/EditRequirement";
 import GenerateQuotation from "./pages/GenerateQuotation";
 import EmployeeWork from "./pages/EmployeeWork";
+import CustomerWorkForm from "./pages/CustomerWorkForm";
 
 // ✅ Role-based route guard
 const RoleRoute = ({ children, allowed }) => {
@@ -256,6 +257,19 @@ function App() {
               <Layout>
                 <EmployeeWork />
               </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/customer-work"
+          element={
+            <ProtectedRoute>
+              <RoleRoute allowed={["admin"]}>
+                <Layout>
+                  <CustomerWorkForm />
+                </Layout>
+              </RoleRoute>
             </ProtectedRoute>
           }
         />

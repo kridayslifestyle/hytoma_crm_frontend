@@ -265,11 +265,9 @@ function App() {
           path="/customer-work"
           element={
             <ProtectedRoute>
-              <RoleRoute allowed={["admin"]}>
-                <Layout>
-                  <CustomerWorkForm />
-                </Layout>
-              </RoleRoute>
+              <Layout>
+                <CustomerWorkForm />
+              </Layout>
             </ProtectedRoute>
           }
         />

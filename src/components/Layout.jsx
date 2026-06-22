@@ -8,7 +8,10 @@ export default function Layout({ children }) {
 
   // ✅ Permission helper
   const can = (page) => {
+    // Available to every logged-in user:
     if (page === "daily-work" && role) return true;
+    if (page === "customer-work" && role) return true;   // 👈 added
+
     if (role === "admin") return true;
     if (role === "simanta")
       return ["complaints", "inventory", "daily-work"].includes(page);
@@ -27,7 +30,6 @@ export default function Layout({ children }) {
         "inventory",
         "product-movement",
         "requirements",
-        "customer-work",
       ].includes(page);
     if (role === "inventory_manager")
       return [
@@ -39,7 +41,6 @@ export default function Layout({ children }) {
         "inventory",
         "product-movement",
         "requirements",
-        "customer-work",
       ].includes(page);
     if (role === "sales")
       return [
@@ -49,7 +50,6 @@ export default function Layout({ children }) {
         "sales",
         "sales-report",
         "requirements",
-        "customer-work",
       ].includes(page);
     return false;
   };

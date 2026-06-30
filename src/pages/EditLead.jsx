@@ -39,13 +39,23 @@ export default function EditLead() {
         leadType: lead.leadType || "",
         leadSource: lead.leadSource || "",
         salesPerson: lead.salesPerson || "",
+
         totalAmount: lead.totalAmount || "",
         advancePaid: lead.advancePaid || "",
+
         quotationSent: lead.quotationSent || false,
+
+        // ✅ IMPORTANT FIX (ADD ALL NEW FIELDS SAFELY)
+        leadEntryDate: lead.leadEntryDate || "",
         followUpDate: lead.followUpDate || "",
+        closeDate: lead.closeDate || "",
+        rejectionDate: lead.rejectionDate || "",
+
         pendingAmountReason: lead.pendingAmountReason || "",
         acceptanceReason: lead.acceptanceReason || "",
         rejectionReason: lead.rejectionReason || "",
+
+        paymentHistory: lead.paymentHistory || [],
       });
     }
   };
@@ -71,7 +81,8 @@ export default function EditLead() {
     try {
       const data = { ...form };
       delete data._id;
-      await updateLead(id, data);
+      const { _id, ...cleanData } = form;
+      await updateLead(id, cleanData);
       setToast("✅ Lead Updated Successfully");
       setTimeout(() => {
         setToast("");
@@ -175,6 +186,40 @@ export default function EditLead() {
             onChange={(e) => setForm({ ...form, salesPerson: e.target.value })}
             className="border px-3 py-2 rounded-lg w-full"
           />
+
+          <div>
+            <label className="text-xs text-gray-500">Lead Entry Date</label>
+            <input
+              type="date"
+              value={form.leadEntryDate}
+              onChange={(e) =>
+                setForm({ ...form, leadEntryDate: e.target.value })
+              }
+              className="border px-3 py-2 rounded-lg w-full"
+            />
+          </div>
+
+          <div>
+            <label className="text-xs text-gray-500">Close Date</label>
+            <input
+              type="date"
+              value={form.closeDate}
+              onChange={(e) => setForm({ ...form, closeDate: e.target.value })}
+              className="border px-3 py-2 rounded-lg w-full"
+            />
+          </div>
+
+          <div>
+            <label className="text-xs text-gray-500">Rejection Date</label>
+            <input
+              type="date"
+              value={form.rejectionDate}
+              onChange={(e) =>
+                setForm({ ...form, rejectionDate: e.target.value })
+              }
+              className="border px-3 py-2 rounded-lg w-full"
+            />
+          </div>
 
           {/* Amounts */}
           <div className="grid md:grid-cols-2 gap-4">

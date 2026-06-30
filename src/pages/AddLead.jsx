@@ -185,6 +185,7 @@ export default function AddLead() {
             <option value="Closed Won">Closed Won</option>
             <option value="Closed Lost">Closed Lost</option>
           </select>
+          
 
           {/* Lead Type */}
           <select

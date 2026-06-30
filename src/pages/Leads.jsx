@@ -187,6 +187,7 @@ export default function Leads() {
               <th className="p-4 text-left">Phone</th>
               <th className="p-4 text-left">Status</th>
               <th className="p-4 text-left">Sales Person</th>
+              <th className="p-4 text-left">Dates</th>
               <th className="p-4 text-left">Quotation</th>
               <th className="p-4 text-left">Payment</th>
               <th className="p-4 text-left">Remarks</th>
@@ -211,6 +212,28 @@ export default function Leads() {
                     </span>
                   </td>
                   <td className="p-4">{lead.salesPerson}</td>
+                  <td className="p-4 text-sm space-y-1">
+                    {lead.leadEntryDate && (
+                      <div>📅 Entry: {lead.leadEntryDate}</div>
+                    )}
+
+                    {lead.followUpDate && (
+                      <div>🔔 Follow-up: {lead.followUpDate}</div>
+                    )}
+
+                    {lead.closeDate && <div>✅ Closed: {lead.closeDate}</div>}
+
+                    {lead.rejectionDate && (
+                      <div>❌ Rejected: {lead.rejectionDate}</div>
+                    )}
+
+                    {!lead.leadEntryDate &&
+                      !lead.followUpDate &&
+                      !lead.closeDate &&
+                      !lead.rejectionDate && (
+                        <span className="text-gray-400">—</span>
+                      )}
+                  </td>
                   <td className="p-4">
                     {lead.quotationSent ? (
                       <span className="text-green-600">✔ Sent</span>

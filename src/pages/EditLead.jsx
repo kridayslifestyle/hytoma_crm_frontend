@@ -30,7 +30,24 @@ export default function EditLead() {
   const fetchLead = async () => {
     const leads = await getLeads();
     const lead = leads.find((l) => l._id === id);
-    if (lead) setForm(lead);
+
+    if (lead) {
+      setForm({
+        name: lead.name || "",
+        phone: lead.phone || "",
+        status: lead.status || "",
+        leadType: lead.leadType || "",
+        leadSource: lead.leadSource || "",
+        salesPerson: lead.salesPerson || "",
+        totalAmount: lead.totalAmount || "",
+        advancePaid: lead.advancePaid || "",
+        quotationSent: lead.quotationSent || false,
+        followUpDate: lead.followUpDate || "",
+        pendingAmountReason: lead.pendingAmountReason || "",
+        acceptanceReason: lead.acceptanceReason || "",
+        rejectionReason: lead.rejectionReason || "",
+      });
+    }
   };
 
   const showToast = (msg) => {
@@ -68,12 +85,10 @@ export default function EditLead() {
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-
       <h1 className="text-2xl font-bold text-gray-800 mb-6">Edit Lead</h1>
 
       <div className="bg-white rounded-xl shadow-sm p-6 max-w-2xl">
         <form onSubmit={handleSubmit} className="space-y-4">
-
           {/* Name + Phone */}
           <div className="grid md:grid-cols-2 gap-4">
             <input
@@ -112,7 +127,9 @@ export default function EditLead() {
             onChange={(e) => setForm({ ...form, status: e.target.value })}
             className="border px-3 py-2 rounded-lg w-full"
           >
-            <option value="" disabled>Select Status</option>
+            <option value="" disabled>
+              Select Status
+            </option>
             <option value="Contacted">Contacted</option>
             <option value="Interested">Interested</option>
             <option value="Quotation Sent">Quotation Sent</option>
@@ -126,7 +143,9 @@ export default function EditLead() {
             onChange={(e) => setForm({ ...form, leadType: e.target.value })}
             className="border px-3 py-2 rounded-lg w-full"
           >
-            <option value="" disabled>Select Lead Type</option>
+            <option value="" disabled>
+              Select Lead Type
+            </option>
             <option value="B2C">B2C — Individual Customer</option>
             <option value="B2B">B2B — Business / Interior</option>
           </select>
@@ -137,7 +156,9 @@ export default function EditLead() {
             onChange={(e) => setForm({ ...form, leadSource: e.target.value })}
             className="border px-3 py-2 rounded-lg w-full"
           >
-            <option value="" disabled>Select Lead Source</option>
+            <option value="" disabled>
+              Select Lead Source
+            </option>
             <option value="Social Media">Social Media</option>
             <option value="Referral">Referral</option>
             <option value="Phone Call">Phone Call</option>
@@ -161,21 +182,26 @@ export default function EditLead() {
               type="number"
               placeholder="Total Amount"
               value={form.totalAmount}
-              onChange={(e) => setForm({ ...form, totalAmount: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, totalAmount: e.target.value })
+              }
               className="border px-3 py-2 rounded-lg w-full"
             />
             <input
               type="number"
               placeholder="Advance Paid"
               value={form.advancePaid}
-              onChange={(e) => setForm({ ...form, advancePaid: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, advancePaid: e.target.value })
+              }
               className="border px-3 py-2 rounded-lg w-full"
             />
           </div>
 
           {/* Remaining */}
           <div className="text-sm text-gray-600 bg-gray-50 px-3 py-2 rounded-lg">
-            Remaining: ₹{(Number(form.totalAmount) || 0) - (Number(form.advancePaid) || 0)}
+            Remaining: ₹
+            {(Number(form.totalAmount) || 0) - (Number(form.advancePaid) || 0)}
           </div>
 
           {/* Quotation */}
@@ -183,7 +209,9 @@ export default function EditLead() {
             <input
               type="checkbox"
               checked={form.quotationSent}
-              onChange={(e) => setForm({ ...form, quotationSent: e.target.checked })}
+              onChange={(e) =>
+                setForm({ ...form, quotationSent: e.target.checked })
+              }
               className="w-4 h-4 accent-orange-500"
             />
             <span className="text-gray-700">Quotation Sent</span>
@@ -193,7 +221,9 @@ export default function EditLead() {
           <input
             placeholder="Pending Amount Reason"
             value={form.pendingAmountReason || ""}
-            onChange={(e) => setForm({ ...form, pendingAmountReason: e.target.value })}
+            onChange={(e) =>
+              setForm({ ...form, pendingAmountReason: e.target.value })
+            }
             className="border px-3 py-2 rounded-lg w-full"
           />
 
@@ -201,7 +231,9 @@ export default function EditLead() {
           <input
             placeholder="Acceptance Reason"
             value={form.acceptanceReason || ""}
-            onChange={(e) => setForm({ ...form, acceptanceReason: e.target.value })}
+            onChange={(e) =>
+              setForm({ ...form, acceptanceReason: e.target.value })
+            }
             className="border px-3 py-2 rounded-lg w-full"
           />
 
@@ -209,17 +241,23 @@ export default function EditLead() {
           <input
             placeholder="Rejection Reason"
             value={form.rejectionReason || ""}
-            onChange={(e) => setForm({ ...form, rejectionReason: e.target.value })}
+            onChange={(e) =>
+              setForm({ ...form, rejectionReason: e.target.value })
+            }
             className="border px-3 py-2 rounded-lg w-full"
           />
 
           {/* ✅ Follow-up Date — mobile fixed */}
           <div>
-            <label className="text-xs text-gray-500 mb-1 block">Follow-up Date</label>
+            <label className="text-xs text-gray-500 mb-1 block">
+              Follow-up Date
+            </label>
             <input
               type="date"
               value={form.followUpDate ? form.followUpDate.split("T")[0] : ""}
-              onChange={(e) => setForm({ ...form, followUpDate: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, followUpDate: e.target.value })
+              }
               className="border px-3 py-2 rounded-lg w-full bg-white"
               style={{ WebkitAppearance: "none", minHeight: "42px" }}
             />
@@ -241,7 +279,6 @@ export default function EditLead() {
               Update Lead
             </button>
           </div>
-
         </form>
       </div>
 
@@ -250,7 +287,6 @@ export default function EditLead() {
           {toast}
         </div>
       )}
-
     </div>
   );
 }

@@ -18,11 +18,30 @@ export default function AddLead() {
     quotationSent: false,
     acceptanceReason: "",
     rejectionReason: "",
+    paymentHistory: [],
+    // ✅ IMPORTANT FIELDS
+    leadEntryDate: "",
     followUpDate: "",
+  });
+
+  const [paymentInput, setPaymentInput] = useState({
+    amount: "",
+    date: "",
+    note: "",
   });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const payload = {
+      ...form,
+
+      paymentHistory: form.paymentHistory.map((p) => ({
+        amount: Number(p.amount),
+        date: p.date,
+        note: p.note || "",
+      })),
+    };
 
     if (!/^\d{10}$/.test(form.phone)) {
       setToast("❌ Please enter a valid 10-digit phone number");
@@ -33,6 +52,11 @@ export default function AddLead() {
     if (!form.status) {
       setToast("❌ Please select a status");
       setTimeout(() => setToast(""), 3000);
+      return;
+    }
+
+    if (!form.leadEntryDate) {
+      alert("Lead Entry Date is required");
       return;
     }
 
@@ -50,16 +74,23 @@ export default function AddLead() {
     }
   };
 
+  const addPayment = () => {
+    if (!paymentInput.amount || !paymentInput.date) return;
+
+    setForm({
+      ...form,
+      paymentHistory: [...form.paymentHistory, paymentInput],
+    });
+
+    setPaymentInput({ amount: "", date: "", note: "" });
+  };
+
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">
-        Add New Lead
-      </h1>
+      <h1 className="text-2xl font-bold text-gray-800 mb-6">Add New Lead</h1>
 
       <div className="bg-white rounded-xl shadow-sm p-6 max-w-2xl">
         <form onSubmit={handleSubmit} className="space-y-4">
-
           {/* Name + Phone */}
           <div className="grid md:grid-cols-2 gap-4">
             <input
@@ -83,10 +114,11 @@ export default function AddLead() {
                     setForm({ ...form, phone: val });
                   }
                 }}
-                className={`border px-3 py-2 rounded-lg w-full ${form.phone && form.phone.length !== 10
-                  ? "border-red-400 focus:ring-red-300"
-                  : "focus:ring-orange-300"
-                  }`}
+                className={`border px-3 py-2 rounded-lg w-full ${
+                  form.phone && form.phone.length !== 10
+                    ? "border-red-400 focus:ring-red-300"
+                    : "focus:ring-orange-300"
+                }`}
               />
               {/* ✅ Live feedback */}
               {form.phone && form.phone.length !== 10 && (
@@ -108,7 +140,9 @@ export default function AddLead() {
               onChange={(e) => setForm({ ...form, isNew: e.target.checked })}
               className="w-4 h-4 accent-orange-500"
             />
-            <span className="text-gray-700 font-medium">Is this a New Lead?</span>
+            <span className="text-gray-700 font-medium">
+              Is this a New Lead?
+            </span>
             {form.isNew && (
               <span className="ml-auto bg-orange-100 text-orange-600 text-xs px-2 py-1 rounded-full font-medium">
                 New
@@ -116,16 +150,38 @@ export default function AddLead() {
             )}
           </label>
 
+          <div>
+            <label className="font-medium">Lead Entry Date *</label>
+            <input
+              type="date"
+              value={form.leadEntryDate}
+              onChange={(e) =>
+                setForm({ ...form, leadEntryDate: e.target.value })
+              }
+              className="w-full border rounded-lg p-3 mt-2"
+              required
+            />
+          </div>
+
           {/* Status dropdown */}
           <select
             value={form.status}
             onChange={(e) => setForm({ ...form, status: e.target.value })}
             className="border px-3 py-2 rounded-lg w-full"
           >
-            <option value="" disabled>Select Status</option>
+            <option value="" disabled>
+              Select Status
+            </option>
+
+            <option value="New">New</option>
             <option value="Contacted">Contacted</option>
             <option value="Interested">Interested</option>
             <option value="Quotation Sent">Quotation Sent</option>
+
+            {/* ✅ NEW OPTIONS ADDED */}
+            <option value="Not Answering">Not Answering</option>
+            <option value="Not Interested">Not Interested</option>
+
             <option value="Closed Won">Closed Won</option>
             <option value="Closed Lost">Closed Lost</option>
           </select>
@@ -136,7 +192,9 @@ export default function AddLead() {
             onChange={(e) => setForm({ ...form, leadType: e.target.value })}
             className="border px-3 py-2 rounded-lg w-full"
           >
-            <option value="" disabled>Select Lead Type</option>
+            <option value="" disabled>
+              Select Lead Type
+            </option>
             <option value="B2C">B2C — Individual Customer</option>
             <option value="B2B">B2B — Business / Interior</option>
           </select>
@@ -147,7 +205,9 @@ export default function AddLead() {
             onChange={(e) => setForm({ ...form, leadSource: e.target.value })}
             className="border px-3 py-2 rounded-lg w-full"
           >
-            <option value="" disabled>Select Lead Source</option>
+            <option value="" disabled>
+              Select Lead Source
+            </option>
             <option value="Social Media">Social Media</option>
             <option value="Referral">Referral</option>
             <option value="Phone Call">Phone Call</option>
@@ -187,9 +247,65 @@ export default function AddLead() {
             />
           </div>
 
-          {/* Remaining */}
-          <div className="text-sm text-gray-600 bg-gray-50 px-3 py-2 rounded-lg">
-            Remaining: ₹{(form.totalAmount || 0) - (form.advancePaid || 0)}
+          {/* Payment History */}
+          <div className="border p-4 rounded-lg mt-4">
+            <h3 className="font-semibold mb-3">Payment History</h3>
+
+            {form.paymentHistory?.map((p, index) => (
+              <div key={index} className="grid grid-cols-3 gap-2 mb-2">
+                <input
+                  type="number"
+                  placeholder="Amount"
+                  value={p.amount}
+                  onChange={(e) => {
+                    const updated = [...form.paymentHistory];
+                    updated[index].amount = e.target.value;
+                    setForm({ ...form, paymentHistory: updated });
+                  }}
+                  className="border p-2 rounded"
+                />
+
+                <input
+                  type="date"
+                  value={p.date}
+                  onChange={(e) => {
+                    const updated = [...form.paymentHistory];
+                    updated[index].date = e.target.value;
+                    setForm({ ...form, paymentHistory: updated });
+                  }}
+                  className="border p-2 rounded"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const updated = form.paymentHistory.filter(
+                      (_, i) => i !== index,
+                    );
+                    setForm({ ...form, paymentHistory: updated });
+                  }}
+                  className="bg-red-500 text-white rounded"
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+
+            <button
+              type="button"
+              onClick={() =>
+                setForm({
+                  ...form,
+                  paymentHistory: [
+                    ...form.paymentHistory,
+                    { amount: "", date: "", note: "" },
+                  ],
+                })
+              }
+              className="bg-orange-500 text-white px-3 py-2 rounded mt-2"
+            >
+              + Add Payment
+            </button>
           </div>
 
           {/* Quotation */}
@@ -208,7 +324,9 @@ export default function AddLead() {
           <input
             placeholder="Pending Amount Reason"
             value={form.pendingAmountReason || ""}
-            onChange={(e) => setForm({ ...form, pendingAmountReason: e.target.value })}
+            onChange={(e) =>
+              setForm({ ...form, pendingAmountReason: e.target.value })
+            }
             className="border px-3 py-2 rounded-lg w-full"
           />
 
@@ -234,9 +352,7 @@ export default function AddLead() {
           <input
             type="date"
             value={form.followUpDate}
-            onChange={(e) =>
-              setForm({ ...form, followUpDate: e.target.value })
-            }
+            onChange={(e) => setForm({ ...form, followUpDate: e.target.value })}
             className="border px-3 py-2 rounded-lg w-full"
           />
 
@@ -256,7 +372,6 @@ export default function AddLead() {
               Save Lead
             </button>
           </div>
-
         </form>
       </div>
       {toast && (

@@ -14,10 +14,20 @@ export default function EditLead() {
     leadType: "",
     leadSource: "",
     salesPerson: "",
+
     totalAmount: "",
     advancePaid: "",
+
     quotationSent: false,
+
+    // ✅ IMPORTANT FIX
+    paymentHistory: [],
+
+    leadEntryDate: "",
     followUpDate: "",
+    closeDate: "",
+    rejectionDate: "",
+
     pendingAmountReason: "",
     acceptanceReason: "",
     rejectionReason: "",
@@ -228,6 +238,7 @@ export default function EditLead() {
               <div key={index} className="grid grid-cols-3 gap-2 mb-2">
                 <input
                   type="number"
+                  placeholder="Amount"
                   value={p.amount}
                   onChange={(e) => {
                     const updated = [...form.paymentHistory];

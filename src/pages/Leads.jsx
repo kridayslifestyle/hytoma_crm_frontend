@@ -103,7 +103,6 @@ export default function Leads() {
 
   return (
     <div className="p-4 md:p-6 bg-gray-50 min-h-screen">
-
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-xl md:text-2xl font-bold text-gray-800">Leads</h1>
@@ -154,7 +153,9 @@ export default function Leads() {
         >
           <option value="all">All Sales Persons</option>
           {salesPersons.map((p, i) => (
-            <option key={i} value={p}>{p}</option>
+            <option key={i} value={p}>
+              {p}
+            </option>
           ))}
         </select>
         <select
@@ -173,7 +174,8 @@ export default function Leads() {
 
       {/* Result count */}
       <p className="text-sm text-gray-500 mb-3">
-        Showing {filteredLeads.length} lead{filteredLeads.length !== 1 ? "s" : ""}
+        Showing {filteredLeads.length} lead
+        {filteredLeads.length !== 1 ? "s" : ""}
       </p>
 
       {/* Desktop Table */}
@@ -217,14 +219,34 @@ export default function Leads() {
                     )}
                   </td>
                   <td className="p-4">
-                    ₹{lead.advancePaid || 0} / ₹{lead.totalAmount || 0}
-                    <br />
-                    {(lead.advancePaid || 0) >= (lead.totalAmount || 0) ? (
-                      <span className="text-green-600 text-sm">Paid</span>
+                    {lead.paymentHistory?.length > 0 ? (
+                      <>
+                        {lead.paymentHistory.map((p, i) => (
+                          <div key={i} className="text-sm">
+                            ₹{p.amount} ({p.date})
+                          </div>
+                        ))}
+                        <div className="mt-1 text-xs text-gray-500">
+                          Total Paid: ₹
+                          {lead.paymentHistory.reduce(
+                            (sum, p) => sum + Number(p.amount),
+                            0,
+                          )}
+                        </div>
+                      </>
                     ) : (
-                      <span className="text-orange-500 text-sm">
-                        Pending ₹{(lead.totalAmount || 0) - (lead.advancePaid || 0)}
-                      </span>
+                      <>
+                        ₹{lead.advancePaid || 0} / ₹{lead.totalAmount || 0}
+                        <br />
+                        {(lead.advancePaid || 0) >= (lead.totalAmount || 0) ? (
+                          <span className="text-green-600 text-sm">Paid</span>
+                        ) : (
+                          <span className="text-orange-500 text-sm">
+                            Pending ₹
+                            {(lead.totalAmount || 0) - (lead.advancePaid || 0)}
+                          </span>
+                        )}
+                      </>
                     )}
                   </td>
                   {/* ✅ Remarks — now includes pendingAmountReason */}
@@ -244,9 +266,11 @@ export default function Leads() {
                         ❌ {lead.rejectionReason}
                       </div>
                     )}
-                    {!lead.pendingAmountReason && !lead.acceptanceReason && !lead.rejectionReason && (
-                      <span className="text-gray-400 text-sm">—</span>
-                    )}
+                    {!lead.pendingAmountReason &&
+                      !lead.acceptanceReason &&
+                      !lead.rejectionReason && (
+                        <span className="text-gray-400 text-sm">—</span>
+                      )}
                   </td>
                   <td className="p-4">
                     <button
@@ -288,28 +312,35 @@ export default function Leads() {
                 </span>
               </div>
               <div className="text-sm text-gray-600 space-y-1">
-                <p><span className="font-medium">Sales Person:</span> {lead.salesPerson}</p>
                 <p>
-                  <span className="font-medium">Quotation:</span>{" "}
-                  {lead.quotationSent
-                    ? <span className="text-green-600">✔ Sent</span>
-                    : <span className="text-gray-400">Not Sent</span>
-                  }
+                  <span className="font-medium">Sales Person:</span>{" "}
+                  {lead.salesPerson}
                 </p>
                 <p>
-                  <span className="font-medium">Payment:</span>{" "}
-                  ₹{lead.advancePaid || 0} / ₹{lead.totalAmount || 0}{" "}
+                  <span className="font-medium">Quotation:</span>{" "}
+                  {lead.quotationSent ? (
+                    <span className="text-green-600">✔ Sent</span>
+                  ) : (
+                    <span className="text-gray-400">Not Sent</span>
+                  )}
+                </p>
+                <p>
+                  <span className="font-medium">Payment:</span> ₹
+                  {lead.advancePaid || 0} / ₹{lead.totalAmount || 0}{" "}
                   {(lead.advancePaid || 0) >= (lead.totalAmount || 0) ? (
                     <span className="text-green-600">✅ Paid</span>
                   ) : (
                     <span className="text-orange-500">
-                      Pending ₹{(lead.totalAmount || 0) - (lead.advancePaid || 0)}
+                      Pending ₹
+                      {(lead.totalAmount || 0) - (lead.advancePaid || 0)}
                     </span>
                   )}
                 </p>
                 {/* ✅ Pending Amount Reason in mobile card */}
                 {lead.pendingAmountReason && (
-                  <p className="text-yellow-600">💰 {lead.pendingAmountReason}</p>
+                  <p className="text-yellow-600">
+                    💰 {lead.pendingAmountReason}
+                  </p>
                 )}
                 {lead.acceptanceReason && (
                   <p className="text-green-600">✅ {lead.acceptanceReason}</p>
@@ -343,9 +374,12 @@ export default function Leads() {
       {deleteId && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-xl p-6 w-80">
-            <h3 className="text-lg font-bold text-gray-800 mb-2">Delete Lead</h3>
+            <h3 className="text-lg font-bold text-gray-800 mb-2">
+              Delete Lead
+            </h3>
             <p className="text-gray-500 text-sm mb-6">
-              Are you sure you want to delete this lead? This action cannot be undone.
+              Are you sure you want to delete this lead? This action cannot be
+              undone.
             </p>
             <div className="flex gap-3">
               <button
@@ -364,7 +398,6 @@ export default function Leads() {
           </div>
         </div>
       )}
-
     </div>
   );
 }

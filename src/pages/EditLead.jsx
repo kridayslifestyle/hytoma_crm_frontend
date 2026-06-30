@@ -221,32 +221,63 @@ export default function EditLead() {
             />
           </div>
 
-          {/* Amounts */}
-          <div className="grid md:grid-cols-2 gap-4">
-            <input
-              type="number"
-              placeholder="Total Amount"
-              value={form.totalAmount}
-              onChange={(e) =>
-                setForm({ ...form, totalAmount: e.target.value })
-              }
-              className="border px-3 py-2 rounded-lg w-full"
-            />
-            <input
-              type="number"
-              placeholder="Advance Paid"
-              value={form.advancePaid}
-              onChange={(e) =>
-                setForm({ ...form, advancePaid: e.target.value })
-              }
-              className="border px-3 py-2 rounded-lg w-full"
-            />
-          </div>
+          <div className="border p-4 rounded-lg mt-4">
+            <h3 className="font-semibold mb-3">Payment History</h3>
 
-          {/* Remaining */}
-          <div className="text-sm text-gray-600 bg-gray-50 px-3 py-2 rounded-lg">
-            Remaining: ₹
-            {(Number(form.totalAmount) || 0) - (Number(form.advancePaid) || 0)}
+            {form.paymentHistory.map((p, index) => (
+              <div key={index} className="grid grid-cols-3 gap-2 mb-2">
+                <input
+                  type="number"
+                  value={p.amount}
+                  onChange={(e) => {
+                    const updated = [...form.paymentHistory];
+                    updated[index].amount = e.target.value;
+                    setForm({ ...form, paymentHistory: updated });
+                  }}
+                  className="border p-2 rounded"
+                />
+
+                <input
+                  type="date"
+                  value={p.date}
+                  onChange={(e) => {
+                    const updated = [...form.paymentHistory];
+                    updated[index].date = e.target.value;
+                    setForm({ ...form, paymentHistory: updated });
+                  }}
+                  className="border p-2 rounded"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const updated = form.paymentHistory.filter(
+                      (_, i) => i !== index,
+                    );
+                    setForm({ ...form, paymentHistory: updated });
+                  }}
+                  className="bg-red-500 text-white rounded"
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+
+            <button
+              type="button"
+              onClick={() =>
+                setForm({
+                  ...form,
+                  paymentHistory: [
+                    ...form.paymentHistory,
+                    { amount: "", date: "", note: "" },
+                  ],
+                })
+              }
+              className="bg-orange-500 text-white px-3 py-2 rounded mt-2"
+            >
+              + Add Payment
+            </button>
           </div>
 
           {/* Quotation */}

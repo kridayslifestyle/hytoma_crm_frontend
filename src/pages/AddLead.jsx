@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { addLead } from "../services/api";
 import { useNavigate } from "react-router-dom";
+import { getInventory } from "../services/api";
 
 export default function AddLead() {
   const navigate = useNavigate();

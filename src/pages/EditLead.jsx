@@ -6,7 +6,7 @@ export default function EditLead() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [toast, setToast] = useState("");
-  const [products, setProducts] = useState([]);
+  // const [products, setProducts] = useState([]);
   const [form, setForm] = useState({
     name: "",
     phone: "",

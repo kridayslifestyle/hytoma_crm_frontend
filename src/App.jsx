@@ -20,6 +20,8 @@ import EditRequirement from "./pages/EditRequirement";
 import GenerateQuotation from "./pages/GenerateQuotation";
 import EmployeeWork from "./pages/EmployeeWork";
 import CustomerWorkForm from "./pages/CustomerWorkForm";
+import TravelExpenses from "./pages/TravelExpenses";
+
 
 // ✅ Role-based route guard
 const RoleRoute = ({ children, allowed }) => {
@@ -148,6 +150,19 @@ function App() {
               >
                 <Layout>
                   <Inventory />
+                </Layout>
+              </RoleRoute>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/travel-expenses"
+          element={
+            <ProtectedRoute>
+              <RoleRoute allowed={["admin", "simanta", "venkatesh"]}>
+                <Layout>
+                  <TravelExpenses />
                 </Layout>
               </RoleRoute>
             </ProtectedRoute>

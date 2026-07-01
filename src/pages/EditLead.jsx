@@ -95,6 +95,15 @@ export default function EditLead() {
     setTimeout(() => setToast(""), 3000);
   };
 
+  const handleSelectProduct = (product) => {
+    setProductInput({
+      productId: product._id,
+      name: product.name,
+      price: product.price,
+      quantity: 1,
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 

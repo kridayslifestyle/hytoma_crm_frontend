@@ -1,4 +1,4 @@
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import { addLead } from "../services/api";
 import { useNavigate } from "react-router-dom";
 import { getInventory } from "../services/api";
@@ -52,17 +52,25 @@ export default function AddLead() {
     setInventory(res);
   };
 
+  const handleSelectProduct = (product) => {
+    setProductInput({
+      productId: product._id,
+      name: product.name,
+      price: product.price,
+      quantity: 1,
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const payload = {
       ...form,
-      products: products,
-
-      paymentHistory: form.paymentHistory.map((p) => ({
-        amount: Number(p.amount),
-        date: p.date,
-        note: p.note || "",
+      products: products.map((p) => ({
+        productId: p.productId,
+        name: p.name,
+        price: p.price,
+        quantity: Number(p.quantity || 1),
       })),
     };
 

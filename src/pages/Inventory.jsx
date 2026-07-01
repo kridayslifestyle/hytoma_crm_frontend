@@ -8,7 +8,6 @@ import {
 } from "../services/api";
 import { getLeads } from "../services/api";
 
-
 const CATEGORIES = [
   "Smart Door Lock",
   "Smart Touch Switchboard",
@@ -69,7 +68,9 @@ export default function Inventory() {
   const [sourceFilter, setSourceFilter] = useState("all");
   const [leads, setLeads] = useState([]);
   const role = localStorage.getItem("role");
-  const [dateFilter, setDateFilter] = useState("all");
+  const [dateFilter, setDateFilter] = useState("monthly");
+  const [selectedMonth, setSelectedMonth] = useState("");
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
   const [form, setForm] = useState({
     name: "",
@@ -111,7 +112,9 @@ export default function Inventory() {
 
       const matchMonth =
         dateFilter === "monthly"
-          ? selectedMonth && lead.createdAt?.startsWith(selectedMonth)
+          ? selectedMonth
+            ? lead.createdAt?.startsWith(selectedMonth)
+            : true
           : true;
 
       const matchYear =
@@ -119,8 +122,7 @@ export default function Inventory() {
           ? date.getFullYear() === Number(selectedYear)
           : true;
 
-      if (dateFilter === "monthly" && !matchMonth) return;
-      if (dateFilter === "yearly" && !matchYear) return;
+      if (!matchMonth || !matchYear) return;
 
       lead.products.forEach((p) => {
         if (!map[p.name]) map[p.name] = 0;

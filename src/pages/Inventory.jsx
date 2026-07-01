@@ -8,6 +8,7 @@ import {
 } from "../services/api";
 import { getLeads } from "../services/api";
 
+
 const CATEGORIES = [
   "Smart Door Lock",
   "Smart Touch Switchboard",
@@ -68,6 +69,7 @@ export default function Inventory() {
   const [sourceFilter, setSourceFilter] = useState("all");
   const [leads, setLeads] = useState([]);
   const role = localStorage.getItem("role");
+  const [dateFilter, setDateFilter] = useState("all");
 
   const [form, setForm] = useState({
     name: "",

@@ -10,24 +10,38 @@ export default function TravelExpenses() {
 
   const [expenses, setExpenses] = useState([]);
   const [monthly, setMonthly] = useState([]);
+  const [editIndex, setEditIndex] = useState(null);
+  const [selectedMonth, setSelectedMonth] = useState("");
 
   useEffect(() => {
     fetchMonthly();
   }, []);
 
   const fetchMonthly = async () => {
-    const res = await fetch("/travel-expenses/monthly");
-    const data = await res.json();
-    setMonthly(data);
+    try {
+      const res = await fetch("/travel-expenses/monthly");
+      const data = await res.json();
+      setMonthly(data);
+    } catch (err) {
+      console.log("Monthly fetch error", err);
+    }
   };
 
+  // Add / Edit Expense
   const handleAdd = () => {
     if (!form.personName || !form.date || !form.km || !form.purpose) {
       alert("Please fill all fields");
       return;
     }
 
-    setExpenses([...expenses, form]);
+    if (editIndex !== null) {
+      const updated = [...expenses];
+      updated[editIndex] = form;
+      setExpenses(updated);
+      setEditIndex(null);
+    } else {
+      setExpenses([...expenses, form]);
+    }
 
     setForm({
       personName: "",
@@ -37,9 +51,53 @@ export default function TravelExpenses() {
     });
   };
 
+  const handleEdit = (index) => {
+    setForm(expenses[index]);
+    setEditIndex(index);
+  };
+
+  const handleDelete = (index) => {
+    const updated = expenses.filter((_, i) => i !== index);
+    setExpenses(updated);
+  };
+
+  // ₹3 per KM calculation
+  const getAmount = (km) => Number(km || 0) * 3;
+
+  // Filter by month (YYYY-MM)
+  const filteredExpenses = selectedMonth
+    ? expenses.filter((e) => e.date?.startsWith(selectedMonth))
+    : expenses;
+
+  // Monthly total
+  const monthlyTotal = filteredExpenses.reduce(
+    (sum, e) => sum + getAmount(e.km),
+    0
+  );
+
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       <h1 className="text-2xl font-bold mb-6">Travel Expenses</h1>
+
+      {/* MONTH SELECTOR */}
+      <div className="mb-4 bg-white p-4 rounded-xl shadow">
+        <label className="text-sm font-medium text-gray-600">
+          Select Month
+        </label>
+
+        <input
+          type="month"
+          value={selectedMonth}
+          onChange={(e) => setSelectedMonth(e.target.value)}
+          className="border p-2 rounded w-full mt-2"
+        />
+      </div>
+
+      {/* MONTHLY TOTAL CARD */}
+      <div className="bg-green-50 p-4 rounded-xl shadow mb-4">
+        <p className="text-sm text-gray-600">Monthly Travel Expense</p>
+        <p className="text-2xl font-bold text-green-600">₹{monthlyTotal}</p>
+      </div>
 
       {/* FORM */}
       <div className="bg-white p-6 rounded-xl shadow-sm max-w-xl space-y-4">
@@ -86,30 +144,57 @@ export default function TravelExpenses() {
           onClick={handleAdd}
           className="bg-orange-500 text-white px-4 py-2 rounded w-full"
         >
-          + Add Expense
+          {editIndex !== null ? "Update Expense" : "+ Add Expense"}
         </button>
       </div>
 
       {/* EXPENSE LIST */}
       <div className="mt-6 space-y-3">
-        {expenses.map((e, i) => (
-          <div
-            key={i}
-            className="bg-white p-4 rounded-lg shadow"
-          >
-            <p className="font-semibold">{e.personName}</p>
-            <p className="text-sm text-gray-500">
-              {e.date} • {e.km} KM • {e.purpose}
-            </p>
-          </div>
-        ))}
+        {filteredExpenses.length === 0 ? (
+          <p className="text-gray-400 text-center mt-6">
+            No expenses found
+          </p>
+        ) : (
+          filteredExpenses.map((e, i) => (
+            <div
+              key={i}
+              className="bg-white p-4 rounded-lg shadow flex justify-between items-center"
+            >
+              <div>
+                <p className="font-semibold">{e.personName}</p>
+                <p className="text-sm text-gray-500">
+                  {e.date} • {e.km} KM • {e.purpose}
+                </p>
+
+                <p className="text-sm font-bold text-green-600 mt-1">
+                  ₹{getAmount(e.km)}
+                </p>
+              </div>
+
+              {/* ACTIONS */}
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={() => handleEdit(i)}
+                  className="text-blue-500 text-sm"
+                >
+                  Edit
+                </button>
+
+                <button
+                  onClick={() => handleDelete(i)}
+                  className="text-red-500 text-sm"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
-      {/* MONTHLY REPORT (FIXED POSITION - OUTSIDE LOOP) */}
+      {/* MONTHLY REPORT (BACKEND DATA) */}
       <div className="mt-10 bg-white p-4 rounded-xl shadow">
-        <h2 className="font-bold mb-4">
-          📊 Monthly Travel Report
-        </h2>
+        <h2 className="font-bold mb-4">📊 Monthly Travel Report</h2>
 
         <table className="w-full text-sm">
           <thead>

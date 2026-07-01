@@ -36,6 +36,7 @@ const PRODUCTS_BY_CATEGORY = {
     "4 Modular (4 Switches + 1 Socket)",
     "2 Modular (4 Switches)",
     "2 Modular (2 Switches)",
+    "Zigbe Hub",
     "Other",
   ],
   "Video Door Bell": ["With Screen", "Without Screen", "Other"],

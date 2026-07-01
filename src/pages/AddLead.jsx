@@ -302,14 +302,42 @@ export default function AddLead() {
             <button
               type="button"
               onClick={() => {
-                if (!productInput.productId) return;
+                if (!productInput.productId) {
+                  alert("Select product first");
+                  return;
+                }
 
-                const newProduct = {
-                  ...productInput,
-                  total: productInput.price * productInput.quantity,
-                };
+                if (!productInput.quantity || productInput.quantity <= 0) {
+                  alert("Enter valid quantity");
+                  return;
+                }
 
-                setProducts([...products, newProduct]);
+                setProducts((prev) => {
+                  const exists = prev.find(
+                    (p) => p.productId === productInput.productId,
+                  );
+
+                  if (exists) {
+                    return prev.map((p) =>
+                      p.productId === productInput.productId
+                        ? {
+                            ...p,
+                            quantity: p.quantity + productInput.quantity,
+                            total:
+                              (p.quantity + productInput.quantity) * p.price,
+                          }
+                        : p,
+                    );
+                  }
+
+                  return [
+                    ...prev,
+                    {
+                      ...productInput,
+                      total: productInput.price * productInput.quantity,
+                    },
+                  ];
+                });
 
                 setProductInput({
                   productId: "",

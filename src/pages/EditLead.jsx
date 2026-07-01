@@ -6,7 +6,6 @@ export default function EditLead() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [toast, setToast] = useState("");
-  // const [products, setProducts] = useState([]);
   const [form, setForm] = useState({
     name: "",
     phone: "",
@@ -54,6 +53,8 @@ export default function EditLead() {
         advancePaid: lead.advancePaid || "",
 
         quotationSent: lead.quotationSent || false,
+
+        products: lead.products || [],
 
         // ✅ IMPORTANT FIX (ADD ALL NEW FIELDS SAFELY)
         leadEntryDate: lead.leadEntryDate || "",
@@ -120,7 +121,7 @@ export default function EditLead() {
     try {
       const payload = {
         ...form,
-        products: products, // 👈 IMPORTANT ADD THIS
+        products: form.products, // 👈 IMPORTANT ADD THIS
       };
 
       delete payload._id;
@@ -285,7 +286,10 @@ export default function EditLead() {
                   total: productInput.price * productInput.quantity,
                 };
 
-                setProducts([...products, newProduct]);
+                setForm({
+                  ...form,
+                  products: [...form.products, newProduct],
+                });
 
                 setProductInput({
                   productId: "",
@@ -301,7 +305,7 @@ export default function EditLead() {
           </div>
 
           <div className="mt-4">
-            {products.map((p, index) => (
+            {form.products.map((p, index) => (
               <div
                 key={index}
                 className="flex justify-between items-center border p-2 rounded mb-2"

@@ -219,7 +219,7 @@ export default function EditLead() {
             />
           </div>
 
-          <div>
+          {/* <div>
             <label className="text-xs text-gray-500">Rejection Date</label>
             <input
               type="date"
@@ -229,7 +229,7 @@ export default function EditLead() {
               }
               className="border px-3 py-2 rounded-lg w-full"
             />
-          </div>
+          </div> */}
 
           <div className="border p-4 rounded-lg mt-4">
             <h3 className="font-semibold mb-3">Payment History</h3>

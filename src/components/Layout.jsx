@@ -10,8 +10,8 @@ export default function Layout({ children }) {
   const can = (page) => {
     // Available to every logged-in user:
     if (page === "daily-work" && role) return true;
-    if (page === "customer-work" && role) return true;   // 👈 added
-
+    if (page === "customer-work" && role) return true; // 👈 added
+    if (page === "travel-expenses" && role) return true;
     if (role === "admin") return true;
     if (role === "simanta")
       return ["complaints", "inventory", "daily-work"].includes(page);
@@ -85,10 +85,18 @@ export default function Layout({ children }) {
         {/* Scrollable menu area */}
         <nav className="flex flex-col gap-2 flex-1 overflow-y-auto">
           {can("dashboard") && (
-            <NavItem to="/" label="Dashboard" onClick={() => setMenuOpen(false)} />
+            <NavItem
+              to="/"
+              label="Dashboard"
+              onClick={() => setMenuOpen(false)}
+            />
           )}
           {can("leads") && (
-            <NavItem to="/leads" label="Leads" onClick={() => setMenuOpen(false)} />
+            <NavItem
+              to="/leads"
+              label="Leads"
+              onClick={() => setMenuOpen(false)}
+            />
           )}
           {can("requirements") && (
             <NavItem
@@ -98,7 +106,11 @@ export default function Layout({ children }) {
             />
           )}
           {can("add-lead") && (
-            <NavItem to="/add-lead" label="Add Lead" onClick={() => setMenuOpen(false)} />
+            <NavItem
+              to="/add-lead"
+              label="Add Lead"
+              onClick={() => setMenuOpen(false)}
+            />
           )}
           {can("sales") && (
             <NavItem
@@ -125,6 +137,14 @@ export default function Layout({ children }) {
             <NavItem
               to="/inventory"
               label="Inventory"
+              onClick={() => setMenuOpen(false)}
+            />
+          )}
+
+          {can("travel-expenses") && (
+            <NavItem
+              to="/travel-expenses"
+              label="Travel Expenses"
               onClick={() => setMenuOpen(false)}
             />
           )}

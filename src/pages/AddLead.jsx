@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 export default function AddLead() {
   const navigate = useNavigate();
   const [toast, setToast] = useState("");
+  // const [products, setProducts] = useState([]);
   const [form, setForm] = useState({
     name: "",
     phone: "",
@@ -30,11 +31,32 @@ export default function AddLead() {
     note: "",
   });
 
+  const [products, setProducts] = useState([]);
+
+  const [productInput, setProductInput] = useState({
+    productId: "",
+    name: "",
+    price: 0,
+    quantity: 1,
+  });
+
+  const [inventory, setInventory] = useState([]);
+
+  useEffect(() => {
+    fetchInventory();
+  }, []);
+
+  const fetchInventory = async () => {
+    const res = await getInventory();
+    setInventory(res);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const payload = {
       ...form,
+      products: products,
 
       paymentHistory: form.paymentHistory.map((p) => ({
         amount: Number(p.amount),
@@ -61,7 +83,7 @@ export default function AddLead() {
     }
 
     try {
-      await addLead(form);
+      await addLead(payload);
       setToast("✅ Lead Added Successfully");
       setTimeout(() => {
         setToast("");
@@ -185,7 +207,6 @@ export default function AddLead() {
             <option value="Closed Won">Closed Won</option>
             <option value="Closed Lost">Closed Lost</option>
           </select>
-          
 
           {/* Lead Type */}
           <select
@@ -225,6 +246,105 @@ export default function AddLead() {
             onChange={(e) => setForm({ ...form, salesPerson: e.target.value })}
             className="border px-3 py-2 rounded-lg w-full"
           />
+
+          <div className="border p-4 rounded-lg mt-4">
+            <h3 className="font-semibold mb-3">🧾 Product Mapping</h3>
+
+            {/* Product Select */}
+            <select
+              className="border p-2 rounded w-full mb-2"
+              value={productInput.productId}
+              onChange={(e) => {
+                const selected = inventory.find(
+                  (p) => p._id === e.target.value,
+                );
+
+                setProductInput({
+                  productId: selected._id,
+                  name: selected.name,
+                  price: selected.price,
+                  quantity: 1,
+                });
+              }}
+            >
+              <option value="">Select Product</option>
+              {inventory.map((p) => (
+                <option key={p._id} value={p._id}>
+                  {p.name} (Stock: {p.stock})
+                </option>
+              ))}
+            </select>
+
+            {/* Quantity */}
+            <input
+              type="number"
+              placeholder="Quantity"
+              value={productInput.quantity}
+              onChange={(e) =>
+                setProductInput({
+                  ...productInput,
+                  quantity: Number(e.target.value),
+                })
+              }
+              className="border p-2 rounded w-full mb-2"
+            />
+
+            {/* Add Button */}
+            <button
+              type="button"
+              onClick={() => {
+                if (!productInput.productId) return;
+
+                const newProduct = {
+                  ...productInput,
+                  total: productInput.price * productInput.quantity,
+                };
+
+                setProducts([...products, newProduct]);
+
+                setProductInput({
+                  productId: "",
+                  name: "",
+                  price: 0,
+                  quantity: 1,
+                });
+              }}
+              className="bg-orange-500 text-white px-4 py-2 rounded"
+            >
+              + Add Product
+            </button>
+          </div>
+
+          <div className="mt-4">
+            {products.map((p, index) => (
+              <div
+                key={index}
+                className="flex justify-between items-center border p-2 rounded mb-2"
+              >
+                <div>
+                  <p className="font-medium">{p.name}</p>
+                  <p className="text-xs text-gray-500">
+                    ₹{p.price} × {p.quantity}
+                  </p>
+                </div>
+
+                <div className="flex gap-3 items-center">
+                  <p className="font-semibold">₹{p.total}</p>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const updated = products.filter((_, i) => i !== index);
+                      setProducts(updated);
+                    }}
+                    className="text-red-500 text-sm"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
 
           {/* Amounts */}
           <div className="grid md:grid-cols-2 gap-4">

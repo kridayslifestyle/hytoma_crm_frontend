@@ -167,42 +167,60 @@ export default function CustomerWorkForm() {
 
   const slotsForSelectedDate = availability[form.scheduled_date] || [];
 
-  const handleQuotationUpload = async () => {
-    if (!quotationFile) {
-      alert("Select file first");
-      return;
-    }
+  const formData = new FormData();
 
-    if (!editingId) {
-      alert("Please select a record first (click edit icon)");
-      return;
-    }
+formData.append("customer_name", form.customer_name);
+formData.append("phone", form.phone);
+formData.append("address", form.address);
+formData.append("slot", form.slot);
+formData.append("status", form.status);
+formData.append("assigned_installers", JSON.stringify(form.installers));
 
-    const formData = new FormData();
-    formData.append("file", quotationFile);
+if (quotationFile) {
+  formData.append("file", quotationFile);
+}
 
-    const res = await fetch(
-      `${import.meta.env.VITE_API_URL}/api/customer-work/upload-quotation`,
-      {
-        method: "POST",
-        body: formData,
-      },
-    );
+await fetch(`${API_URL}/api/customer-work`, {
+  method: "POST",
+  body: formData,
+});
 
-    const data = await res.json(); // gives URL
+  // const handleQuotationUpload = async () => {
+  //   if (!quotationFile) {
+  //     alert("Select file first");
+  //     return;
+  //   }
 
-    await fetch(`${API_URL}/api/customer-work/${selectedWorkId}/quotation`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        quotation_url: data.url
-      })
-    });
+  //   if (!editingId) {
+  //     alert("Please select a record first (click edit icon)");
+  //     return;
+  //   }
 
-    await loadRecords(); // IMPORTANT
+  //   const formData = new FormData();
+  //   formData.append("file", quotationFile);
 
-    alert("Uploaded");
-  };
+  //   const res = await fetch(
+  //     `${import.meta.env.VITE_API_URL}/api/customer-work/upload-quotation`,
+  //     {
+  //       method: "POST",
+  //       body: formData,
+  //     },
+  //   );
+
+  //   const data = await res.json(); // gives URL
+
+  //   await fetch(`${API_URL}/api/customer-work/${selectedWorkId}/quotation`, {
+  //     method: "PATCH",
+  //     headers: { "Content-Type": "application/json" },
+  //     body: JSON.stringify({
+  //       quotation_url: data.url
+  //     })
+  //   });
+
+  //   await loadRecords(); // IMPORTANT
+
+  //   alert("Uploaded");
+  // };
 
   // ----- Submit -----
   const onSubmit = async (e) => {

@@ -6,7 +6,15 @@
 // tracks status, and reschedules until the work is Completed.
 
 import React, { useEffect, useMemo, useState } from "react";
-import { Calendar, ChevronLeft, ChevronRight, Trash2, Pencil, RotateCcw, X } from "lucide-react";
+import {
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  Trash2,
+  Pencil,
+  RotateCcw,
+  X,
+} from "lucide-react";
 import {
   createCustomerWork,
   listCustomerWork,
@@ -17,7 +25,14 @@ import {
   getAvailability,
 } from "../services/customerWorkApi";
 
-const STATUSES = ["Pending", "Scheduled", "In Progress", "Completed", "Re-Scheduled", "Cancelled"];
+const STATUSES = [
+  "Pending",
+  "Scheduled",
+  "In Progress",
+  "Completed",
+  "Re-Scheduled",
+  "Cancelled",
+];
 const INSTALLERS = ["Venkatesh", "Sai"];
 const STATUS_COLORS = {
   Pending: "bg-gray-100 text-gray-700",
@@ -44,6 +59,8 @@ const emptyForm = {
   scheduled_date: todayISO(),
   slot: "",
   is_custom_slot: false,
+  required_products: "",
+  quotation_url: "",
 };
 
 export default function CustomerWorkForm() {
@@ -53,7 +70,7 @@ export default function CustomerWorkForm() {
   const [filter, setFilter] = useState("");
   const [msg, setMsg] = useState(null);
   const [submitting, setSubmitting] = useState(false);
-
+  const [quotationFile, setQuotationFile] = useState(null);
   // Calendar state
   const [monthCursor, setMonthCursor] = useState(new Date());
   const [availability, setAvailability] = useState({}); // dateISO -> [{slot, available}]
@@ -77,8 +94,16 @@ export default function CustomerWorkForm() {
   };
 
   const loadAvailability = async () => {
-    const first = new Date(monthCursor.getFullYear(), monthCursor.getMonth(), 1);
-    const last = new Date(monthCursor.getFullYear(), monthCursor.getMonth() + 1, 0);
+    const first = new Date(
+      monthCursor.getFullYear(),
+      monthCursor.getMonth(),
+      1,
+    );
+    const last = new Date(
+      monthCursor.getFullYear(),
+      monthCursor.getMonth() + 1,
+      0,
+    );
     try {
       const r = await getAvailability(toISO(first), toISO(last));
       const map = {};
@@ -89,8 +114,12 @@ export default function CustomerWorkForm() {
     }
   };
 
-  useEffect(() => { loadRecords(); }, [filter]);
-  useEffect(() => { loadAvailability(); }, [monthCursor, records]);
+  useEffect(() => {
+    loadRecords();
+  }, [filter]);
+  useEffect(() => {
+    loadAvailability();
+  }, [monthCursor, records]);
 
   const setField = (k) => (e) =>
     setForm((f) => ({ ...f, [k]: e?.target ? e.target.value : e }));
@@ -118,28 +147,66 @@ export default function CustomerWorkForm() {
   const daySummary = (iso) => {
     const slots = availability[iso];
     if (!slots) return { free: 0, total: 0 };
-    return { free: slots.filter((s) => s.available).length, total: slots.length };
+    return {
+      free: slots.filter((s) => s.available).length,
+      total: slots.length,
+    };
   };
 
   const pickDate = (iso) => {
-    setForm((f) => ({ ...f, scheduled_date: iso, slot: "", is_custom_slot: customMode }));
+    setForm((f) => ({
+      ...f,
+      scheduled_date: iso,
+      slot: "",
+      is_custom_slot: customMode,
+    }));
   };
 
   const slotsForSelectedDate = availability[form.scheduled_date] || [];
 
+  const uploadQuotation = async () => {
+    if (!quotationFile) return;
+
+    const formData = new FormData();
+    formData.append("file", quotationFile);
+
+    try {
+      const res = await axios.post("/api/upload-quotation", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      setForm((f) => ({
+        ...f,
+        quotation_url: res.data.url,
+      }));
+
+      flash("success", "Quotation uploaded");
+    } catch (err) {
+      flash("error", "Upload failed");
+    }
+  };
+
   // ----- Submit -----
   const onSubmit = async (e) => {
     e.preventDefault();
-    if (!form.slot) return flash("error", "Please select a slot (or enter a custom slot).");
+    if (!form.slot)
+      return flash("error", "Please select a slot (or enter a custom slot).");
     setSubmitting(true);
     try {
-      const payload = { ...form };
+      const payload = {
+        ...form,
+        required_products: form.required_products,
+        quotation_url: form.quotation_url,
+      };
       if (editingId) {
         await updateCustomerWork(editingId, payload);
         flash("success", "Record updated.");
       } else {
         await createCustomerWork(payload);
-        flash("success", "Customer work created. WhatsApp confirmation queued.");
+        flash(
+          "success",
+          "Customer work created. WhatsApp confirmation queued.",
+        );
       }
       setForm(emptyForm);
       setEditingId(null);
@@ -194,16 +261,21 @@ export default function CustomerWorkForm() {
     <div className="max-w-6xl mx-auto">
       <div className="flex items-center gap-2 mb-1">
         <Calendar className="text-orange-500" size={24} />
-        <h1 className="text-2xl font-bold text-gray-800">Customer Work — Calendar</h1>
+        <h1 className="text-2xl font-bold text-gray-800">
+          Customer Work — Calendar
+        </h1>
       </div>
       <p className="text-gray-500 mb-5">
-        Create a customer job, pick an available slot, assign installers, and track status.
+        Create a customer job, pick an available slot, assign installers, and
+        track status.
       </p>
 
       {msg && (
         <div
           className={`mb-4 px-4 py-3 rounded-lg text-sm ${
-            msg.type === "error" ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"
+            msg.type === "error"
+              ? "bg-red-100 text-red-700"
+              : "bg-green-100 text-green-700"
           }`}
         >
           {msg.text}
@@ -212,34 +284,63 @@ export default function CustomerWorkForm() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* ---------------- FORM ---------------- */}
-        <form onSubmit={onSubmit} className="bg-white rounded-xl shadow p-5 space-y-4">
+        <form
+          onSubmit={onSubmit}
+          className="bg-white rounded-xl shadow p-5 space-y-4"
+        >
           <h3 className="font-semibold text-gray-800">
             {editingId ? "Edit Customer Work" : "New Customer Work"}
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Labeled label="Customer Name *">
-              <input className={inp} required value={form.customer_name} onChange={setField("customer_name")} />
+              <input
+                className={inp}
+                required
+                value={form.customer_name}
+                onChange={setField("customer_name")}
+              />
             </Labeled>
             <Labeled label="Phone Number *">
-              <input className={inp} required value={form.phone} onChange={setField("phone")} placeholder="10-digit or +91…" />
+              <input
+                className={inp}
+                required
+                value={form.phone}
+                onChange={setField("phone")}
+                placeholder="10-digit or +91…"
+              />
             </Labeled>
           </div>
 
           <Labeled label="Address *">
-            <textarea className={inp} required rows={2} value={form.address} onChange={setField("address")} />
+            <textarea
+              className={inp}
+              required
+              rows={2}
+              value={form.address}
+              onChange={setField("address")}
+            />
           </Labeled>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Labeled label="Status">
-              <select className={inp} value={form.status} onChange={setField("status")}>
-                {STATUSES.map((s) => <option key={s}>{s}</option>)}
+              <select
+                className={inp}
+                value={form.status}
+                onChange={setField("status")}
+              >
+                {STATUSES.map((s) => (
+                  <option key={s}>{s}</option>
+                ))}
               </select>
             </Labeled>
             <Labeled label="Assigned Installer(s)">
               <div className="flex gap-4 pt-2">
                 {INSTALLERS.map((n) => (
-                  <label key={n} className="flex items-center gap-2 text-sm text-gray-700">
+                  <label
+                    key={n}
+                    className="flex items-center gap-2 text-sm text-gray-700"
+                  >
                     <input
                       type="checkbox"
                       checked={form.assigned_installers.includes(n)}
@@ -253,7 +354,12 @@ export default function CustomerWorkForm() {
           </div>
 
           <Labeled label="Remarks">
-            <textarea className={inp} rows={2} value={form.remarks} onChange={setField("remarks")} />
+            <textarea
+              className={inp}
+              rows={2}
+              value={form.remarks}
+              onChange={setField("remarks")}
+            />
           </Labeled>
 
           {/* Calendar slot picker */}
@@ -266,7 +372,11 @@ export default function CustomerWorkForm() {
                   checked={customMode}
                   onChange={(e) => {
                     setCustomMode(e.target.checked);
-                    setForm((f) => ({ ...f, is_custom_slot: e.target.checked, slot: "" }));
+                    setForm((f) => ({
+                      ...f,
+                      is_custom_slot: e.target.checked,
+                      slot: "",
+                    }));
                   }}
                 />
                 Custom date / slot
@@ -276,7 +386,9 @@ export default function CustomerWorkForm() {
             <MonthNav cursor={monthCursor} setCursor={setMonthCursor} />
 
             <div className="grid grid-cols-7 gap-1 text-center text-xs text-gray-400 mb-1">
-              {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((d) => <div key={d}>{d}</div>)}
+              {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((d) => (
+                <div key={d}>{d}</div>
+              ))}
             </div>
             <div className="grid grid-cols-7 gap-1">
               {monthDays.map((d, i) => {
@@ -297,7 +409,9 @@ export default function CustomerWorkForm() {
                   >
                     <span>{d.getDate()}</span>
                     {total > 0 && !selected && (
-                      <span className={`text-[9px] ${free === 0 ? "text-red-500" : "text-green-600"}`}>
+                      <span
+                        className={`text-[9px] ${free === 0 ? "text-red-500" : "text-green-600"}`}
+                      >
                         {free}/{total}
                       </span>
                     )}
@@ -320,7 +434,9 @@ export default function CustomerWorkForm() {
               ) : (
                 <div className="flex flex-wrap gap-2">
                   {slotsForSelectedDate.length === 0 && (
-                    <span className="text-xs text-gray-400">Select a date to see slots.</span>
+                    <span className="text-xs text-gray-400">
+                      Select a date to see slots.
+                    </span>
                   )}
                   {slotsForSelectedDate.map((s) => {
                     const isSelf = editingId && s.slot === form.slot;
@@ -344,7 +460,8 @@ export default function CustomerWorkForm() {
             </div>
 
             <p className="text-xs text-gray-400 mt-2">
-              Selected: <b>{form.scheduled_date}</b> {form.slot && `· ${form.slot}`}
+              Selected: <b>{form.scheduled_date}</b>{" "}
+              {form.slot && `· ${form.slot}`}
             </p>
           </div>
 
@@ -359,7 +476,11 @@ export default function CustomerWorkForm() {
             {editingId && (
               <button
                 type="button"
-                onClick={() => { setEditingId(null); setForm(emptyForm); setCustomMode(false); }}
+                onClick={() => {
+                  setEditingId(null);
+                  setForm(emptyForm);
+                  setCustomMode(false);
+                }}
                 className="px-4 py-2 rounded-lg border text-gray-600"
               >
                 Cancel
@@ -372,33 +493,55 @@ export default function CustomerWorkForm() {
         <div className="bg-white rounded-xl shadow p-5">
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-semibold text-gray-800">Scheduled Work</h3>
-            <select className="border rounded-lg px-2 py-1 text-sm" value={filter} onChange={(e) => setFilter(e.target.value)}>
+            <select
+              className="border rounded-lg px-2 py-1 text-sm"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+            >
               <option value="">All statuses</option>
-              {STATUSES.map((s) => <option key={s}>{s}</option>)}
+              {STATUSES.map((s) => (
+                <option key={s}>{s}</option>
+              ))}
             </select>
           </div>
 
           <div className="space-y-3 max-h-[640px] overflow-auto pr-1">
-            {records.length === 0 && <p className="text-sm text-gray-400">No records yet.</p>}
+            {records.length === 0 && (
+              <p className="text-sm text-gray-400">No records yet.</p>
+            )}
             {records.map((r) => (
               <div key={r.id} className="border rounded-lg p-3">
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <div className="font-medium text-gray-800">{r.customer_name}</div>
-                    <div className="text-xs text-gray-500">{r.phone} · {r.address}</div>
+                    <div className="font-medium text-gray-800">
+                      {r.customer_name}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {r.phone} · {r.address}
+                    </div>
                   </div>
-                  <span className={`text-[11px] px-2 py-1 rounded-full ${STATUS_COLORS[r.status] || "bg-gray-100"}`}>
+                  <span
+                    className={`text-[11px] px-2 py-1 rounded-full ${STATUS_COLORS[r.status] || "bg-gray-100"}`}
+                  >
                     {r.status}
                   </span>
                 </div>
 
                 <div className="text-xs text-gray-600 mt-2">
-                  📅 {r.scheduled_date} · {r.slot}{r.is_custom_slot ? " (custom)" : ""}
-                  {r.assigned_installers?.length > 0 && <> · 👷 {r.assigned_installers.join(", ")}</>}
+                  📅 {r.scheduled_date} · {r.slot}
+                  {r.is_custom_slot ? " (custom)" : ""}
+                  {r.assigned_installers?.length > 0 && (
+                    <> · 👷 {r.assigned_installers.join(", ")}</>
+                  )}
                 </div>
                 {r.schedule_history?.length > 0 && (
                   <div className="text-[11px] text-gray-400 mt-1">
-                    Rescheduled {r.schedule_history.length}× (was {r.schedule_history[r.schedule_history.length - 1].scheduled_date})
+                    Rescheduled {r.schedule_history.length}× (was{" "}
+                    {
+                      r.schedule_history[r.schedule_history.length - 1]
+                        .scheduled_date
+                    }
+                    )
                   </div>
                 )}
 
@@ -408,15 +551,23 @@ export default function CustomerWorkForm() {
                     value={r.status}
                     onChange={(e) => onStatusChange(r.id, e.target.value)}
                   >
-                    {STATUSES.map((s) => <option key={s}>{s}</option>)}
+                    {STATUSES.map((s) => (
+                      <option key={s}>{s}</option>
+                    ))}
                   </select>
-                  <IconBtn onClick={() => startEdit(r)} title="Edit"><Pencil size={14} /></IconBtn>
+                  <IconBtn onClick={() => startEdit(r)} title="Edit">
+                    <Pencil size={14} />
+                  </IconBtn>
                   <IconBtn
                     onClick={() => setReschedTarget(r)}
                     title="Reschedule"
                     disabled={r.status === "Completed"}
-                  ><RotateCcw size={14} /></IconBtn>
-                  <IconBtn onClick={() => onDelete(r.id)} title="Delete" danger><Trash2 size={14} /></IconBtn>
+                  >
+                    <RotateCcw size={14} />
+                  </IconBtn>
+                  <IconBtn onClick={() => onDelete(r.id)} title="Delete" danger>
+                    <Trash2 size={14} />
+                  </IconBtn>
                 </div>
               </div>
             ))}
@@ -428,7 +579,11 @@ export default function CustomerWorkForm() {
         <RescheduleModal
           record={reschedTarget}
           onClose={() => setReschedTarget(null)}
-          onDone={() => { setReschedTarget(null); loadRecords(); flash("success", "Rescheduled. Customer notified."); }}
+          onDone={() => {
+            setReschedTarget(null);
+            loadRecords();
+            flash("success", "Rescheduled. Customer notified.");
+          }}
           onError={(t) => flash("error", t)}
         />
       )}
@@ -439,12 +594,15 @@ export default function CustomerWorkForm() {
 // ---------------------------------------------------------------------------
 // Small presentational helpers
 // ---------------------------------------------------------------------------
-const inp = "w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300";
+const inp =
+  "w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300";
 
 function Labeled({ label, children }) {
   return (
     <label className="block">
-      <span className="block text-xs font-medium text-gray-600 mb-1">{label}</span>
+      <span className="block text-xs font-medium text-gray-600 mb-1">
+        {label}
+      </span>
       {children}
     </label>
   );
@@ -458,7 +616,9 @@ function IconBtn({ children, onClick, title, danger, disabled }) {
       onClick={onClick}
       disabled={disabled}
       className={`p-1.5 rounded border transition ${
-        danger ? "text-red-500 hover:bg-red-50 border-red-200" : "text-gray-600 hover:bg-gray-50 border-gray-200"
+        danger
+          ? "text-red-500 hover:bg-red-50 border-red-200"
+          : "text-gray-600 hover:bg-gray-50 border-gray-200"
       } ${disabled ? "opacity-30 cursor-not-allowed" : ""}`}
     >
       {children}
@@ -467,14 +627,31 @@ function IconBtn({ children, onClick, title, danger, disabled }) {
 }
 
 function MonthNav({ cursor, setCursor }) {
-  const label = cursor.toLocaleString("default", { month: "long", year: "numeric" });
+  const label = cursor.toLocaleString("default", {
+    month: "long",
+    year: "numeric",
+  });
   return (
     <div className="flex items-center justify-between mb-2">
-      <button type="button" onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1))}
-        className="p-1 rounded hover:bg-gray-100"><ChevronLeft size={18} /></button>
+      <button
+        type="button"
+        onClick={() =>
+          setCursor(new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1))
+        }
+        className="p-1 rounded hover:bg-gray-100"
+      >
+        <ChevronLeft size={18} />
+      </button>
       <span className="text-sm font-medium text-gray-700">{label}</span>
-      <button type="button" onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1))}
-        className="p-1 rounded hover:bg-gray-100"><ChevronRight size={18} /></button>
+      <button
+        type="button"
+        onClick={() =>
+          setCursor(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1))
+        }
+        className="p-1 rounded hover:bg-gray-100"
+      >
+        <ChevronRight size={18} />
+      </button>
     </div>
   );
 }
@@ -493,7 +670,9 @@ function RescheduleModal({ record, onClose, onDone, onError }) {
       try {
         const r = await getAvailability(date, date);
         setSlots(r.data?.availability?.[0]?.slots || []);
-      } catch { setSlots([]); }
+      } catch {
+        setSlots([]);
+      }
     })();
   }, [date, custom]);
 
@@ -519,31 +698,62 @@ function RescheduleModal({ record, onClose, onDone, onError }) {
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-5">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold text-gray-800">Reschedule — {record.customer_name}</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600"><X size={18} /></button>
+          <h3 className="font-semibold text-gray-800">
+            Reschedule — {record.customer_name}
+          </h3>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600"
+          >
+            <X size={18} />
+          </button>
         </div>
 
         <Labeled label="New date *">
-          <input type="date" className={inp} value={date} min={todayISO()} onChange={(e) => setDate(e.target.value)} />
+          <input
+            type="date"
+            className={inp}
+            value={date}
+            min={todayISO()}
+            onChange={(e) => setDate(e.target.value)}
+          />
         </Labeled>
 
         <label className="flex items-center gap-2 text-xs text-gray-600 my-3">
-          <input type="checkbox" checked={custom} onChange={(e) => { setCustom(e.target.checked); setSlot(""); }} />
+          <input
+            type="checkbox"
+            checked={custom}
+            onChange={(e) => {
+              setCustom(e.target.checked);
+              setSlot("");
+            }}
+          />
           Custom slot
         </label>
 
         {custom ? (
           <Labeled label="Custom slot label *">
-            <input className={inp} value={slot} onChange={(e) => setSlot(e.target.value)} placeholder="e.g. 5 PM" />
+            <input
+              className={inp}
+              value={slot}
+              onChange={(e) => setSlot(e.target.value)}
+              placeholder="e.g. 5 PM"
+            />
           </Labeled>
         ) : (
           <div className="flex flex-wrap gap-2">
             {slots.map((s) => (
-              <button key={s.slot} type="button" disabled={!s.available}
+              <button
+                key={s.slot}
+                type="button"
+                disabled={!s.available}
                 onClick={() => setSlot(s.slot)}
                 className={`px-3 py-1.5 rounded-lg text-sm border ${
-                  slot === s.slot ? "bg-orange-500 text-white border-orange-500" : "border-gray-300 text-gray-700"
-                } ${!s.available ? "opacity-40 line-through cursor-not-allowed" : ""}`}>
+                  slot === s.slot
+                    ? "bg-orange-500 text-white border-orange-500"
+                    : "border-gray-300 text-gray-700"
+                } ${!s.available ? "opacity-40 line-through cursor-not-allowed" : ""}`}
+              >
                 {s.slot}
               </button>
             ))}
@@ -551,13 +761,26 @@ function RescheduleModal({ record, onClose, onDone, onError }) {
         )}
 
         <Labeled label="Remarks">
-          <textarea className={`${inp} mt-3`} rows={2} value={remarks} onChange={(e) => setRemarks(e.target.value)} />
+          <textarea
+            className={`${inp} mt-3`}
+            rows={2}
+            value={remarks}
+            onChange={(e) => setRemarks(e.target.value)}
+          />
         </Labeled>
 
         <div className="flex justify-end gap-2 mt-4">
-          <button onClick={onClose} className="px-4 py-2 rounded-lg border text-gray-600">Cancel</button>
-          <button onClick={submit} disabled={busy}
-            className="px-4 py-2 rounded-lg bg-orange-500 hover:bg-orange-600 text-white disabled:opacity-50">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 rounded-lg border text-gray-600"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={submit}
+            disabled={busy}
+            className="px-4 py-2 rounded-lg bg-orange-500 hover:bg-orange-600 text-white disabled:opacity-50"
+          >
             {busy ? "Saving…" : "Reschedule"}
           </button>
         </div>

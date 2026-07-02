@@ -165,27 +165,7 @@ export default function CustomerWorkForm() {
 
   const slotsForSelectedDate = availability[form.scheduled_date] || [];
 
-  const uploadQuotation = async () => {
-    if (!quotationFile) return;
-
-    const formData = new FormData();
-    formData.append("file", quotationFile);
-
-    try {
-      const res = await axios.post("/api/upload-quotation", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      setForm((f) => ({
-        ...f,
-        quotation_url: res.data.url,
-      }));
-
-      flash("success", "Quotation uploaded");
-    } catch (err) {
-      flash("error", "Upload failed");
-    }
-  };
+  
 
   const handleQuotationUpload = async () => {
     if (!quotationFile) {
@@ -231,6 +211,7 @@ export default function CustomerWorkForm() {
         ...form,
         required_products: form.required_products,
         quotation_url: form.quotation_url,
+        salesPerson: form.salesPerson,
       };
       if (editingId) {
         await updateCustomerWork(editingId, payload);
@@ -440,9 +421,9 @@ export default function CustomerWorkForm() {
                 Upload Quotation
               </button>
 
-              {r.quotation_url && (
+              {form.quotation_url && (
                 <a
-                  href={r.quotation_url}
+                  href={form.quotation_url}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-block mt-2 text-sm bg-blue-500 text-white px-3 py-1 rounded"

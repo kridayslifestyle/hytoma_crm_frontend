@@ -189,18 +189,15 @@ export default function CustomerWorkForm() {
       },
     );
 
-    const data = await res.json();
+    const data = await res.json(); // gives URL
 
-    await fetch(
-      `${import.meta.env.VITE_API_URL}/api/customer-work/${editingId}`,
-      {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          quotation_url: data.url,
-        }),
-      },
-    );
+    await fetch(`${API_URL}/api/customer-work/${selectedWorkId}/quotation`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        quotation_url: data.url
+      })
+    });
 
     await loadRecords(); // IMPORTANT
 

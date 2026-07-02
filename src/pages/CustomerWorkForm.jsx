@@ -571,6 +571,7 @@ await fetch(`${API_URL}/api/customer-work`, {
               <button
                 type="button"
                 onClick={() => {
+                  // await handleSubmit();
                   setEditingId(null);
                   setForm(emptyForm);
                   setCustomMode(false);

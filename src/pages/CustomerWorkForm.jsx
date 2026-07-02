@@ -168,54 +168,43 @@ export default function CustomerWorkForm() {
   const slotsForSelectedDate = availability[form.scheduled_date] || [];
 
   const handleQuotationUpload = async () => {
-    if (!quotationFile) {
-      alert("Please select a file first");
-      return;
-    }
+    if (!quotationFile) return;
 
     const formData = new FormData();
     formData.append("file", quotationFile);
 
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/customer-work/upload-quotation`,
-        {
-          method: "POST",
-          body: formData,
-        },
-      );
+    const res = await fetch(
+      `${import.meta.env.VITE_API_URL}/api/customer-work/upload-quotation`,
+      {
+        method: "POST",
+        body: formData,
+      },
+    );
 
-      if (!res.ok) throw new Error("Upload failed");
+    const data = await res.json();
 
-      const data = await res.json();
+    // STEP 1: upload success
+    const url = data.url;
 
-      // STEP 1: update UI
-      setForm((prev) => ({
-        ...prev,
-        quotation_url: data.url,
-      }));
+    // STEP 2: UPDATE DATABASE (THIS WAS MISSING)
+    await fetch(
+      `${import.meta.env.VITE_API_URL}/api/customer-work/${editingId}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          quotation_url: url,
+        }),
+      },
+    );
 
-      // STEP 2: SAVE TO BACKEND (IMPORTANT FIX)
-      if (editingId) {
-        await fetch(
-          `${import.meta.env.VITE_API_URL}/api/customer-work/${editingId}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              quotation_url: data.url,
-            }),
-          },
-        );
-      }
+    // STEP 3: update UI
+    setForm((prev) => ({
+      ...prev,
+      quotation_url: url,
+    }));
 
-      alert("Quotation uploaded successfully");
-    } catch (err) {
-      console.log(err);
-      alert("Upload failed");
-    }
+    alert("Quotation uploaded successfully");
   };
 
   // ----- Submit -----

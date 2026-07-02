@@ -362,6 +362,48 @@ export default function CustomerWorkForm() {
             />
           </Labeled>
 
+          {/* REQUIRED PRODUCTS TEXTAREA */}
+          <Labeled label="Client Required Products">
+            <textarea
+              className={inp}
+              rows={3}
+              placeholder="Example: 2 Switch Boards, 1 Door Lock, 2 Video Door Bells..."
+              value={form.required_products}
+              onChange={setField("required_products")}
+            />
+          </Labeled>
+
+          {/* QUOTATION UPLOAD */}
+          <Labeled label="Quotation (Upload / Attach)">
+            <input
+              type="file"
+              accept=".pdf,.png,.jpg,.jpeg"
+              className={inp}
+              onChange={(e) => setQuotationFile(e.target.files[0])}
+            />
+
+            <div className="flex gap-2 mt-2">
+              <button
+                type="button"
+                onClick={uploadQuotation}
+                className="px-3 py-1 bg-orange-500 text-white rounded text-sm"
+              >
+                Upload Quotation
+              </button>
+
+              {form.quotation_url && (
+                <a
+                  href={form.quotation_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-3 py-1 bg-green-500 text-white rounded text-sm"
+                >
+                  Download
+                </a>
+              )}
+            </div>
+          </Labeled>
+
           {/* Calendar slot picker */}
           <div className="border-t pt-4">
             <div className="flex items-center justify-between mb-2">

@@ -168,7 +168,15 @@ export default function CustomerWorkForm() {
   const slotsForSelectedDate = availability[form.scheduled_date] || [];
 
   const handleQuotationUpload = async () => {
-    if (!quotationFile) return;
+    if (!quotationFile) {
+      alert("Select file first");
+      return;
+    }
+
+    if (!editingId) {
+      alert("Please select a record first (click edit icon)");
+      return;
+    }
 
     const formData = new FormData();
     formData.append("file", quotationFile);
@@ -183,28 +191,20 @@ export default function CustomerWorkForm() {
 
     const data = await res.json();
 
-    // STEP 1: upload success
-    const url = data.url;
-
-    // STEP 2: UPDATE DATABASE (THIS WAS MISSING)
     await fetch(
       `${import.meta.env.VITE_API_URL}/api/customer-work/${editingId}`,
       {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          quotation_url: url,
+          quotation_url: data.url,
         }),
       },
     );
 
-    // STEP 3: update UI
-    setForm((prev) => ({
-      ...prev,
-      quotation_url: url,
-    }));
+    await loadRecords(); // IMPORTANT
 
-    alert("Quotation uploaded successfully");
+    alert("Uploaded");
   };
 
   // ----- Submit -----
@@ -666,8 +666,6 @@ export default function CustomerWorkForm() {
           onError={(t) => flash("error", t)}
         />
       )}
-
-      
     </div>
   );
 }

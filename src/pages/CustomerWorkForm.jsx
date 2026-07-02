@@ -165,8 +165,6 @@ export default function CustomerWorkForm() {
 
   const slotsForSelectedDate = availability[form.scheduled_date] || [];
 
-  
-
   const handleQuotationUpload = async () => {
     if (!quotationFile) {
       alert("Please select a file first");
@@ -178,20 +176,23 @@ export default function CustomerWorkForm() {
 
     try {
       const res = await fetch(
-        `${process.env.REACT_APP_API_URL}/upload-quotation`,
+        `${process.env.REACT_APP_API_URL}/api/upload-quotation`,
         {
           method: "POST",
           body: formData,
         },
       );
 
+      if (!res.ok) {
+        throw new Error("Upload failed");
+      }
+
       const data = await res.json();
 
-      // save URL into form
-      setForm({
-        ...form,
+      setForm((prev) => ({
+        ...prev,
         quotation_url: data.url,
-      });
+      }));
 
       alert("Quotation uploaded successfully");
     } catch (err) {

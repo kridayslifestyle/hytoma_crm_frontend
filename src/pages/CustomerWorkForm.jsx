@@ -187,6 +187,39 @@ export default function CustomerWorkForm() {
     }
   };
 
+  const handleQuotationUpload = async () => {
+    if (!quotationFile) {
+      alert("Please select a file first");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", quotationFile);
+
+    try {
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL}/upload-quotation`,
+        {
+          method: "POST",
+          body: formData,
+        },
+      );
+
+      const data = await res.json();
+
+      // save URL into form
+      setForm({
+        ...form,
+        quotation_url: data.url,
+      });
+
+      alert("Quotation uploaded successfully");
+    } catch (err) {
+      console.log(err);
+      alert("Upload failed");
+    }
+  };
+
   // ----- Submit -----
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -401,20 +434,20 @@ export default function CustomerWorkForm() {
             <div className="flex gap-2 mt-2">
               <button
                 type="button"
-                onClick={uploadQuotation}
-                className="px-3 py-1 bg-orange-500 text-white rounded text-sm"
+                onClick={handleQuotationUpload}
+                className="bg-orange-500 text-white px-4 py-2 rounded"
               >
                 Upload Quotation
               </button>
 
-              {form.quotation_url && (
+              {r.quotation_url && (
                 <a
-                  href={form.quotation_url}
+                  href={r.quotation_url}
                   target="_blank"
                   rel="noreferrer"
-                  className="px-3 py-1 bg-green-500 text-white rounded text-sm"
+                  className="inline-block mt-2 text-sm bg-blue-500 text-white px-3 py-1 rounded"
                 >
-                  Download
+                  📄 Download Quotation
                 </a>
               )}
             </div>

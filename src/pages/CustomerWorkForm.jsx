@@ -25,7 +25,7 @@ import {
   getAvailability,
 } from "../services/customerWorkApi";
 
-import.meta.env.VITE_API_URL
+import.meta.env.VITE_API_URL;
 
 const STATUSES = [
   "Pending",
@@ -185,16 +185,31 @@ export default function CustomerWorkForm() {
         },
       );
 
-      if (!res.ok) {
-        throw new Error("Upload failed");
-      }
+      if (!res.ok) throw new Error("Upload failed");
 
       const data = await res.json();
 
+      // STEP 1: update UI
       setForm((prev) => ({
         ...prev,
         quotation_url: data.url,
       }));
+
+      // STEP 2: SAVE TO BACKEND (IMPORTANT FIX)
+      if (editingId) {
+        await fetch(
+          `${import.meta.env.VITE_API_URL}/api/customer-work/${editingId}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              quotation_url: data.url,
+            }),
+          },
+        );
+      }
 
       alert("Quotation uploaded successfully");
     } catch (err) {

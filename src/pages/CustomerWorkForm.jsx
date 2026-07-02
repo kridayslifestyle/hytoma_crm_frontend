@@ -428,7 +428,7 @@ export default function CustomerWorkForm() {
                 Upload Quotation
               </button>
 
-              {form.quotation_url && (
+              {/* {form.quotation_url && (
                 <a
                   href={form.quotation_url}
                   target="_blank"
@@ -437,7 +437,7 @@ export default function CustomerWorkForm() {
                 >
                   📄 Download Quotation
                 </a>
-              )}
+              )} */}
             </div>
           </Labeled>
 
@@ -665,6 +665,17 @@ export default function CustomerWorkForm() {
           }}
           onError={(t) => flash("error", t)}
         />
+      )}
+
+      {work.quotation_url && (
+        <a
+          href={`${import.meta.env.VITE_API_URL}${work.quotation_url}`}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center gap-2 mt-2 bg-blue-500 text-white px-3 py-1 rounded"
+        >
+           Download Quotation
+        </a>
       )}
     </div>
   );

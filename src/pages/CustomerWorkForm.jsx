@@ -428,7 +428,7 @@ export default function CustomerWorkForm() {
                 Upload Quotation
               </button>
 
-              {/* {form.quotation_url && (
+              {form.quotation_url && (
                 <a
                   href={form.quotation_url}
                   target="_blank"
@@ -437,7 +437,7 @@ export default function CustomerWorkForm() {
                 >
                   📄 Download Quotation
                 </a>
-              )} */}
+              )}
             </div>
           </Labeled>
 

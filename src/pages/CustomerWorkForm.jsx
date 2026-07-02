@@ -71,6 +71,7 @@ export default function CustomerWorkForm() {
   const [msg, setMsg] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [quotationFile, setQuotationFile] = useState(null);
+  const SALES_PERSONS = ["Revathi", "Suresh", "Manoj", "Naveen"];
   // Calendar state
   const [monthCursor, setMonthCursor] = useState(new Date());
   const [availability, setAvailability] = useState({}); // dateISO -> [{slot, available}]
@@ -334,6 +335,21 @@ export default function CustomerWorkForm() {
                 ))}
               </select>
             </Labeled>
+            <select
+              value={form.salesPerson}
+              onChange={(e) =>
+                setForm({ ...form, salesPerson: e.target.value })
+              }
+              className="border px-3 py-2 rounded-lg w-full"
+            >
+              <option value="">Select Sales Person</option>
+
+              {SALES_PERSONS.map((person) => (
+                <option key={person} value={person}>
+                  {person}
+                </option>
+              ))}
+            </select>
             <Labeled label="Assigned Installer(s)">
               <div className="flex gap-4 pt-2">
                 {INSTALLERS.map((n) => (

@@ -176,7 +176,7 @@ export default function CustomerWorkForm() {
 
     try {
       const res = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/upload-quotation`,
+        `${process.env.REACT_APP_API_URL}/api/customer-work/upload-quotation`,
         {
           method: "POST",
           body: formData,

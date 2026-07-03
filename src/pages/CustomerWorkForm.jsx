@@ -25,7 +25,7 @@ import {
   getAvailability,
 } from "../services/customerWorkApi";
 
-import.meta.env.VITE_API_URL;
+// import.meta.env.VITE_API_URL;
 
 const STATUSES = [
   "Pending",
@@ -192,19 +192,19 @@ export default function CustomerWorkForm() {
 
     const data = await res.json();
 
-    await fetch(
-      `${import.meta.env.VITE_API_URL}/api/customer-work/${editingId}`,
-      {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          quotation_url: data.url,
-        }),
-      },
-    );
+    // await fetch(
+    //   `${import.meta.env.VITE_API_URL}/api/customer-work/${editingId}`,
+    //   {
+    //     method: "PUT",
+    //     headers: { "Content-Type": "application/json" },
+    //     body: JSON.stringify({
+    //       quotation_url: data.url,
+    //     }),
+    //   },
+    // );
 
-    flash("success", "Quotation uploaded");
-    await loadRecords();
+    // flash("success", "Quotation uploaded");
+    // await loadRecords();
   };
 
   // ----- Submit -----

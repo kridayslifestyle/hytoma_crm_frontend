@@ -168,98 +168,101 @@ export default function CustomerWorkForm() {
 
   const slotsForSelectedDate = availability[form.scheduled_date] || [];
 
-  
-
-  // const handleQuotationUpload = async () => {
-  //   if (!quotationFile) {
-  //     alert("Select file first");
-  //     return;
-  //   }
-
-  //   if (!editingId) {
-  //     alert("Please select a record first (click edit icon)");
-  //     return;
-  //   }
-
-  //   const formData = new FormData();
-  //   formData.append("file", quotationFile);
-
-  //   const res = await fetch(
-  //     `${import.meta.env.VITE_API_URL}/api/customer-work/upload-quotation`,
-  //     {
-  //       method: "POST",
-  //       body: formData,
-  //     },
-  //   );
-
-  //   const data = await res.json(); // gives URL
-
-  //   await fetch(`${API_URL}/api/customer-work/${selectedWorkId}/quotation`, {
-  //     method: "PATCH",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: JSON.stringify({
-  //       quotation_url: data.url
-  //     })
-  //   });
-
-  //   await loadRecords(); // IMPORTANT
-
-  //   alert("Uploaded");
-  // };
-
-  // ----- Submit -----
-  const onSubmit = async (e) => {
-  e.preventDefault();
-
-  if (!form.slot)
-    return flash("error", "Please select a slot (or enter a custom slot).");
-
-  setSubmitting(true);
-
-  try {
-    const formData = new FormData();
-
-    formData.append("customer_name", form.customer_name);
-    formData.append("phone", form.phone);
-    formData.append("address", form.address);
-    formData.append("slot", form.slot);
-    formData.append("status", form.status);
-    formData.append(
-      "assigned_installers",
-      JSON.stringify(form.assigned_installers)
-    );
-
-    formData.append("remarks", form.remarks || "");
-    formData.append("scheduled_date", form.scheduled_date);
-    formData.append("salesPerson", form.salesPerson || "");
-
-    if (quotationFile) {
-      formData.append("file", quotationFile);
+  const handleQuotationUpload = async () => {
+    if (!quotationFile) {
+      alert("Please select a file first");
+      return;
     }
 
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/customer-work`, {
-      method: "POST",
-      body: formData,
-    });
+    if (!editingId) {
+      alert("Please select a record first (click edit icon)");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", quotationFile);
+
+    const res = await fetch(
+      `${import.meta.env.VITE_API_URL}/api/customer-work/upload-quotation`,
+      {
+        method: "POST",
+        body: formData,
+      },
+    );
 
     const data = await res.json();
 
-    if (!res.ok) throw new Error(data.detail || "Failed");
+    await fetch(
+      `${import.meta.env.VITE_API_URL}/api/customer-work/${editingId}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          quotation_url: data.url,
+        }),
+      },
+    );
 
-    flash("success", "Customer work created successfully");
-
-    setForm(emptyForm);
-    setEditingId(null);
-    setQuotationFile(null);
-    setCustomMode(false);
-
+    flash("success", "Quotation uploaded");
     await loadRecords();
-  } catch (err) {
-    flash("error", err.message || "Save failed");
-  } finally {
-    setSubmitting(false);
-  }
-};
+  };
+
+  // ----- Submit -----
+  const onSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!form.slot)
+      return flash("error", "Please select a slot (or enter a custom slot).");
+
+    setSubmitting(true);
+
+    try {
+      const formData = new FormData();
+
+      formData.append("customer_name", form.customer_name);
+      formData.append("phone", form.phone);
+      formData.append("address", form.address);
+      formData.append("slot", form.slot);
+      formData.append("status", form.status);
+      formData.append(
+        "assigned_installers",
+        JSON.stringify(form.assigned_installers),
+      );
+
+      formData.append("remarks", form.remarks || "");
+      formData.append("scheduled_date", form.scheduled_date);
+      formData.append("salesPerson", form.salesPerson || "");
+
+      if (quotationFile) {
+        formData.append("file", quotationFile);
+      }
+
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/customer-work`,
+        {
+          method: "POST",
+          body: formData,
+        },
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.detail || "Failed");
+
+      flash("success", "Customer work created successfully");
+
+      setForm(emptyForm);
+      setEditingId(null);
+      setQuotationFile(null);
+      setCustomMode(false);
+
+      await loadRecords();
+    } catch (err) {
+      flash("error", err.message || "Save failed");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const startEdit = (r) => {
     setEditingId(r.id);

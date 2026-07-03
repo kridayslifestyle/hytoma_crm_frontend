@@ -211,57 +211,45 @@ export default function CustomerWorkForm() {
   const onSubmit = async (e) => {
     e.preventDefault();
 
-    if (!form.slot)
-      return flash("error", "Please select a slot (or enter a custom slot).");
+    const formData = new FormData();
 
-    setSubmitting(true);
+    formData.append("customer_name", form.customer_name);
+    formData.append("phone", form.phone);
+    formData.append("address", form.address);
+    formData.append("slot", form.slot);
+    formData.append("status", form.status);
+    formData.append("scheduled_date", form.scheduled_date);
+    formData.append(
+      "assigned_installers",
+      JSON.stringify(form.assigned_installers),
+    );
+    formData.append("remarks", form.remarks || "");
 
-    try {
-      const formData = new FormData();
-
-      formData.append("customer_name", form.customer_name);
-      formData.append("phone", form.phone);
-      formData.append("address", form.address);
-      formData.append("slot", form.slot);
-      formData.append("status", form.status);
-      formData.append(
-        "assigned_installers",
-        JSON.stringify(form.assigned_installers),
-      );
-
-      formData.append("remarks", form.remarks || "");
-      formData.append("scheduled_date", form.scheduled_date);
-      formData.append("salesPerson", form.salesPerson || "");
-
-      if (quotationFile) {
-        formData.append("file", quotationFile);
-      }
-
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/customer-work`,
-        {
-          method: "POST",
-          body: formData,
-        },
-      );
-
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data.detail || "Failed");
-
-      flash("success", "Customer work created successfully");
-
-      setForm(emptyForm);
-      setEditingId(null);
-      setQuotationFile(null);
-      setCustomMode(false);
-
-      await loadRecords();
-    } catch (err) {
-      flash("error", err.message || "Save failed");
-    } finally {
-      setSubmitting(false);
+    if (quotationFile) {
+      formData.append("file", quotationFile);
     }
+
+    const res = await fetch(
+      `${import.meta.env.VITE_API_URL}/api/customer-work`,
+      {
+        method: "POST",
+        body: formData,
+      },
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.detail || "Error");
+      return;
+    }
+
+    alert("Work created successfully");
+
+    setForm(emptyForm);
+    setQuotationFile(null);
+
+    await loadRecords();
   };
 
   const startEdit = (r) => {
@@ -612,6 +600,7 @@ export default function CustomerWorkForm() {
             {records.length === 0 && (
               <p className="text-sm text-gray-400">No records yet.</p>
             )}
+
             {records.map((r) => (
               <div key={r.id} className="border rounded-lg p-3">
                 <div className="flex items-start justify-between gap-2">
@@ -623,8 +612,11 @@ export default function CustomerWorkForm() {
                       {r.phone} · {r.address}
                     </div>
                   </div>
+
                   <span
-                    className={`text-[11px] px-2 py-1 rounded-full ${STATUS_COLORS[r.status] || "bg-gray-100"}`}
+                    className={`text-[11px] px-2 py-1 rounded-full ${
+                      STATUS_COLORS[r.status] || "bg-gray-100"
+                    }`}
                   >
                     {r.status}
                   </span>
@@ -637,14 +629,18 @@ export default function CustomerWorkForm() {
                     <> · 👷 {r.assigned_installers.join(", ")}</>
                   )}
                 </div>
-                {r.schedule_history?.length > 0 && (
-                  <div className="text-[11px] text-gray-400 mt-1">
-                    Rescheduled {r.schedule_history.length}× (was{" "}
-                    {
-                      r.schedule_history[r.schedule_history.length - 1]
-                        .scheduled_date
-                    }
-                    )
+
+                {/* ✅ QUOTATION DOWNLOAD (FIXED) */}
+                {r.quotation_url && (
+                  <div className="mt-2">
+                    <a
+                      href={`${import.meta.env.VITE_API_URL}${r.quotation_url}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-blue-600 underline text-sm"
+                    >
+                      📄 Download Quotation
+                    </a>
                   </div>
                 )}
 
@@ -658,9 +654,11 @@ export default function CustomerWorkForm() {
                       <option key={s}>{s}</option>
                     ))}
                   </select>
+
                   <IconBtn onClick={() => startEdit(r)} title="Edit">
                     <Pencil size={14} />
                   </IconBtn>
+
                   <IconBtn
                     onClick={() => setReschedTarget(r)}
                     title="Reschedule"
@@ -668,6 +666,7 @@ export default function CustomerWorkForm() {
                   >
                     <RotateCcw size={14} />
                   </IconBtn>
+
                   <IconBtn onClick={() => onDelete(r.id)} title="Delete" danger>
                     <Trash2 size={14} />
                   </IconBtn>
@@ -689,6 +688,17 @@ export default function CustomerWorkForm() {
           }}
           onError={(t) => flash("error", t)}
         />
+      )}
+
+      {work.quotation_url && (
+        <a
+          href={`${import.meta.env.VITE_API_URL}${work.quotation_url}`}
+          target="_blank"
+          rel="noreferrer"
+          className="text-blue-600 underline"
+        >
+          Download Quotation
+        </a>
       )}
     </div>
   );

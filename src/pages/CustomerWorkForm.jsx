@@ -689,17 +689,6 @@ export default function CustomerWorkForm() {
           onError={(t) => flash("error", t)}
         />
       )}
-
-      {work.quotation_url && (
-        <a
-          href={`${import.meta.env.VITE_API_URL}${work.quotation_url}`}
-          target="_blank"
-          rel="noreferrer"
-          className="text-blue-600 underline"
-        >
-          Download Quotation
-        </a>
-      )}
     </div>
   );
 }

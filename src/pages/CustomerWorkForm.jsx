@@ -168,98 +168,103 @@ export default function CustomerWorkForm() {
 
   const slotsForSelectedDate = availability[form.scheduled_date] || [];
 
-  const handleQuotationUpload = async () => {
-    if (!quotationFile) {
-      alert("Please select a file first");
-      return;
-    }
+  // const handleQuotationUpload = async () => {
+  //   if (!quotationFile) {
+  //     alert("Please select a file first");
+  //     return;
+  //   }
 
-    if (!editingId) {
-      alert("Please select a record first (click edit icon)");
-      return;
-    }
+  //   if (!editingId) {
+  //     alert("Please select a record first (click edit icon)");
+  //     return;
+  //   }
 
-    const formData = new FormData();
-    formData.append("file", quotationFile);
+  //   const formData = new FormData();
+  //   formData.append("file", quotationFile);
 
-    const res = await fetch(
-      `${import.meta.env.VITE_API_URL}/api/customer-work/upload-quotation`,
-      {
-        method: "POST",
-        body: formData,
-      },
-    );
+  //   const res = await fetch(
+  //     `${import.meta.env.VITE_API_URL}/api/customer-work/upload-quotation`,
+  //     {
+  //       method: "POST",
+  //       body: formData,
+  //     },
+  //   );
 
-    const data = await res.json();
+  //   const data = await res.json();
 
-    // await fetch(
-    //   `${import.meta.env.VITE_API_URL}/api/customer-work/${editingId}`,
-    //   {
-    //     method: "PUT",
-    //     headers: { "Content-Type": "application/json" },
-    //     body: JSON.stringify({
-    //       quotation_url: data.url,
-    //     }),
-    //   },
-    // );
+  //   // await fetch(
+  //   //   `${import.meta.env.VITE_API_URL}/api/customer-work/${editingId}`,
+  //   //   {
+  //   //     method: "PUT",
+  //   //     headers: { "Content-Type": "application/json" },
+  //   //     body: JSON.stringify({
+  //   //       quotation_url: data.url,
+  //   //     }),
+  //   //   },
+  //   // );
 
-    // flash("success", "Quotation uploaded");
-    // await loadRecords();
-  };
+  //   // flash("success", "Quotation uploaded");
+  //   // await loadRecords();
+  // };
 
   // ----- Submit -----
   const onSubmit = async (e) => {
     e.preventDefault();
 
-    const formData = new FormData();
+    setSubmitting(true);
 
-    formData.append("customer_name", form.customer_name);
-    formData.append("phone", form.phone);
-    formData.append("address", form.address);
-    formData.append("slot", form.slot);
-    formData.append("status", form.status);
-    formData.append("scheduled_date", form.scheduled_date);
-    formData.append(
-      "assigned_installers",
-      JSON.stringify(form.assigned_installers),
-    );
-    formData.append("remarks", form.remarks || "");
+    try {
+      const API_URL = import.meta.env.VITE_API_URL;
+      const token = localStorage.getItem("token");
 
-    if (quotationFile) {
-      formData.append("file", quotationFile);
-    }
+      const formData = new FormData();
 
-    const token = localStorage.getItem("token");
+      formData.append("customer_name", form.customer_name);
+      formData.append("phone", form.phone);
+      formData.append("address", form.address);
+      formData.append("slot", form.slot);
+      formData.append("status", form.status);
+      formData.append("scheduled_date", form.scheduled_date);
+      formData.append(
+        "assigned_installers",
+        JSON.stringify(form.assigned_installers),
+      );
+      formData.append("remarks", form.remarks || "");
 
-    await fetch(`${import.meta.env.VITE_API_URL}/api/customer-work`,{
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: formData,
-    });
+      if (quotationFile) {
+        formData.append("file", quotationFile);
+      }
 
-    const res = await fetch(
-      `${import.meta.env.VITE_API_URL}/api/customer-work`,
-      {
+      const res = await fetch(`${API_URL}/api/customer-work`, {
         method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
         body: formData,
-      },
-    );
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (!res.ok) {
-      alert(data.detail || "Error");
-      return;
+      if (!res.ok) {
+        alert(data.detail || "Error creating work");
+        return;
+      }
+
+      alert("Work created successfully");
+
+      // reset everything
+      setForm(emptyForm);
+      setQuotationFile(null);
+      setEditingId(null);
+      setCustomMode(false);
+
+      await loadRecords();
+    } catch (err) {
+      console.error(err);
+      alert("Network error");
+    } finally {
+      setSubmitting(false);
     }
-
-    alert("Work created successfully");
-
-    setForm(emptyForm);
-    setQuotationFile(null);
-
-    await loadRecords();
   };
 
   const startEdit = (r) => {
@@ -441,14 +446,6 @@ export default function CustomerWorkForm() {
             />
 
             <div className="flex gap-2 mt-2">
-              <button
-                type="button"
-                onClick={handleQuotationUpload}
-                className="bg-orange-500 text-white px-4 py-2 rounded"
-              >
-                Upload Quotation
-              </button>
-
               {form.quotation_url && (
                 <a
                   href={form.quotation_url}
@@ -644,7 +641,11 @@ export default function CustomerWorkForm() {
                 {r.quotation_url && (
                   <div className="mt-2">
                     <a
-                      href={`${import.meta.env.VITE_API_URL}${r.quotation_url}`}
+                      href={
+                        r.quotation_url?.startsWith("http")
+                          ? r.quotation_url
+                          : `${import.meta.env.VITE_API_URL}${r.quotation_url}`
+                      }
                       target="_blank"
                       rel="noreferrer"
                       className="text-blue-600 underline text-sm"

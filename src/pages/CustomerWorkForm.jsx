@@ -229,6 +229,16 @@ export default function CustomerWorkForm() {
       formData.append("file", quotationFile);
     }
 
+    const token = localStorage.getItem("token");
+
+    await fetch(`${API_URL}/api/customer-work`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
     const res = await fetch(
       `${import.meta.env.VITE_API_URL}/api/customer-work`,
       {

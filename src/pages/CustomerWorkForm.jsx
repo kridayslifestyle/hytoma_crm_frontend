@@ -110,8 +110,14 @@ export default function CustomerWorkForm() {
     );
     try {
       const r = await getAvailability(toISO(first), toISO(last));
+
       const map = {};
-      (r.data?.availability || []).forEach((d) => (map[d.date] = d.slots));
+      const data = r?.data?.availability || [];
+
+      data.forEach((d) => {
+        map[d.date] = d.slots;
+      });
+
       setAvailability(map);
     } catch (e) {
       console.error(e);
@@ -215,7 +221,6 @@ export default function CustomerWorkForm() {
 
     try {
       const API_URL = import.meta.env.VITE_API_URL;
-      const token = localStorage.getItem("token");
 
       const formData = new FormData();
 
@@ -237,9 +242,7 @@ export default function CustomerWorkForm() {
 
       const res = await fetch(`${API_URL}/api/customer-work`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: "include", // 🔥 FIX 401 ISSUE
         body: formData,
       });
 

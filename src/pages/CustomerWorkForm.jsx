@@ -632,11 +632,27 @@ export default function CustomerWorkForm() {
                   </span>
                 </div>
 
-                <div className="text-xs text-gray-600 mt-2">
-                  📅 {r.scheduled_date} · {r.slot}
-                  {r.is_custom_slot ? " (custom)" : ""}
-                  {r.assigned_installers?.length > 0 && (
-                    <> · 👷 {r.assigned_installers.join(", ")}</>
+                <div className="text-xs text-gray-600 mt-2 space-y-1">
+                  <div>
+                    📅 {r.scheduled_date} · {r.slot}
+                    {r.is_custom_slot ? " (custom)" : ""}
+                    {r.assigned_installers?.length > 0 && (
+                      <> · 👷 {r.assigned_installers.join(", ")}</>
+                    )}
+                  </div>
+
+                  {r.salesPerson && (
+                    <div>
+                      👤 <span className="font-medium">Sales:</span>{" "}
+                      {r.salesPerson}
+                    </div>
+                  )}
+
+                  {r.required_products && (
+                    <div>
+                      📦 <span className="font-medium">Products:</span>{" "}
+                      {r.required_products}
+                    </div>
                   )}
                 </div>
 

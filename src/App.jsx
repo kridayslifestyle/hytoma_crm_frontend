@@ -290,7 +290,7 @@ function App() {
         />
 
         <Route
-          path="/customer-work"
+          path="/customer-feedback"
           element={
             <ProtectedRoute>
               <Layout>

@@ -21,6 +21,8 @@ import GenerateQuotation from "./pages/GenerateQuotation";
 import EmployeeWork from "./pages/EmployeeWork";
 import CustomerWorkForm from "./pages/CustomerWorkForm";
 import TravelExpenses from "./pages/TravelExpenses";
+import CustomerWorkForm from "./pages/CustomerFeedback";
+import CustomerFeedback from "./pages/CustomerFeedback";
 
 
 // ✅ Role-based route guard
@@ -282,6 +284,17 @@ function App() {
             <ProtectedRoute>
               <Layout>
                 <CustomerWorkForm />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/customer-work"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <CustomerFeedback />
               </Layout>
             </ProtectedRoute>
           }

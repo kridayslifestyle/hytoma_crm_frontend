@@ -75,6 +75,18 @@ export default function Navbar() {
         >
           Daily Work
         </NavLink>
+        <NavLink
+          to="/customer-feedback"
+          className={({ isActive }) =>
+            `px-4 py-2 rounded-lg ${
+              isActive
+                ? "bg-orange-100 text-orange-600"
+                : "text-gray-700 hover:bg-gray-100"
+            }`
+          }
+        >
+          Customer Feedback 
+        </NavLink>
         <button
           onClick={() => {
             localStorage.removeItem("isAuth");

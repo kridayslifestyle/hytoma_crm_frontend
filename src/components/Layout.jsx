@@ -10,6 +10,7 @@ export default function Layout({ children }) {
   const can = (page) => {
     // Available to every logged-in user:
     if (page === "daily-work" && role) return true;
+    if (page === "customer-feedback" && role) return true;
     if (page === "customer-work" && role) return true; // 👈 added
     if (page === "travel-expenses" && role) return true;
     if (role === "admin") return true;
@@ -166,6 +167,13 @@ export default function Layout({ children }) {
             <NavItem
               to="/product-movement"
               label="Product Movement"
+              onClick={() => setMenuOpen(false)}
+            />
+          )}
+          {can("customer-feedback") && (
+            <NavItem
+              to="/customer-feedback"
+              label="customer-feedback"
               onClick={() => setMenuOpen(false)}
             />
           )}

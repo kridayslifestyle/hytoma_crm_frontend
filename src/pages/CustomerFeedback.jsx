@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import axios from "axios";
 
 const GOOGLE_REVIEW =
   "https://search.google.com/local/writereview?placeid=ChIJOXwriN-RyzsRNJka-YFq4Hs";
@@ -13,17 +12,35 @@ export default function CustomerFeedback() {
   const workId = params.get("workId");
 
   const submitFeedback = async () => {
-    await axios.post("/api/customer-work/feedback", {
-      workId,
-      rating,
-      reason,
-    });
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/customer-work/feedback`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            workId,
+            rating,
+            reason,
+          }),
+        }
+      );
 
-    setSubmitted(true);
+      if (!res.ok) {
+        throw new Error("Failed to submit feedback");
+      }
 
-    // ⭐ CASE 4–5 → Google Review Redirect
-    if (rating >= 4) {
-      window.location.href = GOOGLE_REVIEW;
+      setSubmitted(true);
+
+      // ⭐ CASE 4–5 → Google Review Redirect
+      if (rating >= 4) {
+        window.location.href = GOOGLE_REVIEW;
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong");
     }
   };
 
@@ -55,7 +72,7 @@ export default function CustomerFeedback() {
         ))}
       </div>
 
-      {/* ❌ SHOW FORM ONLY IF LOW RATING */}
+      {/* ❌ LOW RATING → COMPLAINT */}
       {rating > 0 && rating <= 3 && (
         <>
           <textarea

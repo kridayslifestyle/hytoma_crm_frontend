@@ -10,11 +10,16 @@ export default function CustomerFeedback() {
 
   const loadFeedbacks = async () => {
     try {
-      const res = await fetch(`${API_URL}/api/customer-work/feedback`);
+      const res = await fetch(`${API_URL}/api/customer-work/feedback`, {
+        credentials: "include",
+      });
+
       const data = await res.json();
-      setFeedbacks(data || []);
+
+      setFeedbacks(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error(err);
+      console.error("Failed to load feedbacks", err);
+      setFeedbacks([]);
     }
   };
 
@@ -24,18 +29,14 @@ export default function CustomerFeedback() {
 
   return (
     <div className="p-6 space-y-6 bg-gray-50 min-h-screen">
-
       <div>
         <h1 className="text-2xl font-semibold text-gray-800">
           Customer Feedbacks
         </h1>
-        <p className="text-sm text-gray-500">
-          Monitor ratings & complaints
-        </p>
+        <p className="text-sm text-gray-500">Monitor ratings & complaints</p>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border p-4">
-
         <table className="w-full text-sm">
           <thead>
             <tr className="text-left text-gray-500 border-b">
@@ -59,11 +60,14 @@ export default function CustomerFeedback() {
 
             {feedbacks.map((item, index) => (
               <tr key={index} className="border-b hover:bg-gray-50">
-
                 <td className="py-3">{item.customer_name}</td>
 
                 <td>
-                  <span className={item.rating >= 4 ? "text-green-600" : "text-red-500"}>
+                  <span
+                    className={
+                      item.rating >= 4 ? "text-green-600" : "text-red-500"
+                    }
+                  >
                     {item.rating} ⭐
                   </span>
                 </td>
@@ -87,12 +91,10 @@ export default function CustomerFeedback() {
                     <span className="text-orange-500">Complaint</span>
                   )}
                 </td>
-
               </tr>
             ))}
           </tbody>
         </table>
-
       </div>
     </div>
   );

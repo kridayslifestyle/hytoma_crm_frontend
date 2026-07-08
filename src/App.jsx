@@ -131,13 +131,11 @@ function App() {
           element={
             <ProtectedRoute>
               <RoleRoute
-
                 allowed={["admin", "sales", "revathi", "inventory_manager"]}
-
               >
-              <Layout>
-                <SalesDashboard />
-              </Layout>
+                <Layout>
+                  <SalesDashboard />
+                </Layout>
               </RoleRoute>
             </ProtectedRoute>
           }
@@ -168,6 +166,17 @@ function App() {
                   <TravelExpenses />
                 </Layout>
               </RoleRoute>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/sales-report"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <SalesReport />
+              </Layout>
             </ProtectedRoute>
           }
         />

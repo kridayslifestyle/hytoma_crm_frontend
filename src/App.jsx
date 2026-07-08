@@ -22,8 +22,7 @@ import EmployeeWork from "./pages/EmployeeWork";
 import CustomerWorkForm from "./pages/CustomerWorkForm";
 import TravelExpenses from "./pages/TravelExpenses";
 import CustomerFeedback from "./pages/CustomerFeedback";
-
-
+import SalesDashboard from "./pages/SalesDashboard";
 
 // ✅ Role-based route guard
 const RoleRoute = ({ children, allowed }) => {
@@ -128,15 +127,17 @@ function App() {
         />
 
         <Route
-          path="/sales-report"
+          path="/sales-dashboard"
           element={
             <ProtectedRoute>
               <RoleRoute
+
                 allowed={["admin", "sales", "revathi", "inventory_manager"]}
+
               >
-                <Layout>
-                  <SalesReport />
-                </Layout>
+              <Layout>
+                <SalesDashboard />
+              </Layout>
               </RoleRoute>
             </ProtectedRoute>
           }

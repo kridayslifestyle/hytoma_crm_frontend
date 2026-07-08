@@ -11,7 +11,8 @@ export default function Layout({ children }) {
     // Available to every logged-in user:
     if (page === "daily-work" && role) return true;
     if (page === "customer-feedback" && role) return true;
-    if (page === "customer-work" && role) return true; // 👈 added
+    if (page === "customer-work" && role) return true;
+    if (page === "sales-dashboard" && role) return true;
     if (page === "travel-expenses" && role) return true;
     if (role === "admin") return true;
     if (role === "simanta")
@@ -113,10 +114,10 @@ export default function Layout({ children }) {
               onClick={() => setMenuOpen(false)}
             />
           )}
-          {can("sales") && (
+          {can("sales-dashboard") && (
             <NavItem
-              to="/sales"
-              label="Sales Performance"
+              to="/sales-dashboard"
+              label="Sales Dashboard"
               onClick={() => setMenuOpen(false)}
             />
           )}
@@ -173,7 +174,7 @@ export default function Layout({ children }) {
           {can("customer-feedback") && (
             <NavItem
               to="/customer-feedback"
-              label="customer-feedback"
+              label="customer feedback"
               onClick={() => setMenuOpen(false)}
             />
           )}

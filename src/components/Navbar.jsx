@@ -51,7 +51,7 @@ export default function Navbar() {
         </NavLink>
 
         <NavLink
-          to="/sales"
+          to="/sales-dashboard"
           className={({ isActive }) =>
             `px-4 py-2 rounded-lg ${
               isActive
@@ -60,7 +60,7 @@ export default function Navbar() {
             }`
           }
         >
-          Sales Performance
+          Sales Dashboard
         </NavLink>
 
         <NavLink

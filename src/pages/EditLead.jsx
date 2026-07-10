@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { updateLead, getLeads } from "../services/api";
+import { getInventory } from "../services/api";
 
 export default function EditLead() {
   const { id } = useParams();

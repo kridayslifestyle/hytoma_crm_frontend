@@ -54,7 +54,7 @@ export default function EditLead() {
 
         quotationSent: lead.quotationSent || false,
 
-        products: lead.products || [],
+        products: Array.isArray(lead.products) ? lead.products : [],
 
         // ✅ IMPORTANT FIX (ADD ALL NEW FIELDS SAFELY)
         leadEntryDate: lead.leadEntryDate || "",
@@ -66,7 +66,7 @@ export default function EditLead() {
         acceptanceReason: lead.acceptanceReason || "",
         rejectionReason: lead.rejectionReason || "",
 
-        paymentHistory: lead.paymentHistory || [],
+        paymentHistory: Array.isArray(lead.paymentHistory) ? lead.paymentHistory : [],
       });
     }
   };
@@ -305,7 +305,7 @@ export default function EditLead() {
           </div>
 
           <div className="mt-4">
-            {form.products.map((p, index) => (
+            {(form.products || []).map((p, index) => (
               <div
                 key={index}
                 className="flex justify-between items-center border p-2 rounded mb-2"
@@ -323,8 +323,8 @@ export default function EditLead() {
                   <button
                     type="button"
                     onClick={() => {
-                      const updated = products.filter((_, i) => i !== index);
-                      setProducts(updated);
+                      const updated = form.products.filter((_, i) => i !== index);
+                      setForm({ ...form, products: updated });
                     }}
                     className="text-red-500 text-sm"
                   >
@@ -372,7 +372,7 @@ export default function EditLead() {
           <div className="border p-4 rounded-lg mt-4">
             <h3 className="font-semibold mb-3">Payment History</h3>
 
-            {form.paymentHistory.map((p, index) => (
+            {(form.paymentHistory || []).map((p, index) => (
               <div key={index} className="grid grid-cols-3 gap-2 mb-2">
                 <input
                   type="number"

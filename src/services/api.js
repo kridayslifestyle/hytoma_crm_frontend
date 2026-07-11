@@ -1,6 +1,12 @@
 const API =  import.meta.env.VITE_API_URL;
 
 
+export const getSalesUsers = async () => {
+  const res = await fetch(`${API}/users/sales-list`, { credentials: "include" });
+  return res.json();
+};
+
+
 export const getLeads = async () => {
   const res = await fetch(`${API}/leads`,{
     credentials:"include"

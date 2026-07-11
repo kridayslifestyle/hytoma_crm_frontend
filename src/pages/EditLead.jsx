@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { updateLead, getLeads } from "../services/api";
-import { getInventory } from "../services/api";
+import {
+  updateLead,
+  getLeads,
+  getInventory,
+  getSalesUsers,
+} from "../services/api";
 
 export default function EditLead() {
   const { id } = useParams();
@@ -37,6 +41,13 @@ export default function EditLead() {
     fetchLead();
   }, []);
 
+  const [salesUsers, setSalesUsers] = useState([]);
+
+  useEffect(() => {
+    fetchLead();
+    getSalesUsers().then(setSalesUsers);
+  }, []);
+
   const fetchLead = async () => {
     const leads = await getLeads();
     const lead = leads.find((l) => l._id === id);
@@ -67,7 +78,9 @@ export default function EditLead() {
         acceptanceReason: lead.acceptanceReason || "",
         rejectionReason: lead.rejectionReason || "",
 
-        paymentHistory: Array.isArray(lead.paymentHistory) ? lead.paymentHistory : [],
+        paymentHistory: Array.isArray(lead.paymentHistory)
+          ? lead.paymentHistory
+          : [],
       });
     }
   };
@@ -227,12 +240,22 @@ export default function EditLead() {
           </select>
 
           {/* Sales Person */}
-          <input
-            placeholder="Sales Person"
+          {/* Sales Person */}
+          <select
             value={form.salesPerson}
             onChange={(e) => setForm({ ...form, salesPerson: e.target.value })}
+            required
             className="border px-3 py-2 rounded-lg w-full"
-          />
+          >
+            <option value="" disabled>
+              Select Sales Person
+            </option>
+            {salesUsers.map((u) => (
+              <option key={u.id} value={u.name}>
+                {u.name}
+              </option>
+            ))}
+          </select>
 
           <div className="border p-4 rounded-lg mt-4">
             <h3 className="font-semibold mb-3">🧾 Product Mapping</h3>
@@ -324,7 +347,9 @@ export default function EditLead() {
                   <button
                     type="button"
                     onClick={() => {
-                      const updated = form.products.filter((_, i) => i !== index);
+                      const updated = form.products.filter(
+                        (_, i) => i !== index,
+                      );
                       setForm({ ...form, products: updated });
                     }}
                     className="text-red-500 text-sm"

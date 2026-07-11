@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { addLead } from "../services/api";
 import { useNavigate } from "react-router-dom";
-import { getInventory } from "../services/api";
-
+// import { getInventory } from "../services/api";
+import { addLead, getInventory, getSalesUsers } from "../services/api";
 export default function AddLead() {
   const navigate = useNavigate();
   const [toast, setToast] = useState("");
@@ -25,6 +25,18 @@ export default function AddLead() {
     leadEntryDate: "",
     followUpDate: "",
   });
+
+  const [salesUsers, setSalesUsers] = useState([]);
+
+  useEffect(() => {
+    fetchInventory();
+    fetchSalesUsers();
+  }, []);
+
+  const fetchSalesUsers = async () => {
+    const res = await getSalesUsers();
+    setSalesUsers(res);
+  };
 
   const [paymentInput, setPaymentInput] = useState({
     amount: "",
@@ -249,12 +261,22 @@ export default function AddLead() {
           </select>
 
           {/* Sales Person */}
-          <input
-            placeholder="Sales Person"
+          {/* Sales Person */}
+          <select
             value={form.salesPerson}
             onChange={(e) => setForm({ ...form, salesPerson: e.target.value })}
+            required
             className="border px-3 py-2 rounded-lg w-full"
-          />
+          >
+            <option value="" disabled>
+              Select Sales Person
+            </option>
+            {salesUsers.map((u) => (
+              <option key={u.id} value={u.name}>
+                {u.name}
+              </option>
+            ))}
+          </select>
 
           <div className="border p-4 rounded-lg mt-4">
             <h3 className="font-semibold mb-3">🧾 Product Mapping</h3>

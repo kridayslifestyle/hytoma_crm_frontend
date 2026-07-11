@@ -13,9 +13,8 @@ export default function SalesDashboard() {
   const fetchDashboard = async () => {
     try {
       const res = await fetch(`${API}/api/sales/dashboard`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+        method: "GET",
+        credentials: "include",
       });
 
       const json = await res.json();
@@ -60,8 +59,16 @@ export default function SalesDashboard() {
       {/* SUMMARY CARDS */}
       {monthData && (
         <div style={styles.grid}>
-          <Card title="Collected" value={`₹${monthData.collected}`} color="#16a34a" />
-          <Card title="Pending" value={`₹${monthData.pending}`} color="#dc2626" />
+          <Card
+            title="Collected"
+            value={`₹${monthData.collected}`}
+            color="#16a34a"
+          />
+          <Card
+            title="Pending"
+            value={`₹${monthData.pending}`}
+            color="#dc2626"
+          />
           <Card title="Target" value={`₹${monthData.target}`} color="#2563eb" />
         </div>
       )}
@@ -104,12 +111,14 @@ export default function SalesDashboard() {
                     <td>₹{m.collected}</td>
                     <td>₹{m.pending}</td>
                     <td>₹{m.target}</td>
-                    <td style={{ color: m.carry_forward > 0 ? "red" : "green" }}>
+                    <td
+                      style={{ color: m.carry_forward > 0 ? "red" : "green" }}
+                    >
                       ₹{m.carry_forward}
                     </td>
                   </tr>
                 );
-              }
+              },
             )}
           </tbody>
         </table>

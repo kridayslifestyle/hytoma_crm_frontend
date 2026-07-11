@@ -41,6 +41,8 @@ export default function Login() {
       console.error(err);
       alert("Server error");
     }
+
+    
   };
 
   return (

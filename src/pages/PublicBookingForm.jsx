@@ -222,10 +222,10 @@ export default function PublicBookingForm() {
             />
             <span>
               <span className="flex items-center gap-1 font-medium">
-                <Zap size={14} className="text-orange-500" /> Express Service — visit today
+                <Zap size={14} className="text-orange-500" /> Express Service — any day
               </span>
               <span className="block text-xs text-gray-500 mt-0.5">
-                Skip the wait — we'll try to fit you in today. Extra charge: ₹{meta.express_fee}.
+                Skip our regular schedule and pick any day, including today. Extra charge: ₹{meta.express_fee}.
               </span>
             </span>
           </label>
@@ -322,7 +322,7 @@ export default function PublicBookingForm() {
 
             {selectedIsExpressDay && (
               <p className="text-xs text-orange-600 mt-2">
-                ⚡ This is an Express same-day slot — ₹{meta.express_fee} extra will apply.
+                ⚡ This is an Express slot outside our regular schedule — ₹{meta.express_fee} extra will apply.
               </p>
             )}
 

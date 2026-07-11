@@ -480,7 +480,7 @@ export default function CustomerWorkForm() {
                   setForm((f) => ({ ...f, express_service: e.target.checked }))
                 }
               />
-              Express (same-day, ₹1500)
+              Express (any day, ₹1500)
             </label>
           </div>
 

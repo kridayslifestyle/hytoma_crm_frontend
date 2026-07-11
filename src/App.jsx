@@ -20,6 +20,7 @@ import EditRequirement from "./pages/EditRequirement";
 import GenerateQuotation from "./pages/GenerateQuotation";
 import EmployeeWork from "./pages/EmployeeWork";
 import CustomerWorkForm from "./pages/CustomerWorkForm";
+import PublicBookingForm from "./pages/PublicBookingForm";
 import TravelExpenses from "./pages/TravelExpenses";
 import CustomerFeedback from "./pages/CustomerFeedback";
 import SalesDashboard from "./pages/SalesDashboard";
@@ -52,6 +53,7 @@ function App() {
           }
         />
         <Route path="/submit-complaint" element={<ComplaintForm />} />
+        <Route path="/book-service" element={<PublicBookingForm />} />
 
         {/* Home — redirects based on role */}
         <Route

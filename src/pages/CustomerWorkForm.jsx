@@ -23,6 +23,7 @@ import {
   updateCustomerWorkStatus,
   rescheduleCustomerWork,
   getAvailability,
+  assignInstallers,
 } from "../services/customerWorkApi";
 
 // import.meta.env.VITE_API_URL;
@@ -64,6 +65,9 @@ const emptyForm = {
   required_products: "",
   quotation_url: "",
   salesPerson: "",
+  work_type: "New",
+  km: "",
+  express_service: false,
 };
 
 export default function CustomerWorkForm() {
@@ -235,6 +239,11 @@ export default function CustomerWorkForm() {
         JSON.stringify(form.assigned_installers),
       );
       formData.append("remarks", form.remarks || "");
+      formData.append("required_products", form.required_products || "");
+      formData.append("salesPerson", form.salesPerson || "");
+      formData.append("work_type", form.work_type || "New");
+      formData.append("km", form.km || 0);
+      formData.append("express_service", form.express_service ? "true" : "false");
 
       if (quotationFile) {
         formData.append("file", quotationFile);
@@ -296,6 +305,29 @@ export default function CustomerWorkForm() {
       loadRecords();
     } catch (e) {
       flash("error", e?.response?.data?.detail || "Delete failed.");
+    }
+  };
+
+  const onAssignInstallers = async (id, currentInstallers) => {
+    const pick = window.prompt(
+      `Enter installer name(s) to assign, comma-separated (${INSTALLERS.join(", ")}):`,
+      currentInstallers?.join(", ") || "",
+    );
+    if (pick === null) return;
+    const names = pick
+      .split(",")
+      .map((n) => n.trim())
+      .filter((n) => INSTALLERS.includes(n));
+    if (names.length === 0) {
+      flash("error", "No valid installer names entered.");
+      return;
+    }
+    try {
+      await assignInstallers(id, names);
+      flash("success", "Installer assigned & notified on WhatsApp.");
+      loadRecords();
+    } catch (e) {
+      flash("error", e?.response?.data?.detail || "Assignment failed.");
     }
   };
 
@@ -417,6 +449,39 @@ export default function CustomerWorkForm() {
                 ))}
               </div>
             </Labeled>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <Labeled label="Work Type">
+              <select
+                className={inp}
+                value={form.work_type}
+                onChange={setField("work_type")}
+              >
+                <option value="New">New installation</option>
+                <option value="Existing">Existing problem / service</option>
+              </select>
+            </Labeled>
+            <Labeled label="Distance (km)">
+              <input
+                type="number"
+                min="0"
+                step="0.1"
+                className={inp}
+                value={form.km}
+                onChange={setField("km")}
+              />
+            </Labeled>
+            <label className="flex items-center gap-2 text-sm text-gray-700 pt-6">
+              <input
+                type="checkbox"
+                checked={form.express_service}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, express_service: e.target.checked }))
+                }
+              />
+              Express (same-day, ₹1500)
+            </label>
           </div>
 
           <Labeled label="Remarks">
@@ -648,6 +713,19 @@ export default function CustomerWorkForm() {
                     </div>
                   )}
 
+                  {r.work_type && (
+                    <div>
+                      🛠️ <span className="font-medium">Type:</span>{" "}
+                      {r.work_type === "New" ? "New installation" : "Existing / service"}
+                      {r.km ? ` · ${r.km} km` : ""}
+                      {r.express_service && (
+                        <span className="ml-1 text-orange-600 font-medium">
+                          ⚡ Express (₹{r.express_fee || 1500})
+                        </span>
+                      )}
+                    </div>
+                  )}
+
                   {r.required_products && (
                     <div>
                       📦 <span className="font-medium">Products:</span>{" "}
@@ -688,6 +766,17 @@ export default function CustomerWorkForm() {
                   <IconBtn onClick={() => startEdit(r)} title="Edit">
                     <Pencil size={14} />
                   </IconBtn>
+
+                  {(!r.assigned_installers || r.assigned_installers.length === 0) && (
+                    <button
+                      type="button"
+                      onClick={() => onAssignInstallers(r.id, r.assigned_installers)}
+                      className="text-xs px-2 py-1 rounded border border-orange-300 text-orange-600 hover:bg-orange-50"
+                      title="Assign an installer and notify them on WhatsApp"
+                    >
+                      Assign installer
+                    </button>
+                  )}
 
                   <IconBtn
                     onClick={() => setReschedTarget(r)}

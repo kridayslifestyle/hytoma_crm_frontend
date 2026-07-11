@@ -69,3 +69,38 @@ export const listInstallers = () =>
 // ---- Installer self-service ----
 export const getInstallerJobs = (when = "today", installer) =>
   request(`/api/customer-work/installer/jobs`, { params: { when, installer } });
+
+// ---- Admin: assign installer(s) after a client self-booking ----
+export const assignInstallers = (id, assigned_installers) =>
+  request(`/api/customer-work/${id}/assign-installers`, {
+    method: "PATCH",
+    body: { assigned_installers },
+  });
+
+// ---- Public client self-booking (no auth) ----
+export const getPublicAvailability = (work_type, start, end, express = false) =>
+  request(`/api/customer-work/public/availability`, {
+    params: { work_type, start, end, express },
+  });
+
+export const createPublicBooking = async (payload) => {
+  const formData = new FormData();
+  Object.entries(payload).forEach(([k, v]) => formData.append(k, v));
+
+  const res = await fetch(`${BASE_URL.replace(/\/$/, "")}/api/customer-work/public`, {
+    method: "POST",
+    body: formData,
+  });
+
+  let data = null;
+  const text = await res.text();
+  if (text) {
+    try { data = JSON.parse(text); } catch { data = text; }
+  }
+  if (!res.ok) {
+    const err = new Error((data && (data.detail || data.message)) || `HTTP ${res.status}`);
+    err.response = { status: res.status, data };
+    throw err;
+  }
+  return { data, status: res.status };
+};

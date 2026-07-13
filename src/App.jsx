@@ -163,11 +163,9 @@ function App() {
           path="/travel-expenses"
           element={
             <ProtectedRoute>
-              <RoleRoute >
                 <Layout>
                   <TravelExpenses />
                 </Layout>
-              </RoleRoute>
             </ProtectedRoute>
           }
         />
@@ -202,11 +200,9 @@ function App() {
           path="/product-movement"
           element={
             <ProtectedRoute>
-              <RoleRoute >
                 <Layout>
                   <ProductMovement />
                 </Layout>
-              </RoleRoute>
             </ProtectedRoute>
           }
         />

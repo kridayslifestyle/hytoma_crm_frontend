@@ -24,7 +24,7 @@ import PublicBookingForm from "./pages/PublicBookingForm";
 import TravelExpenses from "./pages/TravelExpenses";
 import CustomerFeedback from "./pages/CustomerFeedback";
 import SalesDashboard from "./pages/SalesDashboard";
-
+import TravelExpenses from "./pages/TravelExpenses";
 // ✅ Role-based route guard
 const RoleRoute = ({ children, allowed }) => {
   const role = localStorage.getItem("role");
@@ -163,7 +163,7 @@ function App() {
           path="/travel-expenses"
           element={
             <ProtectedRoute>
-              <RoleRoute allowed={["admin", "simanta", "venkatesh"]}>
+              <RoleRoute >
                 <Layout>
                   <TravelExpenses />
                 </Layout>
@@ -202,7 +202,7 @@ function App() {
           path="/product-movement"
           element={
             <ProtectedRoute>
-              <RoleRoute allowed={["admin", "inventory_manager"]}>
+              <RoleRoute >
                 <Layout>
                   <ProductMovement />
                 </Layout>

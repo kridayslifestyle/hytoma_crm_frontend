@@ -41,278 +41,315 @@ const HomeRedirect = () => {
 
 function App() {
   return (
+    // <BrowserRouter>
+    //   <Routes>
+    //     {/* Public */}
+    //     <Route
+    //       path="/login"
+    //       element={
+    //         <PublicRoute>
+    //           <Login />
+    //         </PublicRoute>
+    //       }
+    //     />
+    //     <Route path="/submit-complaint" element={<ComplaintForm />} />
+    //     <Route path="/book-service" element={<PublicBookingForm />} />
+
+    //     {/* Home — redirects based on role */}
+    //     <Route
+    //       path="/"
+    //       element={
+    //         <ProtectedRoute>
+    //           <Layout>
+    //             <HomeRedirect />
+    //           </Layout>
+    //         </ProtectedRoute>
+    //       }
+    //     />
+
+    //     {/* Sales pages — all roles except simanta */}
+    //     <Route
+    //       path="/leads"
+    //       element={
+    //         <ProtectedRoute>
+    //           <RoleRoute
+    //             allowed={["admin", "sales", "revathi", "inventory_manager"]}
+    //           >
+    //             <Layout>
+    //               <Leads />
+    //             </Layout>
+    //           </RoleRoute>
+    //         </ProtectedRoute>
+    //       }
+    //     />
+
+    //     <Route
+    //       path="/add-lead"
+    //       element={
+    //         <ProtectedRoute>
+    //           <RoleRoute
+    //             allowed={["admin", "sales", "revathi", "inventory_manager"]}
+    //           >
+    //             <Layout>
+    //               <AddLead />
+    //             </Layout>
+    //           </RoleRoute>
+    //         </ProtectedRoute>
+    //       }
+    //     />
+
+    //     <Route
+    //       path="/edit/:id"
+    //       element={
+    //         <ProtectedRoute>
+    //           <RoleRoute
+    //             allowed={["admin", "sales", "revathi", "inventory_manager"]}
+    //           >
+    //             <Layout>
+    //               <EditLead />
+    //             </Layout>
+    //           </RoleRoute>
+    //         </ProtectedRoute>
+    //       }
+    //     />
+
+    //     <Route
+    //       path="/sales"
+    //       element={
+    //         <ProtectedRoute>
+    //           <RoleRoute
+    //             allowed={["admin", "sales", "revathi", "inventory_manager"]}
+    //           >
+    //             <Layout>
+    //               <SalesPerformance />
+    //             </Layout>
+    //           </RoleRoute>
+    //         </ProtectedRoute>
+    //       }
+    //     />
+
+    //     <Route
+    //       path="/sales-dashboard"
+    //       element={
+    //         <ProtectedRoute>
+    //           <RoleRoute
+    //             allowed={["admin", "sales", "revathi", "inventory_manager"]}
+    //           >
+    //             <Layout>
+    //               <SalesDashboard />
+    //             </Layout>
+    //           </RoleRoute>
+    //         </ProtectedRoute>
+    //       }
+    //     />
+
+    //     {/* Inventory — admin, revathi, inventory_manager only */}
+    //     <Route
+    //       path="/inventory"
+    //       element={
+    //         <ProtectedRoute>
+    //           <RoleRoute
+    //             allowed={["admin", "revathi", "inventory_manager", "simanta"]}
+    //           >
+    //             <Layout>
+    //               <Inventory />
+    //             </Layout>
+    //           </RoleRoute>
+    //         </ProtectedRoute>
+    //       }
+    //     />
+
+    //     <Route
+    //       path="/travel-expenses"
+    //       element={
+    //         <ProtectedRoute>
+    //           <RoleRoute allowed={["admin", "simanta", "venkatesh"]}>
+    //             <Layout>
+    //               <TravelExpenses />
+    //             </Layout>
+    //           </RoleRoute>
+    //         </ProtectedRoute>
+    //       }
+    //     />
+
+    //     <Route
+    //       path="/sales-report"
+    //       element={
+    //         <ProtectedRoute>
+    //           <Layout>
+    //             <SalesReport />
+    //           </Layout>
+    //         </ProtectedRoute>
+    //       }
+    //     />
+
+    //     {/* Complaints — admin and simanta only */}
+    //     <Route
+    //       path="/complaints"
+    //       element={
+    //         <ProtectedRoute>
+    //           <RoleRoute allowed={["admin", "simanta", "venkatesh"]}>
+    //             <Layout>
+    //               <Complaints />
+    //             </Layout>
+    //           </RoleRoute>
+    //         </ProtectedRoute>
+    //       }
+    //     />
+
+    //     {/* Product Movement — admin only */}
+    //     <Route
+    //       path="/product-movement"
+    //       element={
+    //         <ProtectedRoute>
+    //           <RoleRoute allowed={["admin", "inventory_manager"]}>
+    //             <Layout>
+    //               <ProductMovement />
+    //             </Layout>
+    //           </RoleRoute>
+    //         </ProtectedRoute>
+    //       }
+    //     />
+
+    //     <Route
+    //       path="/requirements"
+    //       element={
+    //         <ProtectedRoute>
+    //           <RoleRoute
+    //             allowed={["admin", "sales", "revathi", "inventory_manager"]}
+    //           >
+    //             <Layout>
+    //               <ClientRequirements />
+    //             </Layout>
+    //           </RoleRoute>
+    //         </ProtectedRoute>
+    //       }
+    //     />
+
+    //     <Route
+    //       path="/add-requirement"
+    //       element={
+    //         <ProtectedRoute>
+    //           <RoleRoute
+    //             allowed={["admin", "sales", "revathi", "inventory_manager"]}
+    //           >
+    //             <Layout>
+    //               <AddRequirement />
+    //             </Layout>
+    //           </RoleRoute>
+    //         </ProtectedRoute>
+    //       }
+    //     />
+
+    //     <Route
+    //       path="/requirements/:id"
+    //       element={
+    //         <ProtectedRoute>
+    //           <RoleRoute
+    //             allowed={["admin", "sales", "revathi", "inventory_manager"]}
+    //           >
+    //             <Layout>
+    //               <ViewRequirement />
+    //             </Layout>
+    //           </RoleRoute>
+    //         </ProtectedRoute>
+    //       }
+    //     />
+
+    //     <Route
+    //       path="/requirements/edit/:id"
+    //       element={
+    //         <ProtectedRoute>
+    //           <RoleRoute
+    //             allowed={["admin", "sales", "revathi", "inventory_manager"]}
+    //           >
+    //             <Layout>
+    //               <EditRequirement />
+    //             </Layout>
+    //           </RoleRoute>
+    //         </ProtectedRoute>
+    //       }
+    //     />
+    //     <Route
+    //       path="/generate-quotation/:id"
+    //       element={
+    //         <Layout>
+    //           <GenerateQuotation />
+    //         </Layout>
+    //       }
+    //     />
+
+    //     <Route
+    //       path="/daily-work"
+    //       element={
+    //         <ProtectedRoute>
+    //           <Layout>
+    //             <EmployeeWork />
+    //           </Layout>
+    //         </ProtectedRoute>
+    //       }
+    //     />
+
+    //     <Route
+    //       path="/customer-work"
+    //       element={
+    //         <ProtectedRoute>
+    //           <Layout>
+    //             <CustomerWorkForm />
+    //           </Layout>
+    //         </ProtectedRoute>
+    //       }
+    //     />
+
+    //     <Route
+    //       path="/customer-feedback"
+    //       element={
+    //         <ProtectedRoute>
+    //           <Layout>
+    //             <CustomerFeedback />
+    //           </Layout>
+    //         </ProtectedRoute>
+    //       }
+    //     />
+    //   </Routes>
+    // </BrowserRouter>
+
     <BrowserRouter>
-      <Routes>
-        {/* Public */}
-        <Route
-          path="/login"
-          element={
-            <PublicRoute>
-              <Login />
-            </PublicRoute>
-          }
-        />
-        <Route path="/submit-complaint" element={<ComplaintForm />} />
-        <Route path="/book-service" element={<PublicBookingForm />} />
+  <Routes>
 
-        {/* Home — redirects based on role */}
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <HomeRedirect />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
+    {/* PUBLIC */}
+    <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
 
-        {/* Sales pages — all roles except simanta */}
-        <Route
-          path="/leads"
-          element={
-            <ProtectedRoute>
-              <RoleRoute
-                allowed={["admin", "sales", "revathi", "inventory_manager"]}
-              >
-                <Layout>
-                  <Leads />
-                </Layout>
-              </RoleRoute>
-            </ProtectedRoute>
-          }
-        />
+    {/* ALL PROTECTED ROUTES WRAPPED ONCE */}
+    <Route
+      element={
+        <ProtectedRoute>
+          <Layout />
+        </ProtectedRoute>
+      }
+    >
 
-        <Route
-          path="/add-lead"
-          element={
-            <ProtectedRoute>
-              <RoleRoute
-                allowed={["admin", "sales", "revathi", "inventory_manager"]}
-              >
-                <Layout>
-                  <AddLead />
-                </Layout>
-              </RoleRoute>
-            </ProtectedRoute>
-          }
-        />
+      <Route index element={<HomeRedirect />} />
 
-        <Route
-          path="/edit/:id"
-          element={
-            <ProtectedRoute>
-              <RoleRoute
-                allowed={["admin", "sales", "revathi", "inventory_manager"]}
-              >
-                <Layout>
-                  <EditLead />
-                </Layout>
-              </RoleRoute>
-            </ProtectedRoute>
-          }
-        />
+      <Route path="leads" element={<Leads />} />
+      <Route path="add-lead" element={<AddLead />} />
+      <Route path="edit/:id" element={<EditLead />} />
 
-        <Route
-          path="/sales"
-          element={
-            <ProtectedRoute>
-              <RoleRoute
-                allowed={["admin", "sales", "revathi", "inventory_manager"]}
-              >
-                <Layout>
-                  <SalesPerformance />
-                </Layout>
-              </RoleRoute>
-            </ProtectedRoute>
-          }
-        />
+      <Route path="sales-dashboard" element={<SalesDashboard />} />
 
-        <Route
-          path="/sales-dashboard"
-          element={
-            <ProtectedRoute>
-              <RoleRoute
-                allowed={["admin", "sales", "revathi", "inventory_manager"]}
-              >
-                <Layout>
-                  <SalesDashboard />
-                </Layout>
-              </RoleRoute>
-            </ProtectedRoute>
-          }
-        />
+      <Route path="travel-expenses" element={<TravelExpenses />} />
 
-        {/* Inventory — admin, revathi, inventory_manager only */}
-        <Route
-          path="/inventory"
-          element={
-            <ProtectedRoute>
-              <RoleRoute
-                allowed={["admin", "revathi", "inventory_manager", "simanta"]}
-              >
-                <Layout>
-                  <Inventory />
-                </Layout>
-              </RoleRoute>
-            </ProtectedRoute>
-          }
-        />
+      <Route path="product-movement" element={<ProductMovement />} />
 
-        <Route
-          path="/travel-expenses"
-          element={
-            <ProtectedRoute>
-              <RoleRoute allowed={["admin", "simanta", "venkatesh"]}>
-                <Layout>
-                  <TravelExpenses />
-                </Layout>
-              </RoleRoute>
-            </ProtectedRoute>
-          }
-        />
+      <Route path="inventory" element={<Inventory />} />
+      <Route path="complaints" element={<Complaints />} />
 
-        <Route
-          path="/sales-report"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <SalesReport />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
+      <Route path="customer-feedback" element={<CustomerFeedback />} />
 
-        {/* Complaints — admin and simanta only */}
-        <Route
-          path="/complaints"
-          element={
-            <ProtectedRoute>
-              <RoleRoute allowed={["admin", "simanta", "venkatesh"]}>
-                <Layout>
-                  <Complaints />
-                </Layout>
-              </RoleRoute>
-            </ProtectedRoute>
-          }
-        />
+    </Route>
 
-        {/* Product Movement — admin only */}
-        <Route
-          path="/product-movement"
-          element={
-            <ProtectedRoute>
-              <RoleRoute allowed={["admin", "inventory_manager"]}>
-                <Layout>
-                  <ProductMovement />
-                </Layout>
-              </RoleRoute>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/requirements"
-          element={
-            <ProtectedRoute>
-              <RoleRoute
-                allowed={["admin", "sales", "revathi", "inventory_manager"]}
-              >
-                <Layout>
-                  <ClientRequirements />
-                </Layout>
-              </RoleRoute>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/add-requirement"
-          element={
-            <ProtectedRoute>
-              <RoleRoute
-                allowed={["admin", "sales", "revathi", "inventory_manager"]}
-              >
-                <Layout>
-                  <AddRequirement />
-                </Layout>
-              </RoleRoute>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/requirements/:id"
-          element={
-            <ProtectedRoute>
-              <RoleRoute
-                allowed={["admin", "sales", "revathi", "inventory_manager"]}
-              >
-                <Layout>
-                  <ViewRequirement />
-                </Layout>
-              </RoleRoute>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/requirements/edit/:id"
-          element={
-            <ProtectedRoute>
-              <RoleRoute
-                allowed={["admin", "sales", "revathi", "inventory_manager"]}
-              >
-                <Layout>
-                  <EditRequirement />
-                </Layout>
-              </RoleRoute>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/generate-quotation/:id"
-          element={
-            <Layout>
-              <GenerateQuotation />
-            </Layout>
-          }
-        />
-
-        <Route
-          path="/daily-work"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <EmployeeWork />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/customer-work"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <CustomerWorkForm />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/customer-feedback"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <CustomerFeedback />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
-    </BrowserRouter>
+  </Routes>
+</BrowserRouter>
   );
 }
 

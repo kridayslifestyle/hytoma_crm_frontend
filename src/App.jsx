@@ -24,7 +24,7 @@ import PublicBookingForm from "./pages/PublicBookingForm";
 import TravelExpenses from "./pages/TravelExpenses";
 import CustomerFeedback from "./pages/CustomerFeedback";
 import SalesDashboard from "./pages/SalesDashboard";
-import TravelExpenses from "./pages/TravelExpenses";
+
 // ✅ Role-based route guard
 const RoleRoute = ({ children, allowed }) => {
   const role = localStorage.getItem("role");

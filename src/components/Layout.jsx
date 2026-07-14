@@ -12,6 +12,7 @@ export default function Layout({ children }) {
     if (page === "daily-work" && role) return true;
     if (page === "customer-feedback" && role) return true;
     if (page === "customer-work" && role) return true;
+    if (page === "inbox" && role) return true;
     if (page === "sales-dashboard" && role) return true;
     if (page === "travel-expenses" && role) return true;
     if (role === "admin") return true;
@@ -131,6 +132,13 @@ export default function Layout({ children }) {
             <NavItem
               to="/customer-work"
               label="Customer Work"
+              onClick={() => setMenuOpen(false)}
+            />
+          )}
+          {can("inbox") && (
+            <NavItem
+              to="/inbox"
+              label="WhatsApp Inbox"
               onClick={() => setMenuOpen(false)}
             />
           )}

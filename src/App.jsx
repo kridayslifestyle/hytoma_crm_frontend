@@ -20,6 +20,7 @@ import EditRequirement from "./pages/EditRequirement";
 import GenerateQuotation from "./pages/GenerateQuotation";
 import EmployeeWork from "./pages/EmployeeWork";
 import CustomerWorkForm from "./pages/CustomerWorkForm";
+import Inbox from "./pages/Inbox";
 import PublicBookingForm from "./pages/PublicBookingForm";
 import TravelExpenses from "./pages/TravelExpenses";
 import CustomerFeedback from "./pages/CustomerFeedback";
@@ -292,6 +293,17 @@ function App() {
             <ProtectedRoute>
               <Layout>
                 <CustomerWorkForm />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/inbox"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Inbox />
               </Layout>
             </ProtectedRoute>
           }

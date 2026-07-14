@@ -274,7 +274,9 @@ export default function PublicBookingForm() {
                 const iso = toISO(d);
                 const past = iso < todayISO();
                 const info = availability[iso];
-                const enabled = !past && info?.enabled;
+                const fullyBooked =
+                  !!info?.enabled && (info.slots?.length || 0) > 0 && info.slots.every((s) => !s.available);
+                const enabled = !past && info?.enabled && !fullyBooked;
                 const selected = form.scheduled_date === iso;
                 return (
                   <button
@@ -282,13 +284,19 @@ export default function PublicBookingForm() {
                     key={iso}
                     disabled={!enabled}
                     onClick={() => pickDate(iso, info)}
+                    title={fullyBooked ? "Fully booked" : undefined}
                     className={`aspect-square rounded-lg text-sm flex flex-col items-center justify-center border transition
                       ${selected ? "bg-orange-500 text-white border-orange-500" : "border-gray-200 hover:border-orange-300"}
-                      ${!enabled ? "opacity-30 cursor-not-allowed" : ""}`}
+                      ${!enabled ? "opacity-30 cursor-not-allowed" : ""}
+                      ${fullyBooked ? "bg-gray-100 line-through" : ""}`}
                   >
                     <span>{d.getDate()}</span>
-                    {info?.express_only && !selected && (
-                      <span className="text-[8px] text-orange-500">⚡</span>
+                    {fullyBooked ? (
+                      <span className="text-[8px] text-gray-400">Full</span>
+                    ) : (
+                      info?.express_only && !selected && (
+                        <span className="text-[8px] text-orange-500">⚡</span>
+                      )
                     )}
                   </button>
                 );

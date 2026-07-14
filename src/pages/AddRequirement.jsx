@@ -1,8 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-import { createRequirement } from "../services/requirementApi";
+import { createRequirement, uploadRequirementImage } from "../services/requirementApi";
 
 function AddRequirement() {
+  const navigate = useNavigate();
+  const [uploadingKey, setUploadingKey] = useState(null); // e.g. "board-0", "curtain-2"
+
   const [formData, setFormData] = useState({
     customer_name: "",
     phone: "",
@@ -17,6 +21,7 @@ function AddRequirement() {
       size: "",
       quantity: 1,
       description: "",
+      image_url: null,
     },
   ]);
 
@@ -26,6 +31,7 @@ function AddRequirement() {
       width: 0,
       height: 0,
       curtain_type: "",
+      image_url: null,
     },
   ]);
 
@@ -33,6 +39,7 @@ function AddRequirement() {
     {
       sensor_type: "",
       quantity: 1,
+      image_url: null,
     },
   ]);
 
@@ -40,6 +47,9 @@ function AddRequirement() {
     face_lock_qty: 0,
     handle_lock_qty: 0,
     motorized_lock_qty: 0,
+    face_lock_image: null,
+    handle_lock_image: null,
+    motorized_lock_image: null,
   });
 
   const [gateDetails, setGateDetails] = useState({
@@ -71,6 +81,7 @@ function AddRequirement() {
         size: "",
         quantity: 1,
         description: "",
+        image_url: null,
       },
     ]);
   };
@@ -83,6 +94,7 @@ function AddRequirement() {
         width: "",
         height: "",
         curtain_type: "",
+        image_url: null,
       },
     ]);
   };
@@ -93,8 +105,25 @@ function AddRequirement() {
       {
         sensor_type: "",
         quantity: 1,
+        image_url: null,
       },
     ]);
+  };
+
+  // Generic image-upload helper used by switch boards / curtains / sensors.
+  // uploads immediately and stores the returned URL onto that row.
+  const handleImageUpload = async (key, file, applyUrl) => {
+    if (!file) return;
+    setUploadingKey(key);
+    try {
+      const { url } = await uploadRequirementImage(file);
+      applyUrl(url);
+    } catch (err) {
+      console.error(err);
+      alert("Image upload failed. Please try again.");
+    } finally {
+      setUploadingKey(null);
+    }
   };
 
   const handleSensorChange = (index, field, value) => {
@@ -176,6 +205,7 @@ function AddRequirement() {
       console.log(response);
 
       alert("Requirement added successfully");
+      navigate("/requirements");
     } catch (error) {
       console.error(error);
 
@@ -188,6 +218,10 @@ function AddRequirement() {
       ...locks,
       [e.target.name]: Number(e.target.value),
     });
+  };
+
+  const setLockImage = (key, url) => {
+    setLocks((prev) => ({ ...prev, [key]: url }));
   };
 
   const handleGateChange = (e) => {
@@ -303,7 +337,8 @@ function AddRequirement() {
         </div>
 
         {switchBoards.map((board, index) => (
-          <div key={index} className="grid md:grid-cols-6 gap-4 mb-4">
+          <div key={index} className="border rounded-lg p-4 mb-4">
+            <div className="grid md:grid-cols-6 gap-4">
             <select
               value={board.brand_code}
               onChange={(e) =>
@@ -369,6 +404,35 @@ function AddRequirement() {
             >
               Remove
             </button>
+            </div>
+
+            {/* Reference photo of what the client wants — flows through to the quotation PDF */}
+            <div className="flex items-center gap-3 mt-3">
+              {board.image_url ? (
+                <img
+                  src={`${import.meta.env.VITE_API_URL}${board.image_url}`}
+                  alt="Reference"
+                  className="w-14 h-14 object-cover rounded border"
+                />
+              ) : (
+                <div className="w-14 h-14 rounded border border-dashed flex items-center justify-center text-[10px] text-gray-400">
+                  No photo
+                </div>
+              )}
+              <label className="text-sm text-orange-600 cursor-pointer">
+                {uploadingKey === `board-${index}` ? "Uploading..." : "Upload reference photo"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) =>
+                    handleImageUpload(`board-${index}`, e.target.files[0], (url) =>
+                      handleBoardChange(index, "image_url", url),
+                    )
+                  }
+                />
+              </label>
+            </div>
           </div>
         ))}
       </div>
@@ -387,6 +451,33 @@ function AddRequirement() {
               onChange={handleLockChange}
               className="w-full border rounded-lg p-3"
             />
+
+            <div className="flex items-center gap-3 mt-3">
+              {locks.face_lock_image ? (
+                <img
+                  src={`${import.meta.env.VITE_API_URL}${locks.face_lock_image}`}
+                  alt="Reference"
+                  className="w-14 h-14 object-cover rounded border"
+                />
+              ) : (
+                <div className="w-14 h-14 rounded border border-dashed flex items-center justify-center text-[10px] text-gray-400">
+                  No photo
+                </div>
+              )}
+              <label className="text-sm text-orange-600 cursor-pointer">
+                {uploadingKey === "face_lock" ? "Uploading..." : "Upload reference photo"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) =>
+                    handleImageUpload("face_lock", e.target.files[0], (url) =>
+                      setLockImage("face_lock_image", url),
+                    )
+                  }
+                />
+              </label>
+            </div>
           </div>
 
           <div>
@@ -399,6 +490,33 @@ function AddRequirement() {
               onChange={handleLockChange}
               className="w-full border rounded-lg p-3"
             />
+
+            <div className="flex items-center gap-3 mt-3">
+              {locks.handle_lock_image ? (
+                <img
+                  src={`${import.meta.env.VITE_API_URL}${locks.handle_lock_image}`}
+                  alt="Reference"
+                  className="w-14 h-14 object-cover rounded border"
+                />
+              ) : (
+                <div className="w-14 h-14 rounded border border-dashed flex items-center justify-center text-[10px] text-gray-400">
+                  No photo
+                </div>
+              )}
+              <label className="text-sm text-orange-600 cursor-pointer">
+                {uploadingKey === "handle_lock" ? "Uploading..." : "Upload reference photo"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) =>
+                    handleImageUpload("handle_lock", e.target.files[0], (url) =>
+                      setLockImage("handle_lock_image", url),
+                    )
+                  }
+                />
+              </label>
+            </div>
           </div>
 
           <div>
@@ -411,6 +529,33 @@ function AddRequirement() {
               onChange={handleLockChange}
               className="w-full border rounded-lg p-3"
             />
+
+            <div className="flex items-center gap-3 mt-3">
+              {locks.motorized_lock_image ? (
+                <img
+                  src={`${import.meta.env.VITE_API_URL}${locks.motorized_lock_image}`}
+                  alt="Reference"
+                  className="w-14 h-14 object-cover rounded border"
+                />
+              ) : (
+                <div className="w-14 h-14 rounded border border-dashed flex items-center justify-center text-[10px] text-gray-400">
+                  No photo
+                </div>
+              )}
+              <label className="text-sm text-orange-600 cursor-pointer">
+                {uploadingKey === "motorized_lock" ? "Uploading..." : "Upload reference photo"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) =>
+                    handleImageUpload("motorized_lock", e.target.files[0], (url) =>
+                      setLockImage("motorized_lock_image", url),
+                    )
+                  }
+                />
+              </label>
+            </div>
           </div>
         </div>
       </div>
@@ -429,7 +574,8 @@ function AddRequirement() {
         </div>
 
         {curtains.map((curtain, index) => (
-          <div key={index} className="grid md:grid-cols-5 gap-4 mb-4">
+          <div key={index} className="border rounded-lg p-4 mb-4">
+            <div className="grid md:grid-cols-5 gap-4">
             <input
               type="text"
               placeholder="Room"
@@ -480,6 +626,34 @@ function AddRequirement() {
             >
               Remove
             </button>
+            </div>
+
+            <div className="flex items-center gap-3 mt-3">
+              {curtain.image_url ? (
+                <img
+                  src={`${import.meta.env.VITE_API_URL}${curtain.image_url}`}
+                  alt="Reference"
+                  className="w-14 h-14 object-cover rounded border"
+                />
+              ) : (
+                <div className="w-14 h-14 rounded border border-dashed flex items-center justify-center text-[10px] text-gray-400">
+                  No photo
+                </div>
+              )}
+              <label className="text-sm text-orange-600 cursor-pointer">
+                {uploadingKey === `curtain-${index}` ? "Uploading..." : "Upload reference photo"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) =>
+                    handleImageUpload(`curtain-${index}`, e.target.files[0], (url) =>
+                      handleCurtainChange(index, "image_url", url),
+                    )
+                  }
+                />
+              </label>
+            </div>
           </div>
         ))}
       </div>
@@ -498,7 +672,8 @@ function AddRequirement() {
         </div>
 
         {sensors.map((sensor, index) => (
-          <div key={index} className="grid md:grid-cols-3 gap-4 mb-4">
+          <div key={index} className="border rounded-lg p-4 mb-4">
+            <div className="grid md:grid-cols-3 gap-4">
             <select
               value={sensor.sensor_type}
               onChange={(e) =>
@@ -538,6 +713,34 @@ function AddRequirement() {
             >
               Remove
             </button>
+            </div>
+
+            <div className="flex items-center gap-3 mt-3">
+              {sensor.image_url ? (
+                <img
+                  src={`${import.meta.env.VITE_API_URL}${sensor.image_url}`}
+                  alt="Reference"
+                  className="w-14 h-14 object-cover rounded border"
+                />
+              ) : (
+                <div className="w-14 h-14 rounded border border-dashed flex items-center justify-center text-[10px] text-gray-400">
+                  No photo
+                </div>
+              )}
+              <label className="text-sm text-orange-600 cursor-pointer">
+                {uploadingKey === `sensor-${index}` ? "Uploading..." : "Upload reference photo"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) =>
+                    handleImageUpload(`sensor-${index}`, e.target.files[0], (url) =>
+                      handleSensorChange(index, "image_url", url),
+                    )
+                  }
+                />
+              </label>
+            </div>
           </div>
         ))}
       </div>

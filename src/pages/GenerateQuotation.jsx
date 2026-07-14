@@ -28,6 +28,7 @@ function buildItemsFromRequirement(data) {
       quantity: Number(sb.quantity) || 1,
       rate: 0,
       gst: 18,
+      image_url: sb.image_url || null,
     });
   });
 
@@ -40,6 +41,7 @@ function buildItemsFromRequirement(data) {
       quantity: Number(s.quantity) || 1,
       rate: 0,
       gst: 18,
+      image_url: s.image_url || null,
     });
   });
 
@@ -51,16 +53,35 @@ function buildItemsFromRequirement(data) {
       quantity: 1,
       rate: 0,
       gst: 18,
+      image_url: c.image_url || null,
     });
   });
 
   // Locks
   if (Number(data.face_lock_qty) > 0)
-    items.push({ description: "Face Lock", quantity: Number(data.face_lock_qty), rate: 0, gst: 18 });
+    items.push({
+      description: "Face Lock",
+      quantity: Number(data.face_lock_qty),
+      rate: 0,
+      gst: 18,
+      image_url: data.face_lock_image || null,
+    });
   if (Number(data.handle_lock_qty) > 0)
-    items.push({ description: "Handle Lock", quantity: Number(data.handle_lock_qty), rate: 0, gst: 18 });
+    items.push({
+      description: "Handle Lock",
+      quantity: Number(data.handle_lock_qty),
+      rate: 0,
+      gst: 18,
+      image_url: data.handle_lock_image || null,
+    });
   if (Number(data.motorized_lock_qty) > 0)
-    items.push({ description: "Motorized Lock", quantity: Number(data.motorized_lock_qty), rate: 0, gst: 18 });
+    items.push({
+      description: "Motorized Lock",
+      quantity: Number(data.motorized_lock_qty),
+      rate: 0,
+      gst: 18,
+      image_url: data.motorized_lock_image || null,
+    });
 
   // Gate Automation
   if (data.gate_type) {
@@ -184,6 +205,7 @@ function GenerateQuotation() {
         quantity: Number(item.quantity),
         rate: Number(item.rate),
         gst: Number(item.gst || 18),
+        image_url: item.image_url || null,
       })),
 
       installation_charges: Number(quotation.installation_charges || 0),
@@ -239,6 +261,13 @@ function GenerateQuotation() {
           return (
             <div key={index} className="mb-4 border rounded-lg p-4">
               <div className="grid md:grid-cols-5 gap-4">
+                {item.image_url && (
+                  <img
+                    src={`${import.meta.env.VITE_API_URL}${item.image_url}`}
+                    alt="Reference"
+                    className="w-12 h-12 object-cover rounded border md:col-span-1"
+                  />
+                )}
                 <input
                   type="text"
                   placeholder="Description"
@@ -246,7 +275,7 @@ function GenerateQuotation() {
                   onChange={(e) =>
                     handleItemChange(index, "description", e.target.value)
                   }
-                  className="border p-3 rounded-lg"
+                  className={`border p-3 rounded-lg ${item.image_url ? "md:col-span-1" : ""}`}
                 />
 
                 <input

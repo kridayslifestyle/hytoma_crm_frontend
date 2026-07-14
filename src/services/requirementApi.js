@@ -1,5 +1,24 @@
 const API_URL = import.meta.env.VITE_API_URL;
 
+// Upload a reference photo for a switch board / curtain / sensor entry.
+// Returns { url } to store on that item.
+export const uploadRequirementImage = async (file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await fetch(`${API_URL}/requirements/upload-image`, {
+    method: "POST",
+    credentials: "include",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to upload image");
+  }
+
+  return response.json();
+};
+
 // Get all requirements
 export const getRequirements = async () => {
   const response = await fetch(`${API_URL}/requirements`, {

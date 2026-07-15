@@ -716,13 +716,22 @@ export default function CustomerWorkForm() {
                   {r.work_type && (
                     <div>
                       🛠️ <span className="font-medium">Type:</span>{" "}
-                      {r.work_type === "New" ? "New installation" : "Existing / service"}
-                      {r.km ? ` · ${r.km} km` : ""}
+                      {r.work_type === "New" && "New installation"}
+                      {r.work_type === "Existing" && "Existing / service"}
+                      {r.work_type === "SiteVisit" && "Site Visit"}
+                      {r.work_type !== "SiteVisit" && r.km ? ` · ${r.km} km` : ""}
                       {r.express_service && (
                         <span className="ml-1 text-orange-600 font-medium">
                           ⚡ Express (₹{r.express_fee || 1500})
                         </span>
                       )}
+                    </div>
+                  )}
+
+                  {r.work_type === "SiteVisit" && r.sales_person && (
+                    <div>
+                      🧑‍💼 <span className="font-medium">Sales Visit With:</span>{" "}
+                      {r.sales_person}
                     </div>
                   )}
 
@@ -767,7 +776,7 @@ export default function CustomerWorkForm() {
                     <Pencil size={14} />
                   </IconBtn>
 
-                  {(!r.assigned_installers || r.assigned_installers.length === 0) && (
+                  {r.work_type !== "SiteVisit" && (!r.assigned_installers || r.assigned_installers.length === 0) && (
                     <button
                       type="button"
                       onClick={() => onAssignInstallers(r.id, r.assigned_installers)}

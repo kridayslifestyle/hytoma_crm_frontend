@@ -12,6 +12,7 @@ function AddRequirement() {
     phone: "",
     address: "",
     project_type: "",
+    sales_person: "",
   });
 
   const [switchBoards, setSwitchBoards] = useState([
@@ -318,6 +319,31 @@ function AddRequirement() {
               <option value="Office">Office</option>
 
               <option value="Commercial">Commercial</option>
+            </select>
+          </div>
+
+          {/* Sales Person */}
+
+          <div>
+            <label className="block mb-2 text-gray-700">Sales Person</label>
+
+            <select
+              name="sales_person"
+              value={formData.sales_person}
+              onChange={handleChange}
+              className="w-full border rounded-lg p-3"
+            >
+              <option value="">Select</option>
+
+              <option value="Revathi">Revathi</option>
+
+              <option value="Suresh">Suresh</option>
+
+              <option value="Naveen">Naveen</option>
+
+              <option value="Manoj">Manoj</option>
+
+              <option value="Rahul">Rahul</option>
             </select>
           </div>
         </div>

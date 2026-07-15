@@ -2,13 +2,7 @@ import { useState } from "react";
 
 const API = import.meta.env.VITE_API_URL;
 
-const COMPLAINT_TYPES = [
-  "Customer not happy with installation",
-  "Product not working",
-  "Sales person behaviour",
-  "Price dispute",
-  "Other",
-];
+const COMPLAINT_TYPES = ["App issues", "Product issues", "Other"];
 
 const SALES_PERSONS = ["Revathi", "Manoj", "Suresh", "Naveen"];
 
@@ -20,6 +14,7 @@ export default function ComplaintForm() {
     productName: "",
     salesPerson: "",
     complaintType: "",
+    otherComplaintText: "",
     description: "",
     location: "",
   });
@@ -49,6 +44,12 @@ export default function ComplaintForm() {
       return;
     }
 
+    if (form.complaintType === "Other" && !form.otherComplaintText.trim()) {
+      setToast("❌ Please type your issue in the box below");
+      setTimeout(() => setToast(""), 3000);
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -62,6 +63,10 @@ export default function ComplaintForm() {
 
       const payload = {
         ...form,
+        description:
+          form.complaintType === "Other"
+            ? `Other issue: ${form.otherComplaintText.trim()}${form.description ? " — " + form.description : ""}`
+            : form.description,
         mediaFile: base64,
         mediaFileName: mediaFile.name,
         mediaFileType: mediaFile.type,
@@ -288,6 +293,21 @@ export default function ComplaintForm() {
                 ))}
               </select>
             </div>
+
+            {form.complaintType === "Other" && (
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-1 block">
+                  Please describe your issue <span className="text-red-500">*</span>
+                </label>
+                <input
+                  placeholder="Type your other issue here…"
+                  value={form.otherComplaintText}
+                  required
+                  onChange={(e) => setForm({ ...form, otherComplaintText: e.target.value })}
+                  className="border px-3 py-2 rounded-lg w-full focus:ring-2 focus:ring-orange-300 outline-none"
+                />
+              </div>
+            )}
 
             {/* Description */}
             <div>

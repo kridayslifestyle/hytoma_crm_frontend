@@ -51,13 +51,7 @@ const SITE_VISIT_SALES_PERSONS = ["Suresh", "Naveen", "Manoj", "Rahul"];
 // Kept independent from the site-visit list on purpose -- matches the
 // standalone Customer Complaint Form's existing roster.
 const COMPLAINT_SALES_PERSONS = ["Revathi", "Manoj", "Suresh", "Naveen"];
-const COMPLAINT_TYPES = [
-  "Customer not happy with installation",
-  "Product not working",
-  "Sales person behaviour",
-  "Price dispute",
-  "Other",
-];
+const COMPLAINT_TYPES = ["App issues", "Product issues", "Other"];
 
 export default function PublicBookingForm() {
   // "New" | "Existing" | "SiteVisit" | "Complaint"
@@ -87,6 +81,7 @@ export default function PublicBookingForm() {
     productName: "",
     salesPerson: "",
     complaintType: "",
+    otherComplaintText: "",
     description: "",
   });
   const [mediaFile, setMediaFile] = useState(null);
@@ -204,6 +199,10 @@ export default function PublicBookingForm() {
       setError("Please upload an image or video of the product.");
       return;
     }
+    if (complaint.complaintType === "Other" && !complaint.otherComplaintText.trim()) {
+      setError("Please type your issue in the box below.");
+      return;
+    }
     setSubmitting(true);
     try {
       const base64 = await new Promise((resolve, reject) => {
@@ -221,7 +220,10 @@ export default function PublicBookingForm() {
         productName: complaint.productName,
         salesPerson: complaint.salesPerson,
         complaintType: complaint.complaintType,
-        description: complaint.description,
+        description:
+          complaint.complaintType === "Other"
+            ? `Other issue: ${complaint.otherComplaintText.trim()}${complaint.description ? " — " + complaint.description : ""}`
+            : complaint.description,
         mediaFile: base64,
         mediaFileName: mediaFile.name,
         mediaFileType: mediaFile.type,
@@ -584,6 +586,20 @@ export default function PublicBookingForm() {
                   ))}
                 </select>
               </Labeled>
+
+              {complaint.complaintType === "Other" && (
+                <Labeled label="Please describe your issue *">
+                  <input
+                    className={inp}
+                    required
+                    placeholder="Type your other issue here…"
+                    value={complaint.otherComplaintText}
+                    onChange={(e) =>
+                      setComplaint((c) => ({ ...c, otherComplaintText: e.target.value }))
+                    }
+                  />
+                </Labeled>
+              )}
 
               <Labeled label="Description">
                 <textarea

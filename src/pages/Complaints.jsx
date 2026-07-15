@@ -8,13 +8,7 @@ import {
   CartesianGrid, ResponsiveContainer
 } from "recharts";
 
-const COMPLAINT_TYPES = [
-  "Customer not happy with installation",
-  "Product not working",
-  "Sales person behaviour",
-  "Price dispute",
-  "Other",
-];
+const COMPLAINT_TYPES = ["App issues", "Product issues", "Other"];
 
 const PLATFORMS = ["Facebook", "Instagram", "WhatsApp", "Google Reviews", "Direct Call"];
 const SALES_PERSONS = ["Revathi", "Manoj", "Suresh", "Naveen"];

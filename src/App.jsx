@@ -6,7 +6,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Leads from "./pages/Leads";
 import AddLead from "./pages/AddLead";
-import QuickLead from "./pages/QuickLead";
+import QuickLead from "./pages/Quicklead";
 import EditLead from "./pages/EditLead";
 import SalesPerformance from "./pages/SalesPerformance";
 import SalesReport from "./pages/SalesReport";

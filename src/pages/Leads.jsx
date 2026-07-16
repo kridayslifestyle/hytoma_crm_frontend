@@ -116,6 +116,12 @@ export default function Leads() {
             </button>
           )}
           <button
+            onClick={() => navigate("/quick-lead")}
+            className="bg-gray-800 hover:bg-gray-900 text-white px-3 py-2 md:px-4 rounded-lg text-sm"
+          >
+            ⚡ Quick Lead
+          </button>
+          <button
             onClick={() => navigate("/add-lead")}
             className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-2 md:px-4 rounded-lg text-sm"
           >

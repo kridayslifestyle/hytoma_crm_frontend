@@ -26,6 +26,22 @@ export const addLead = async (data) => {
   return res.json();
 };
 
+// Fast-path entry: name (optional) + phone + sales person -> creates a
+// minimal lead and immediately WhatsApp-notifies that sales person.
+export const quickAddLead = async (data) => {
+  const res = await fetch(`${API}/leads/quick`, {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to send lead");
+  }
+  return res.json();
+};
+
 export const updateLead = async (id, data) => {
   const res = await fetch(`${API}/leads/${id}`, {
     method: "PUT",

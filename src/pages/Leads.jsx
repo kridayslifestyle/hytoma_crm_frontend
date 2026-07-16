@@ -3,6 +3,15 @@ import { getLeads, deleteLead } from "../services/api";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
 
+
+const CANONICAL_SALES_PERSONS = ["Revathi", "Suresh", "Manoj", "TS Naveen", "Rahul"];
+const canonicalSalesPerson = (name) => {
+  if (!name) return name;
+  const key = name.trim().toLowerCase();
+  const match = CANONICAL_SALES_PERSONS.find((c) => c.toLowerCase() === key);
+  return match || name.trim();
+};
+
 export default function Leads() {
   const [leads, setLeads] = useState([]);
   const [search, setSearch] = useState("");
@@ -33,7 +42,7 @@ export default function Leads() {
     fetchLeads();
   };
 
-  const salesPersons = [...new Set(leads.map((l) => l.salesPerson))];
+  const salesPersons = [...new Set(leads.map((l) => canonicalSalesPerson(l.salesPerson)))];
 
   const filteredLeads = leads.filter((lead) => {
     const matchesSearch =
@@ -42,7 +51,7 @@ export default function Leads() {
     const matchesStatus =
       statusFilter === "all" || lead.status === statusFilter;
     const matchesPerson =
-      personFilter === "all" || lead.salesPerson === personFilter;
+      personFilter === "all" || canonicalSalesPerson(lead.salesPerson) === personFilter;
 
     const now = new Date();
     let matchesDate = true;
@@ -86,7 +95,7 @@ export default function Leads() {
       Name: l.name,
       Phone: l.phone,
       Status: l.status,
-      SalesPerson: l.salesPerson,
+      SalesPerson: canonicalSalesPerson(l.salesPerson),
       Quotation: l.quotationSent ? "Sent" : "Not Sent",
       AdvancePaid: l.advancePaid || 0,
       TotalAmount: l.totalAmount || 0,
@@ -217,7 +226,7 @@ export default function Leads() {
                       {lead.status}
                     </span>
                   </td>
-                  <td className="p-4">{lead.salesPerson}</td>
+                  <td className="p-4">{canonicalSalesPerson(lead.salesPerson)}</td>
                   <td className="p-4 text-sm space-y-1">
                     {lead.leadEntryDate && (
                       <div>📅 Entry: {lead.leadEntryDate}</div>
@@ -343,7 +352,7 @@ export default function Leads() {
               <div className="text-sm text-gray-600 space-y-1">
                 <p>
                   <span className="font-medium">Sales Person:</span>{" "}
-                  {lead.salesPerson}
+                  {canonicalSalesPerson(lead.salesPerson)}
                 </p>
                 <p>
                   <span className="font-medium">Quotation:</span>{" "}

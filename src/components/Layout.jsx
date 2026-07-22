@@ -33,17 +33,17 @@ export default function Layout({ children }) {
         "product-movement",
         "requirements",
       ].includes(page);
-    if (role === "inventory_manager")
-      return [
-        "dashboard",
-        "leads",
-        "add-lead",
-        "sales",
-        "sales-report",
-        "inventory",
-        "product-movement",
-        "requirements",
-      ].includes(page);
+    // if (role === "inventory_manager")
+    //   return [
+    //     "dashboard",
+    //     "leads",
+    //     "add-lead",
+    //     "sales",
+    //     "sales-report",
+    //     "inventory",
+    //     "product-movement",
+    //     "requirements",
+    //   ].includes(page);
     if (role === "sales")
       return [
         "dashboard",

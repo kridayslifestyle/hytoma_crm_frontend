@@ -51,6 +51,7 @@ export default function Layout({ children }) {
         "add-lead",
         "sales",
         "sales-report",
+        "inventory",
         "requirements",
       ].includes(page);
     return false;

@@ -22,18 +22,7 @@ export default function Layout({ children }) {
     if (role === "technical")
       return ["complaints", "inventory", "daily-work"].includes(page);
     if (page === "product-movement" && role) return true;
-    if (role === "revathi")
-      return [
-        "dashboard",
-        "leads",
-        "add-lead",
-        "sales",
-        "sales-report",
-        "inventory",
-        "product-movement",
-        "requirements",
-      ].includes(page);
-    // if (role === "inventory_manager")
+    // if (role === "revathi")
     //   return [
     //     "dashboard",
     //     "leads",
@@ -44,6 +33,17 @@ export default function Layout({ children }) {
     //     "product-movement",
     //     "requirements",
     //   ].includes(page);
+    if (role === "inventory_manager")
+      return [
+        "dashboard",
+        "leads",
+        "add-lead",
+        "sales",
+        "sales-report",
+        "inventory",
+        "product-movement",
+        "requirements",
+      ].includes(page);
     if (role === "sales")
       return [
         "dashboard",

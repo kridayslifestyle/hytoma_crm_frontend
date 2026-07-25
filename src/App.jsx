@@ -6,7 +6,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Leads from "./pages/Leads";
 import AddLead from "./pages/AddLead";
-import QuickLead from "./pages/Quicklead";
+import QuickLead from "./pages/QuickLead";
 import EditLead from "./pages/EditLead";
 import SalesPerformance from "./pages/SalesPerformance";
 import SalesReport from "./pages/SalesReport";
@@ -160,13 +160,13 @@ function App() {
           }
         />
 
-        {/* Inventory — admin, revathi, inventory_manager only */}
+        {/* Inventory — admin, revathi, inventory_manager, sales */}
         <Route
           path="/inventory"
           element={
             <ProtectedRoute>
               <RoleRoute
-                allowed={["admin", "revathi", "inventory_manager", "simanta"]}
+                allowed={["admin", "revathi", "inventory_manager", "simanta", "sales"]}
               >
                 <Layout>
                   <Inventory />

@@ -1,5 +1,4 @@
-// Place at: CRM_FRONTEND/src/services/customerWorkApi.js
-// Native fetch — same shape/pattern as employeeWorkApi.js (returns { data }).
+
 
 const BASE_URL =
   import.meta.env.VITE_API_URL ||
@@ -50,6 +49,23 @@ export const getCustomerWork = (id) =>
 
 export const updateCustomerWork = (id, payload) =>
   request(`/api/customer-work/${id}`, { method: "PUT", body: payload });
+
+export const uploadQuotationForWork = async (id, file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  const res = await fetch(`${BASE_URL.replace(/\/$/, "")}/api/customer-work/${id}/quotation`, {
+    method: "POST",
+    credentials: "include",
+    body: formData,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    const e = new Error(err.detail || "Failed to upload quotation");
+    e.response = { status: res.status, data: err };
+    throw e;
+  }
+  return res.json();
+};
 
 export const deleteCustomerWork = (id) =>
   request(`/api/customer-work/${id}`, { method: "DELETE" });

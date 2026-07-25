@@ -1,10 +1,3 @@
-// Place at: CRM_FRONTEND/src/pages/CustomerWorkForm.jsx
-//
-// Single unified "Customer Work" module (replaces separate Site Visit /
-// Installation forms). Admin creates/edits customer records, picks a calendar
-// slot (booked slots auto-disable), assigns installers (Venkatesh / Sai),
-// tracks status, and reschedules until the work is Completed.
-
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Calendar,
@@ -19,6 +12,7 @@ import {
   createCustomerWork,
   listCustomerWork,
   updateCustomerWork,
+  uploadQuotationForWork,
   deleteCustomerWork,
   updateCustomerWorkStatus,
   rescheduleCustomerWork,
@@ -224,45 +218,75 @@ export default function CustomerWorkForm() {
     setSubmitting(true);
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL;
+      if (editingId) {
+        // ---- EDIT: update the existing record in place (was always
+        // creating a brand-new duplicate record before this fix) ----
+        const payload = {
+          customer_name: form.customer_name,
+          phone: form.phone,
+          address: form.address,
+          slot: form.slot,
+          status: form.status,
+          scheduled_date: form.scheduled_date,
+          assigned_installers: form.assigned_installers,
+          remarks: form.remarks || "",
+          required_products: form.required_products || "",
+          salesPerson: form.salesPerson || "",
+          work_type: form.work_type || "New",
+          km: form.km || 0,
+          express_service: !!form.express_service,
+          is_custom_slot: !!form.is_custom_slot,
+        };
 
-      const formData = new FormData();
+        await updateCustomerWork(editingId, payload);
 
-      formData.append("customer_name", form.customer_name);
-      formData.append("phone", form.phone);
-      formData.append("address", form.address);
-      formData.append("slot", form.slot);
-      formData.append("status", form.status);
-      formData.append("scheduled_date", form.scheduled_date);
-      formData.append(
-        "assigned_installers",
-        JSON.stringify(form.assigned_installers),
-      );
-      formData.append("remarks", form.remarks || "");
-      formData.append("required_products", form.required_products || "");
-      formData.append("salesPerson", form.salesPerson || "");
-      formData.append("work_type", form.work_type || "New");
-      formData.append("km", form.km || 0);
-      formData.append("express_service", form.express_service ? "true" : "false");
+        if (quotationFile) {
+          await uploadQuotationForWork(editingId, quotationFile);
+        }
 
-      if (quotationFile) {
-        formData.append("file", quotationFile);
+        alert("Work updated successfully");
+      } else {
+        // ---- CREATE: new record, multipart (supports the quotation file) ----
+        const API_URL = import.meta.env.VITE_API_URL;
+
+        const formData = new FormData();
+
+        formData.append("customer_name", form.customer_name);
+        formData.append("phone", form.phone);
+        formData.append("address", form.address);
+        formData.append("slot", form.slot);
+        formData.append("status", form.status);
+        formData.append("scheduled_date", form.scheduled_date);
+        formData.append(
+          "assigned_installers",
+          JSON.stringify(form.assigned_installers),
+        );
+        formData.append("remarks", form.remarks || "");
+        formData.append("required_products", form.required_products || "");
+        formData.append("salesPerson", form.salesPerson || "");
+        formData.append("work_type", form.work_type || "New");
+        formData.append("km", form.km || 0);
+        formData.append("express_service", form.express_service ? "true" : "false");
+
+        if (quotationFile) {
+          formData.append("file", quotationFile);
+        }
+
+        const res = await fetch(`${API_URL}/api/customer-work`, {
+          method: "POST",
+          credentials: "include",
+          body: formData,
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          alert(data.detail || "Error creating work");
+          return;
+        }
+
+        alert("Work created successfully");
       }
-
-      const res = await fetch(`${API_URL}/api/customer-work`, {
-        method: "POST",
-        credentials: "include", // 🔥 FIX 401 ISSUE
-        body: formData,
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        alert(data.detail || "Error creating work");
-        return;
-      }
-
-      alert("Work created successfully");
 
       // reset everything
       setForm(emptyForm);
@@ -273,7 +297,7 @@ export default function CustomerWorkForm() {
       await loadRecords();
     } catch (err) {
       console.error(err);
-      alert("Network error");
+      alert(err?.response?.data?.detail || "Network error");
     } finally {
       setSubmitting(false);
     }
@@ -292,6 +316,11 @@ export default function CustomerWorkForm() {
       scheduled_date: r.scheduled_date || todayISO(),
       slot: r.slot || "",
       is_custom_slot: !!r.is_custom_slot,
+      required_products: r.required_products || "",
+      salesPerson: r.salesPerson || "",
+      work_type: r.work_type || "New",
+      km: r.km || "",
+      express_service: !!r.express_service,
     });
     setMonthCursor(new Date(r.scheduled_date || Date.now()));
     window.scrollTo({ top: 0, behavior: "smooth" });

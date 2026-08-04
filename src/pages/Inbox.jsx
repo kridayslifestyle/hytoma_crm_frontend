@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { getConversations, getThread, sendReply } from "../services/inboxApi";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { getConversations, getThread, sendReply, sendGenericTemplate } from "../services/inboxApi";
 
 function timeAgo(iso) {
   if (!iso) return "";
@@ -72,6 +72,12 @@ function dayLabel(dateStr) {
   return d.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
 }
 
+const FILTERS = [
+  { key: "all", label: "All" },
+  { key: "unread", label: "Unread" },
+  { key: "replied", label: "Replied" },
+];
+
 export default function Inbox() {
   const [conversations, setConversations] = useState([]);
   const [selectedPhone, setSelectedPhone] = useState(null);
@@ -79,6 +85,8 @@ export default function Inbox() {
   const [replyText, setReplyText] = useState("");
   const [sending, setSending] = useState(false);
   const [loadingConvos, setLoadingConvos] = useState(true);
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("all");
   const bottomRef = useRef(null);
 
   const loadConversations = async () => {
@@ -125,6 +133,21 @@ export default function Inbox() {
     );
   };
 
+  const visibleConversations = useMemo(() => {
+    let list = conversations;
+    if (filter === "unread") list = list.filter((c) => c.unread_count > 0);
+    if (filter === "replied") list = list.filter((c) => c.last_direction === "out");
+    const q = search.trim().toLowerCase();
+    if (q) {
+      list = list.filter(
+        (c) =>
+          (c.customer_name || "").toLowerCase().includes(q) ||
+          (c.phone || "").includes(q),
+      );
+    }
+    return list;
+  }, [conversations, filter, search]);
+
   const handleSend = async () => {
     if (!replyText.trim() || !selectedPhone) return;
     setSending(true);
@@ -143,6 +166,22 @@ export default function Inbox() {
     }
   };
 
+  const handleSendTemplate = async () => {
+    if (!selectedPhone) return;
+    setSending(true);
+    try {
+      await sendGenericTemplate(selectedPhone);
+      await loadThread(selectedPhone);
+      await loadConversations();
+    } catch (e) {
+      alert(e.message || "Failed to send template.");
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const windowOpen = thread?.window_open;
+
   return (
     <div>
       <div className="mb-6">
@@ -155,19 +194,51 @@ export default function Inbox() {
       <div className="bg-white rounded-xl shadow flex h-[calc(100vh-180px)] overflow-hidden border border-gray-100">
         {/* Conversation list */}
         <div className="w-full sm:w-80 border-r border-gray-100 flex flex-col shrink-0 bg-white">
-          <div className="px-4 py-3.5 border-b border-gray-100">
-            <span className="font-semibold text-gray-800">Conversations</span>
+          <div className="px-3 py-3 border-b border-gray-100 space-y-2">
+            <div className="relative">
+              <svg
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                width="15" height="15" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" strokeWidth="2"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.3-4.3" />
+              </svg>
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search by name and mobile"
+                className="w-full border border-gray-200 rounded-full pl-9 pr-3 py-2 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-300 focus:bg-white transition"
+              />
+            </div>
+            <div className="flex gap-1.5">
+              {FILTERS.map((f) => (
+                <button
+                  key={f.key}
+                  onClick={() => setFilter(f.key)}
+                  className={`px-3 py-1 rounded-full text-xs font-medium transition ${
+                    filter === f.key
+                      ? "bg-orange-100 text-orange-700"
+                      : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                  }`}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
           </div>
           <div className="flex-1 overflow-y-auto">
             {loadingConvos && (
               <div className="p-6 text-sm text-gray-400 text-center">Loading…</div>
             )}
-            {!loadingConvos && conversations.length === 0 && (
+            {!loadingConvos && visibleConversations.length === 0 && (
               <div className="p-6 text-sm text-gray-400 text-center">
-                No WhatsApp conversations yet.
+                {conversations.length === 0
+                  ? "No WhatsApp conversations yet."
+                  : "No conversations match this filter."}
               </div>
             )}
-            {conversations.map((c) => {
+            {visibleConversations.map((c) => {
               const active = selectedPhone === c.phone;
               return (
                 <button
@@ -293,35 +364,50 @@ export default function Inbox() {
                 <div ref={bottomRef} />
               </div>
 
-              <div className="p-3 border-t border-gray-100 bg-white flex gap-2">
-                <input
-                  type="text"
-                  value={replyText}
-                  onChange={(e) => setReplyText(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && !sending && handleSend()}
-                  placeholder="Type a reply…"
-                  className="flex-1 border border-gray-200 rounded-full px-4 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-300 focus:bg-white transition"
-                />
-                <button
-                  onClick={handleSend}
-                  disabled={sending || !replyText.trim()}
-                  className="bg-orange-500 hover:bg-orange-600 disabled:opacity-40 disabled:hover:bg-orange-500 text-white w-11 h-11 rounded-full flex items-center justify-center shrink-0 transition"
-                  title="Send"
-                >
-                  {sending ? (
-                    <span className="text-xs">…</span>
-                  ) : (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="w-5 h-5 -rotate-45 translate-x-[1px]"
-                    >
-                      <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-                    </svg>
-                  )}
-                </button>
-              </div>
+              {windowOpen ? (
+                <div className="p-3 border-t border-gray-100 bg-white flex gap-2">
+                  <input
+                    type="text"
+                    value={replyText}
+                    onChange={(e) => setReplyText(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && !sending && handleSend()}
+                    placeholder="Type a reply…"
+                    className="flex-1 border border-gray-200 rounded-full px-4 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-300 focus:bg-white transition"
+                  />
+                  <button
+                    onClick={handleSend}
+                    disabled={sending || !replyText.trim()}
+                    className="bg-orange-500 hover:bg-orange-600 disabled:opacity-40 disabled:hover:bg-orange-500 text-white w-11 h-11 rounded-full flex items-center justify-center shrink-0 transition"
+                    title="Send"
+                  >
+                    {sending ? (
+                      <span className="text-xs">…</span>
+                    ) : (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="w-5 h-5 -rotate-45 translate-x-[1px]"
+                      >
+                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+              ) : (
+                <div className="p-3 border-t border-gray-100 bg-white flex items-center gap-3">
+                  <span className="flex-1 text-sm text-gray-500">
+                    24hr window expired — send a template
+                  </span>
+                  <button
+                    onClick={handleSendTemplate}
+                    disabled={sending}
+                    className="bg-gray-800 hover:bg-gray-900 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-sm font-medium shrink-0 transition"
+                  >
+                    {sending ? "Sending…" : "Send Template"}
+                  </button>
+                </div>
+              )}
             </>
           )}
         </div>

@@ -29,3 +29,19 @@ export const sendReply = async (phone, message) => {
 
   return response.json();
 };
+
+export const sendGenericTemplate = async (phone) => {
+  const response = await fetch(`${API_URL}/api/inbox/send-template`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ phone }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.detail || "Failed to send template");
+  }
+
+  return response.json();
+};

@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 
+const API = "https://hytomacrmbackend.up.railway.app";
+
 export default function TravelExpenses() {
   const [form, setForm] = useState({
     personName: "",
@@ -13,16 +15,16 @@ export default function TravelExpenses() {
   const [editId, setEditId] = useState(null);
   const [selectedMonth, setSelectedMonth] = useState("");
 
-  // ✅ Load data on page open
+  // ✅ LOAD DATA
   useEffect(() => {
     fetchExpenses();
     fetchMonthly();
   }, []);
 
-  // ✅ GET all expenses from DB
+  // ✅ GET EXPENSES
   const fetchExpenses = async () => {
     try {
-      const res = await fetch("/travel-expenses");
+      const res = await fetch(`${API}/travel-expenses`);
       const data = await res.json();
       setExpenses(data);
     } catch (err) {
@@ -30,10 +32,10 @@ export default function TravelExpenses() {
     }
   };
 
-  // ✅ GET monthly report
+  // ✅ GET MONTHLY REPORT
   const fetchMonthly = async () => {
     try {
-      const res = await fetch("/travel-expenses/monthly");
+      const res = await fetch(`${API}/travel-expenses/monthly`);
       const data = await res.json();
       setMonthly(data);
     } catch (err) {
@@ -41,7 +43,7 @@ export default function TravelExpenses() {
     }
   };
 
-  // ✅ ADD / UPDATE expense (NOW BACKEND)
+  // ✅ ADD / UPDATE EXPENSE
   const handleAdd = async () => {
     if (!form.personName || !form.date || !form.km || !form.purpose) {
       alert("Please fill all fields");
@@ -50,16 +52,14 @@ export default function TravelExpenses() {
 
     try {
       if (editId) {
-        // UPDATE
-        await fetch(`/travel-expenses/${editId}`, {
+        await fetch(`${API}/travel-expenses/${editId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(form),
         });
         setEditId(null);
       } else {
-        // CREATE
-        await fetch("/travel-expenses", {
+        await fetch(`${API}/travel-expenses`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(form),
@@ -86,14 +86,18 @@ export default function TravelExpenses() {
     setEditId(item._id);
   };
 
-  // ✅ DELETE (backend)
+  // ✅ DELETE
   const handleDelete = async (id) => {
-    await fetch(`/travel-expenses/${id}`, {
-      method: "DELETE",
-    });
+    try {
+      await fetch(`${API}/travel-expenses/${id}`, {
+        method: "DELETE",
+      });
 
-    fetchExpenses();
-    fetchMonthly();
+      fetchExpenses();
+      fetchMonthly();
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   const getAmount = (km) => Number(km || 0) * 3;

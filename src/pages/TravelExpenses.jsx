@@ -10,13 +10,27 @@ export default function TravelExpenses() {
 
   const [expenses, setExpenses] = useState([]);
   const [monthly, setMonthly] = useState([]);
-  const [editIndex, setEditIndex] = useState(null);
+  const [editId, setEditId] = useState(null);
   const [selectedMonth, setSelectedMonth] = useState("");
 
+  // ✅ Load data on page open
   useEffect(() => {
+    fetchExpenses();
     fetchMonthly();
   }, []);
 
+  // ✅ GET all expenses from DB
+  const fetchExpenses = async () => {
+    try {
+      const res = await fetch("/travel-expenses");
+      const data = await res.json();
+      setExpenses(data);
+    } catch (err) {
+      console.log("Fetch expenses error", err);
+    }
+  };
+
+  // ✅ GET monthly report
   const fetchMonthly = async () => {
     try {
       const res = await fetch("/travel-expenses/monthly");
@@ -27,49 +41,67 @@ export default function TravelExpenses() {
     }
   };
 
-  // Add / Edit Expense
-  const handleAdd = () => {
+  // ✅ ADD / UPDATE expense (NOW BACKEND)
+  const handleAdd = async () => {
     if (!form.personName || !form.date || !form.km || !form.purpose) {
       alert("Please fill all fields");
       return;
     }
 
-    if (editIndex !== null) {
-      const updated = [...expenses];
-      updated[editIndex] = form;
-      setExpenses(updated);
-      setEditIndex(null);
-    } else {
-      setExpenses([...expenses, form]);
+    try {
+      if (editId) {
+        // UPDATE
+        await fetch(`/travel-expenses/${editId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(form),
+        });
+        setEditId(null);
+      } else {
+        // CREATE
+        await fetch("/travel-expenses", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(form),
+        });
+      }
+
+      fetchExpenses();
+      fetchMonthly();
+
+      setForm({
+        personName: "",
+        date: "",
+        km: "",
+        purpose: "",
+      });
+    } catch (err) {
+      console.log(err);
     }
+  };
 
-    setForm({
-      personName: "",
-      date: "",
-      km: "",
-      purpose: "",
+  // ✅ EDIT
+  const handleEdit = (item) => {
+    setForm(item);
+    setEditId(item._id);
+  };
+
+  // ✅ DELETE (backend)
+  const handleDelete = async (id) => {
+    await fetch(`/travel-expenses/${id}`, {
+      method: "DELETE",
     });
+
+    fetchExpenses();
+    fetchMonthly();
   };
 
-  const handleEdit = (index) => {
-    setForm(expenses[index]);
-    setEditIndex(index);
-  };
-
-  const handleDelete = (index) => {
-    const updated = expenses.filter((_, i) => i !== index);
-    setExpenses(updated);
-  };
-
-  // ₹3 per KM calculation
   const getAmount = (km) => Number(km || 0) * 3;
 
-  // Filter by month (YYYY-MM)
   const filteredExpenses = selectedMonth
     ? expenses.filter((e) => e.date?.startsWith(selectedMonth))
     : expenses;
 
-  // Monthly total
   const monthlyTotal = filteredExpenses.reduce(
     (sum, e) => sum + getAmount(e.km),
     0
@@ -79,12 +111,9 @@ export default function TravelExpenses() {
     <div className="p-6 bg-gray-50 min-h-screen">
       <h1 className="text-2xl font-bold mb-6">Travel Expenses</h1>
 
-      {/* MONTH SELECTOR */}
+      {/* MONTH FILTER */}
       <div className="mb-4 bg-white p-4 rounded-xl shadow">
-        <label className="text-sm font-medium text-gray-600">
-          Select Month
-        </label>
-
+        <label className="text-sm font-medium">Select Month</label>
         <input
           type="month"
           value={selectedMonth}
@@ -93,10 +122,12 @@ export default function TravelExpenses() {
         />
       </div>
 
-      {/* MONTHLY TOTAL CARD */}
+      {/* MONTHLY TOTAL */}
       <div className="bg-green-50 p-4 rounded-xl shadow mb-4">
         <p className="text-sm text-gray-600">Monthly Travel Expense</p>
-        <p className="text-2xl font-bold text-green-600">₹{monthlyTotal}</p>
+        <p className="text-2xl font-bold text-green-600">
+          ₹{monthlyTotal}
+        </p>
       </div>
 
       {/* FORM */}
@@ -113,7 +144,9 @@ export default function TravelExpenses() {
         <input
           type="date"
           value={form.date}
-          onChange={(e) => setForm({ ...form, date: e.target.value })}
+          onChange={(e) =>
+            setForm({ ...form, date: e.target.value })
+          }
           className="border p-2 w-full rounded"
         />
 
@@ -121,7 +154,9 @@ export default function TravelExpenses() {
           type="number"
           placeholder="KM Travelled"
           value={form.km}
-          onChange={(e) => setForm({ ...form, km: e.target.value })}
+          onChange={(e) =>
+            setForm({ ...form, km: e.target.value })
+          }
           className="border p-2 w-full rounded"
         />
 
@@ -144,20 +179,20 @@ export default function TravelExpenses() {
           onClick={handleAdd}
           className="bg-orange-500 text-white px-4 py-2 rounded w-full"
         >
-          {editIndex !== null ? "Update Expense" : "+ Add Expense"}
+          {editId ? "Update Expense" : "+ Add Expense"}
         </button>
       </div>
 
-      {/* EXPENSE LIST */}
+      {/* LIST */}
       <div className="mt-6 space-y-3">
         {filteredExpenses.length === 0 ? (
           <p className="text-gray-400 text-center mt-6">
             No expenses found
           </p>
         ) : (
-          filteredExpenses.map((e, i) => (
+          filteredExpenses.map((e) => (
             <div
-              key={i}
+              key={e._id}
               className="bg-white p-4 rounded-lg shadow flex justify-between items-center"
             >
               <div>
@@ -165,23 +200,21 @@ export default function TravelExpenses() {
                 <p className="text-sm text-gray-500">
                   {e.date} • {e.km} KM • {e.purpose}
                 </p>
-
                 <p className="text-sm font-bold text-green-600 mt-1">
                   ₹{getAmount(e.km)}
                 </p>
               </div>
 
-              {/* ACTIONS */}
               <div className="flex flex-col gap-2">
                 <button
-                  onClick={() => handleEdit(i)}
+                  onClick={() => handleEdit(e)}
                   className="text-blue-500 text-sm"
                 >
                   Edit
                 </button>
 
                 <button
-                  onClick={() => handleDelete(i)}
+                  onClick={() => handleDelete(e._id)}
                   className="text-red-500 text-sm"
                 >
                   Delete
@@ -192,7 +225,7 @@ export default function TravelExpenses() {
         )}
       </div>
 
-      {/* MONTHLY REPORT (BACKEND DATA) */}
+      {/* MONTHLY REPORT */}
       <div className="mt-10 bg-white p-4 rounded-xl shadow">
         <h2 className="font-bold mb-4">📊 Monthly Travel Report</h2>
 
@@ -202,7 +235,7 @@ export default function TravelExpenses() {
               <th className="p-2 text-left">Person</th>
               <th className="p-2 text-left">Month</th>
               <th className="p-2 text-left">KM</th>
-              <th className="p-2 text-left">Amount (₹)</th>
+              <th className="p-2 text-left">Amount</th>
             </tr>
           </thead>
 

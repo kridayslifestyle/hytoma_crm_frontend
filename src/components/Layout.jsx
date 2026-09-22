@@ -8,6 +8,12 @@ export default function Layout({ children }) {
 
   // ✅ Permission helper
   const can = (page) => {
+    // Inventory is locked down to admin, simanta, and revathi only —
+    // checked first so no other role's list below can grant it.
+    if (page === "inventory") {
+      return role === "admin" || role === "simanta" || role === "revathi";
+    }
+
     // Available to every logged-in user:
     if (page === "daily-work" && role) return true;
     if (page === "customer-feedback" && role) return true;

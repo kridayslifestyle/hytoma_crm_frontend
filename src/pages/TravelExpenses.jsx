@@ -65,55 +65,77 @@ export default function TravelExpenses() {
     }
   };
 
+  const getUser = async () => {
+    const res = await fetch(`${API}/me`, {
+      credentials: "include",
+    });
+
+    return await res.json();
+  };
+
   // ADD / UPDATE
   const handleAdd = async () => {
-    if (!form.personName || !form.date || !form.km || !form.purpose) {
-      alert("Please fill all fields");
+  if (!form.personName || !form.date || !form.km || !form.purpose) {
+    alert("Please fill all fields");
+    return;
+  }
+
+  try {
+    const userRes = await fetch(`${API}/me`, {
+      credentials: "include",
+    });
+
+    if (userRes.status === 401) {
+      alert("Session expired. Please login again");
       return;
     }
 
+    const user = await userRes.json();
+
     const payload = {
       ...form,
-      purpose: form.purpose === "Other" ? form.customPurpose : form.purpose,
+      username: user.username,   // 🔥 IMPORTANT FIX
+      role: user.role,
+      purpose:
+        form.purpose === "Other"
+          ? form.customPurpose
+          : form.purpose,
     };
 
-    try {
-      if (editId) {
-        // UPDATE
-        await fetch(`${API}/travel-expenses/${editId}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify(payload),
-        });
-
-        setEditId(null);
-      } else {
-        // CREATE
-        await fetch(`${API}/travel-expenses`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify(payload),
-        });
-      }
-
-      fetchExpenses();
-      fetchMonthly();
-
-      // reset form
-      setForm({
-        personName: "",
-        extraNote: "",
-        date: "",
-        km: "",
-        purpose: "",
-        customPurpose: "",
+    if (editId) {
+      await fetch(`${API}/travel-expenses/${editId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(payload),
       });
-    } catch (err) {
-      console.log(err);
+
+      setEditId(null);
+    } else {
+      await fetch(`${API}/travel-expenses`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      });
     }
-  };
+
+    fetchExpenses();
+    fetchMonthly();
+
+    setForm({
+      personName: "",
+      extraNote: "",
+      date: "",
+      km: "",
+      purpose: "",
+      customPurpose: "",
+    });
+
+  } catch (err) {
+    console.log(err);
+  }
+};
 
   // EDIT
   const handleEdit = (item) => {

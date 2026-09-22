@@ -33,6 +33,7 @@ export default function TravelExpenses() {
       const data = await res.json();
 
       if (!Array.isArray(data)) {
+        console.log("Invalid response:", data);
         setExpenses([]);
         return;
       }
@@ -51,6 +52,13 @@ export default function TravelExpenses() {
       });
 
       const data = await res.json();
+
+      if (!Array.isArray(data)) {
+        console.log("Invalid monthly response:", data);
+        setMonthly([]);
+        return;
+      }
+
       setMonthly(data);
     } catch (err) {
       console.log("Monthly fetch error", err);
@@ -66,10 +74,7 @@ export default function TravelExpenses() {
 
     const payload = {
       ...form,
-      purpose:
-        form.purpose === "Other"
-          ? form.customPurpose
-          : form.purpose,
+      purpose: form.purpose === "Other" ? form.customPurpose : form.purpose,
     };
 
     try {
@@ -147,7 +152,7 @@ export default function TravelExpenses() {
 
   const monthlyTotal = filteredExpenses.reduce(
     (sum, e) => sum + getAmount(e.km),
-    0
+    0,
   );
 
   return (
@@ -168,9 +173,7 @@ export default function TravelExpenses() {
       {/* TOTAL */}
       <div className="bg-green-50 p-4 rounded-xl shadow mb-4">
         <p className="text-sm text-gray-600">Monthly Travel Expense</p>
-        <p className="text-2xl font-bold text-green-600">
-          ₹{monthlyTotal}
-        </p>
+        <p className="text-2xl font-bold text-green-600">₹{monthlyTotal}</p>
       </div>
 
       {/* FORM */}
@@ -178,27 +181,21 @@ export default function TravelExpenses() {
         <input
           placeholder="Person Name"
           value={form.personName}
-          onChange={(e) =>
-            setForm({ ...form, personName: e.target.value })
-          }
+          onChange={(e) => setForm({ ...form, personName: e.target.value })}
           className="border p-2 w-full rounded"
         />
 
         <input
           placeholder="Extra Note"
           value={form.extraNote}
-          onChange={(e) =>
-            setForm({ ...form, extraNote: e.target.value })
-          }
+          onChange={(e) => setForm({ ...form, extraNote: e.target.value })}
           className="border p-2 w-full rounded"
         />
 
         <input
           type="date"
           value={form.date}
-          onChange={(e) =>
-            setForm({ ...form, date: e.target.value })
-          }
+          onChange={(e) => setForm({ ...form, date: e.target.value })}
           className="border p-2 w-full rounded"
         />
 
@@ -206,17 +203,13 @@ export default function TravelExpenses() {
           type="number"
           placeholder="KM Travelled"
           value={form.km}
-          onChange={(e) =>
-            setForm({ ...form, km: e.target.value })
-          }
+          onChange={(e) => setForm({ ...form, km: e.target.value })}
           className="border p-2 w-full rounded"
         />
 
         <select
           value={form.purpose}
-          onChange={(e) =>
-            setForm({ ...form, purpose: e.target.value })
-          }
+          onChange={(e) => setForm({ ...form, purpose: e.target.value })}
           className="border p-2 w-full rounded"
         >
           <option value="">Select Purpose</option>
@@ -252,9 +245,7 @@ export default function TravelExpenses() {
       {/* LIST */}
       <div className="mt-6 space-y-3">
         {filteredExpenses.length === 0 ? (
-          <p className="text-gray-400 text-center mt-6">
-            No expenses found
-          </p>
+          <p className="text-gray-400 text-center mt-6">No expenses found</p>
         ) : (
           filteredExpenses.map((e) => (
             <div
@@ -311,9 +302,7 @@ export default function TravelExpenses() {
                 <td className="p-2">{m.person}</td>
                 <td className="p-2">{m.month}</td>
                 <td className="p-2">{m.km}</td>
-                <td className="p-2 font-bold text-orange-500">
-                  ₹{m.amount}
-                </td>
+                <td className="p-2 font-bold text-orange-500">₹{m.amount}</td>
               </tr>
             ))}
           </tbody>

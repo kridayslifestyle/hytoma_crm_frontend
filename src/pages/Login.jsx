@@ -21,37 +21,34 @@ export default function Login() {
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include",
+        credentials: "include", // ✅ JWT cookie support
         body: JSON.stringify(form),
       });
 
       const data = await res.json();
 
-      console.log("LOGIN RESPONSE:", data); // 👈 DEBUG
-
+      console.log("LOGIN RESPONSE:", data);
 
       if (data.message === "Login success") {
-        localStorage.setItem("role", data.role);
+        // ✅ IMPORTANT:
+        // No localStorage needed anymore
+        // JWT cookie handles authentication
+
         navigate("/");
       } else {
         alert(data.error || "Invalid login");
       }
-
     } catch (err) {
       console.error(err);
       alert("Server error");
     }
-
-    
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
 
-      {/* Card */}
       <div className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md">
 
-        {/* Title */}
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
           Login to CRM
         </h2>
@@ -78,9 +75,12 @@ export default function Login() {
               type={showPassword ? "text" : "password"}
               placeholder="Enter password"
               required
-              onChange={(e) => setForm({ ...form, password: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, password: e.target.value })
+              }
               className="w-full mt-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-400 outline-none pr-10"
             />
+
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
@@ -101,7 +101,6 @@ export default function Login() {
         </form>
 
       </div>
-
     </div>
   );
 }

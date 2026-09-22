@@ -76,6 +76,13 @@ export const getInventory = async () => {
   return res.json();
 };
 
+// Read-only product list for pickers (e.g. Add Lead) — usable by sales and
+// inventory_manager, who don't have full inventory management access.
+export const getInventoryLookup = async () => {
+  const res = await fetch(`${API}/inventory/lookup`, { credentials: "include" });
+  return res.json();
+};
+
 export const addProduct = async (data) => {
   const res = await fetch(`${API}/inventory`, {
     method: "POST",

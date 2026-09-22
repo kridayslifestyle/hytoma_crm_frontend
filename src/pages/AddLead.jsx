@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 
 import { useNavigate } from "react-router-dom";
 // import { getInventory } from "../services/api";
-import { addLead, getInventory, getSalesUsers } from "../services/api";
+import { addLead, getInventoryLookup, getSalesUsers } from "../services/api";
 export default function AddLead() {
   const navigate = useNavigate();
   const [toast, setToast] = useState("");
@@ -60,8 +60,8 @@ export default function AddLead() {
   }, []);
 
   const fetchInventory = async () => {
-    const res = await getInventory();
-    setInventory(res);
+    const res = await getInventoryLookup();
+    setInventory(Array.isArray(res) ? res : []);
   };
 
   const handleSelectProduct = (product) => {

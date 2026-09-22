@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import {
   updateLead,
   getLeads,
-  getInventory,
+  getInventoryLookup,
   getSalesUsers,
 } from "../services/api";
 
@@ -101,8 +101,8 @@ export default function EditLead() {
   }, []);
 
   const fetchInventory = async () => {
-    const res = await getInventory();
-    setInventory(res);
+    const res = await getInventoryLookup();
+    setInventory(Array.isArray(res) ? res : []);
   };
 
   const showToast = (msg) => {

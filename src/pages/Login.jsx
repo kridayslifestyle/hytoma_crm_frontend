@@ -30,9 +30,9 @@ export default function Login() {
       console.log("LOGIN RESPONSE:", data);
 
       if (data.message === "Login success") {
-        // ✅ IMPORTANT:
-        // No localStorage needed anymore
-        // JWT cookie handles authentication
+        // ✅ Cache role for sidebar/permission checks (Layout.jsx reads this).
+        // The JWT itself stays in the HttpOnly cookie — this is just the role string.
+        localStorage.setItem("role", data.role);
 
         navigate("/");
       } else {

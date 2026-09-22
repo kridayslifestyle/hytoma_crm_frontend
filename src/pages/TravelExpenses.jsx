@@ -5,9 +5,11 @@ const API = "https://hytomacrmbackend.up.railway.app";
 export default function TravelExpenses() {
   const [form, setForm] = useState({
     personName: "",
+    extraNote: "",
     date: "",
     km: "",
     purpose: "",
+    customPurpose: "",
   });
 
   const [expenses, setExpenses] = useState([]);
@@ -51,18 +53,27 @@ export default function TravelExpenses() {
     }
 
     try {
+      // ✅ STEP 5: CREATE PAYLOAD (THIS IS THE IMPORTANT PART)
+      const payload = {
+        ...form,
+        purpose: form.purpose === "Other" ? form.customPurpose : form.purpose,
+      };
+
       if (editId) {
+        // PUT (UPDATE)
         await fetch(`${API}/travel-expenses/${editId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(form),
+          body: JSON.stringify(payload),
         });
+
         setEditId(null);
       } else {
-        await fetch(`${API}/travel-expenses`, {
-          method: "POST",
+        // POST (CREATE)
+        await fetch(`${API}/travel-expenses/${editId}`, {
+          method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(form),
+          body: JSON.stringify(payload),
         });
       }
 
@@ -71,9 +82,11 @@ export default function TravelExpenses() {
 
       setForm({
         personName: "",
+        extraNote: "",
         date: "",
         km: "",
         purpose: "",
+        customPurpose: "",
       });
     } catch (err) {
       console.log(err);
@@ -82,7 +95,13 @@ export default function TravelExpenses() {
 
   // ✅ EDIT
   const handleEdit = (item) => {
-    setForm(item);
+    setForm({
+      personName: item.personName || "",
+      date: item.date || "",
+      km: item.km || "",
+      purpose: item.purpose || "",
+    });
+
     setEditId(item._id);
   };
 
@@ -92,7 +111,6 @@ export default function TravelExpenses() {
       await fetch(`${API}/travel-expenses/${id}`, {
         method: "DELETE",
       });
-
       fetchExpenses();
       fetchMonthly();
     } catch (err) {
@@ -108,7 +126,7 @@ export default function TravelExpenses() {
 
   const monthlyTotal = filteredExpenses.reduce(
     (sum, e) => sum + getAmount(e.km),
-    0
+    0,
   );
 
   return (
@@ -129,9 +147,7 @@ export default function TravelExpenses() {
       {/* MONTHLY TOTAL */}
       <div className="bg-green-50 p-4 rounded-xl shadow mb-4">
         <p className="text-sm text-gray-600">Monthly Travel Expense</p>
-        <p className="text-2xl font-bold text-green-600">
-          ₹{monthlyTotal}
-        </p>
+        <p className="text-2xl font-bold text-green-600">₹{monthlyTotal}</p>
       </div>
 
       {/* FORM */}
@@ -139,18 +155,21 @@ export default function TravelExpenses() {
         <input
           placeholder="Person Name"
           value={form.personName}
-          onChange={(e) =>
-            setForm({ ...form, personName: e.target.value })
-          }
+          onChange={(e) => setForm({ ...form, personName: e.target.value })}
+          className="border p-2 w-full rounded"
+        />
+
+        <input
+          placeholder="Extra Note"
+          value={form.extraNote}
+          onChange={(e) => setForm({ ...form, extraNote: e.target.value })}
           className="border p-2 w-full rounded"
         />
 
         <input
           type="date"
           value={form.date}
-          onChange={(e) =>
-            setForm({ ...form, date: e.target.value })
-          }
+          onChange={(e) => setForm({ ...form, date: e.target.value })}
           className="border p-2 w-full rounded"
         />
 
@@ -158,17 +177,13 @@ export default function TravelExpenses() {
           type="number"
           placeholder="KM Travelled"
           value={form.km}
-          onChange={(e) =>
-            setForm({ ...form, km: e.target.value })
-          }
+          onChange={(e) => setForm({ ...form, km: e.target.value })}
           className="border p-2 w-full rounded"
         />
 
         <select
           value={form.purpose}
-          onChange={(e) =>
-            setForm({ ...form, purpose: e.target.value })
-          }
+          onChange={(e) => setForm({ ...form, purpose: e.target.value })}
           className="border p-2 w-full rounded"
         >
           <option value="">Select Purpose</option>
@@ -178,6 +193,17 @@ export default function TravelExpenses() {
           <option value="Maintenance">Maintenance</option>
           <option value="Other">Other</option>
         </select>
+
+        {form.purpose === "Other" && (
+          <input
+            placeholder="Enter Custom Purpose"
+            value={form.customPurpose}
+            onChange={(e) =>
+              setForm({ ...form, customPurpose: e.target.value })
+            }
+            className="border p-2 w-full rounded"
+          />
+        )}
 
         <button
           onClick={handleAdd}
@@ -190,9 +216,7 @@ export default function TravelExpenses() {
       {/* LIST */}
       <div className="mt-6 space-y-3">
         {filteredExpenses.length === 0 ? (
-          <p className="text-gray-400 text-center mt-6">
-            No expenses found
-          </p>
+          <p className="text-gray-400 text-center mt-6">No expenses found</p>
         ) : (
           filteredExpenses.map((e) => (
             <div
@@ -249,9 +273,7 @@ export default function TravelExpenses() {
                 <td className="p-2">{m.person}</td>
                 <td className="p-2">{m.month}</td>
                 <td className="p-2">{m.km}</td>
-                <td className="p-2 font-bold text-orange-500">
-                  ₹{m.amount}
-                </td>
+                <td className="p-2 font-bold text-orange-500">₹{m.amount}</td>
               </tr>
             ))}
           </tbody>

@@ -56,6 +56,7 @@ export default function TravelExpenses() {
       // ✅ STEP 5: CREATE PAYLOAD (THIS IS THE IMPORTANT PART)
       const payload = {
         ...form,
+        username: user.username,
         purpose: form.purpose === "Other" ? form.customPurpose : form.purpose,
       };
 

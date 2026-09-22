@@ -27,7 +27,10 @@ import TravelExpenses from "./pages/TravelExpenses";
 import CustomerFeedback from "./pages/CustomerFeedback";
 import SalesDashboard from "./pages/SalesDashboard";
 
-// ✅ Role-based route guard
+// ✅ Role-based route guard.
+// Inventory is the only page locked down by role (admin, simanta, revathi).
+// Every other page is open to any logged-in user, so RoleRoute is only
+// used to guard /inventory now.
 const RoleRoute = ({ children, allowed }) => {
   const role = localStorage.getItem("role");
   if (!allowed.includes(role)) return <Navigate to="/" />;
@@ -69,18 +72,14 @@ function App() {
           }
         />
 
-        {/* Sales pages — all roles except simanta */}
+        {/* Sales pages — open to every logged-in user */}
         <Route
           path="/leads"
           element={
             <ProtectedRoute>
-              <RoleRoute
-                allowed={["admin", "sales", "revathi", "inventory_manager"]}
-              >
-                <Layout>
-                  <Leads />
-                </Layout>
-              </RoleRoute>
+              <Layout>
+                <Leads />
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -89,13 +88,9 @@ function App() {
           path="/add-lead"
           element={
             <ProtectedRoute>
-              <RoleRoute
-                allowed={["admin", "sales", "revathi", "inventory_manager"]}
-              >
-                <Layout>
-                  <AddLead />
-                </Layout>
-              </RoleRoute>
+              <Layout>
+                <AddLead />
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -104,13 +99,9 @@ function App() {
           path="/quick-lead"
           element={
             <ProtectedRoute>
-              <RoleRoute
-                allowed={["admin", "sales", "revathi", "inventory_manager"]}
-              >
-                <Layout>
-                  <QuickLead />
-                </Layout>
-              </RoleRoute>
+              <Layout>
+                <QuickLead />
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -119,13 +110,9 @@ function App() {
           path="/edit/:id"
           element={
             <ProtectedRoute>
-              <RoleRoute
-                allowed={["admin", "sales", "revathi", "inventory_manager"]}
-              >
-                <Layout>
-                  <EditLead />
-                </Layout>
-              </RoleRoute>
+              <Layout>
+                <EditLead />
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -134,13 +121,9 @@ function App() {
           path="/sales"
           element={
             <ProtectedRoute>
-              <RoleRoute
-                allowed={["admin", "sales", "revathi", "inventory_manager"]}
-              >
-                <Layout>
-                  <SalesPerformance />
-                </Layout>
-              </RoleRoute>
+              <Layout>
+                <SalesPerformance />
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -149,25 +132,19 @@ function App() {
           path="/sales-dashboard"
           element={
             <ProtectedRoute>
-              <RoleRoute
-                allowed={["admin", "sales", "revathi", "inventory_manager"]}
-              >
-                <Layout>
-                  <SalesDashboard />
-                </Layout>
-              </RoleRoute>
+              <Layout>
+                <SalesDashboard />
+              </Layout>
             </ProtectedRoute>
           }
         />
 
-        {/* Inventory — admin, revathi, inventory_manager, sales */}
+        {/* Inventory — the ONE page restricted by role: admin, simanta, revathi only */}
         <Route
           path="/inventory"
           element={
             <ProtectedRoute>
-              <RoleRoute
-                allowed={["admin", "revathi", "inventory_manager", "simanta", "sales"]}
-              >
+              <RoleRoute allowed={["admin", "simanta", "revathi"]}>
                 <Layout>
                   <Inventory />
                 </Layout>
@@ -198,16 +175,14 @@ function App() {
           }
         />
 
-        {/* Complaints — admin and simanta only */}
+        {/* Complaints — open to every logged-in user */}
         <Route
           path="/complaints"
           element={
             <ProtectedRoute>
-              <RoleRoute allowed={["admin", "simanta", "venkatesh"]}>
-                <Layout>
-                  <Complaints />
-                </Layout>
-              </RoleRoute>
+              <Layout>
+                <Complaints />
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -228,13 +203,9 @@ function App() {
           path="/requirements"
           element={
             <ProtectedRoute>
-              <RoleRoute
-                allowed={["admin", "sales", "revathi", "inventory_manager"]}
-              >
-                <Layout>
-                  <ClientRequirements />
-                </Layout>
-              </RoleRoute>
+              <Layout>
+                <ClientRequirements />
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -243,13 +214,9 @@ function App() {
           path="/add-requirement"
           element={
             <ProtectedRoute>
-              <RoleRoute
-                allowed={["admin", "sales", "revathi", "inventory_manager"]}
-              >
-                <Layout>
-                  <AddRequirement />
-                </Layout>
-              </RoleRoute>
+              <Layout>
+                <AddRequirement />
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -258,13 +225,9 @@ function App() {
           path="/requirements/:id"
           element={
             <ProtectedRoute>
-              <RoleRoute
-                allowed={["admin", "sales", "revathi", "inventory_manager"]}
-              >
-                <Layout>
-                  <ViewRequirement />
-                </Layout>
-              </RoleRoute>
+              <Layout>
+                <ViewRequirement />
+              </Layout>
             </ProtectedRoute>
           }
         />
@@ -273,13 +236,9 @@ function App() {
           path="/requirements/edit/:id"
           element={
             <ProtectedRoute>
-              <RoleRoute
-                allowed={["admin", "sales", "revathi", "inventory_manager"]}
-              >
-                <Layout>
-                  <EditRequirement />
-                </Layout>
-              </RoleRoute>
+              <Layout>
+                <EditRequirement />
+              </Layout>
             </ProtectedRoute>
           }
         />

@@ -6,61 +6,14 @@ export default function Layout({ children }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const role = localStorage.getItem("role");
 
-  // ✅ Permission helper
+  // ✅ Permission helper.
+  // Inventory is the ONE page restricted by role: admin, simanta, revathi
+  // only. Every other page is visible to any logged-in user.
   const can = (page) => {
-    // Inventory is locked down to admin, simanta, and revathi only —
-    // checked first so no other role's list below can grant it.
     if (page === "inventory") {
       return role === "admin" || role === "simanta" || role === "revathi";
     }
-
-    // Available to every logged-in user:
-    if (page === "daily-work" && role) return true;
-    if (page === "customer-feedback" && role) return true;
-    if (page === "customer-work" && role) return true;
-    if (page === "inbox" && role) return true;
-    if (page === "sales-dashboard" && role) return true;
-    if (page === "travel-expenses" && role) return true;
-    if (role === "admin") return true;
-    if (role === "simanta")
-      return ["complaints", "inventory", "daily-work"].includes(page);
-    if (role === "venkatesh") return ["Product movement"].includes(page);
-    if (role === "technical")
-      return ["complaints", "inventory", "daily-work"].includes(page);
-    if (page === "product-movement" && role) return true;
-    // if (role === "revathi")
-    //   return [
-    //     "dashboard",
-    //     "leads",
-    //     "add-lead",
-    //     "sales",
-    //     "sales-report",
-    //     "inventory",
-    //     "product-movement",
-    //     "requirements",
-    //   ].includes(page);
-    if (role === "inventory_manager")
-      return [
-        "dashboard",
-        "leads",
-        "add-lead",
-        "sales",
-        "sales-report",
-        "inventory",
-        "product-movement",
-        "requirements",
-      ].includes(page);
-    if (role === "sales")
-      return [
-        "dashboard",
-        "leads",
-        "add-lead",
-        "sales",
-        "sales-report",
-        "inventory",
-        "requirements",
-      ].includes(page);
-    return false;
+    return Boolean(role);
   };
 
   return (

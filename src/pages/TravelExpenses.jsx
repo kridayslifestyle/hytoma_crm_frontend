@@ -17,27 +17,39 @@ export default function TravelExpenses() {
   const [editId, setEditId] = useState(null);
   const [selectedMonth, setSelectedMonth] = useState("");
 
-  // ✅ LOAD DATA
+  // LOAD DATA
   useEffect(() => {
     fetchExpenses();
     fetchMonthly();
   }, []);
 
-  // ✅ GET EXPENSES
+  // GET EXPENSES (IMPORTANT: include credentials if JWT used)
   const fetchExpenses = async () => {
     try {
-      const res = await fetch(`${API}/travel-expenses`);
+      const res = await fetch(`${API}/travel-expenses`, {
+        credentials: "include",
+      });
+
       const data = await res.json();
+
+      if (!Array.isArray(data)) {
+        setExpenses([]);
+        return;
+      }
+
       setExpenses(data);
     } catch (err) {
       console.log("Fetch expenses error", err);
     }
   };
 
-  // ✅ GET MONTHLY REPORT
+  // MONTHLY REPORT
   const fetchMonthly = async () => {
     try {
-      const res = await fetch(`${API}/travel-expenses/monthly`);
+      const res = await fetch(`${API}/travel-expenses/monthly`, {
+        credentials: "include",
+      });
+
       const data = await res.json();
       setMonthly(data);
     } catch (err) {
@@ -45,35 +57,38 @@ export default function TravelExpenses() {
     }
   };
 
-  // ✅ ADD / UPDATE EXPENSE
+  // ADD / UPDATE
   const handleAdd = async () => {
     if (!form.personName || !form.date || !form.km || !form.purpose) {
       alert("Please fill all fields");
       return;
     }
 
-    try {
-      // ✅ STEP 5: CREATE PAYLOAD (THIS IS THE IMPORTANT PART)
-      const payload = {
-        ...form,
-        username: user.username,
-        purpose: form.purpose === "Other" ? form.customPurpose : form.purpose,
-      };
+    const payload = {
+      ...form,
+      purpose:
+        form.purpose === "Other"
+          ? form.customPurpose
+          : form.purpose,
+    };
 
+    try {
       if (editId) {
-        // PUT (UPDATE)
+        // UPDATE
         await fetch(`${API}/travel-expenses/${editId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify(payload),
         });
 
         setEditId(null);
       } else {
-        // POST (CREATE)
-        await fetch(`${API}/travel-expenses/${editId}`, {
-          method: "PUT",
+        // CREATE
+        await fetch(`${API}/travel-expenses`, {
+          method: "POST",
           headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify(payload),
         });
       }
@@ -81,6 +96,7 @@ export default function TravelExpenses() {
       fetchExpenses();
       fetchMonthly();
 
+      // reset form
       setForm({
         personName: "",
         extraNote: "",
@@ -94,24 +110,28 @@ export default function TravelExpenses() {
     }
   };
 
-  // ✅ EDIT
+  // EDIT
   const handleEdit = (item) => {
     setForm({
       personName: item.personName || "",
+      extraNote: item.extraNote || "",
       date: item.date || "",
       km: item.km || "",
       purpose: item.purpose || "",
+      customPurpose: "",
     });
 
     setEditId(item._id);
   };
 
-  // ✅ DELETE
+  // DELETE
   const handleDelete = async (id) => {
     try {
       await fetch(`${API}/travel-expenses/${id}`, {
         method: "DELETE",
+        credentials: "include",
       });
+
       fetchExpenses();
       fetchMonthly();
     } catch (err) {
@@ -127,7 +147,7 @@ export default function TravelExpenses() {
 
   const monthlyTotal = filteredExpenses.reduce(
     (sum, e) => sum + getAmount(e.km),
-    0,
+    0
   );
 
   return (
@@ -145,10 +165,12 @@ export default function TravelExpenses() {
         />
       </div>
 
-      {/* MONTHLY TOTAL */}
+      {/* TOTAL */}
       <div className="bg-green-50 p-4 rounded-xl shadow mb-4">
         <p className="text-sm text-gray-600">Monthly Travel Expense</p>
-        <p className="text-2xl font-bold text-green-600">₹{monthlyTotal}</p>
+        <p className="text-2xl font-bold text-green-600">
+          ₹{monthlyTotal}
+        </p>
       </div>
 
       {/* FORM */}
@@ -156,21 +178,27 @@ export default function TravelExpenses() {
         <input
           placeholder="Person Name"
           value={form.personName}
-          onChange={(e) => setForm({ ...form, personName: e.target.value })}
+          onChange={(e) =>
+            setForm({ ...form, personName: e.target.value })
+          }
           className="border p-2 w-full rounded"
         />
 
         <input
           placeholder="Extra Note"
           value={form.extraNote}
-          onChange={(e) => setForm({ ...form, extraNote: e.target.value })}
+          onChange={(e) =>
+            setForm({ ...form, extraNote: e.target.value })
+          }
           className="border p-2 w-full rounded"
         />
 
         <input
           type="date"
           value={form.date}
-          onChange={(e) => setForm({ ...form, date: e.target.value })}
+          onChange={(e) =>
+            setForm({ ...form, date: e.target.value })
+          }
           className="border p-2 w-full rounded"
         />
 
@@ -178,13 +206,17 @@ export default function TravelExpenses() {
           type="number"
           placeholder="KM Travelled"
           value={form.km}
-          onChange={(e) => setForm({ ...form, km: e.target.value })}
+          onChange={(e) =>
+            setForm({ ...form, km: e.target.value })
+          }
           className="border p-2 w-full rounded"
         />
 
         <select
           value={form.purpose}
-          onChange={(e) => setForm({ ...form, purpose: e.target.value })}
+          onChange={(e) =>
+            setForm({ ...form, purpose: e.target.value })
+          }
           className="border p-2 w-full rounded"
         >
           <option value="">Select Purpose</option>
@@ -200,7 +232,10 @@ export default function TravelExpenses() {
             placeholder="Enter Custom Purpose"
             value={form.customPurpose}
             onChange={(e) =>
-              setForm({ ...form, customPurpose: e.target.value })
+              setForm({
+                ...form,
+                customPurpose: e.target.value,
+              })
             }
             className="border p-2 w-full rounded"
           />
@@ -217,7 +252,9 @@ export default function TravelExpenses() {
       {/* LIST */}
       <div className="mt-6 space-y-3">
         {filteredExpenses.length === 0 ? (
-          <p className="text-gray-400 text-center mt-6">No expenses found</p>
+          <p className="text-gray-400 text-center mt-6">
+            No expenses found
+          </p>
         ) : (
           filteredExpenses.map((e) => (
             <div
@@ -274,7 +311,9 @@ export default function TravelExpenses() {
                 <td className="p-2">{m.person}</td>
                 <td className="p-2">{m.month}</td>
                 <td className="p-2">{m.km}</td>
-                <td className="p-2 font-bold text-orange-500">₹{m.amount}</td>
+                <td className="p-2 font-bold text-orange-500">
+                  ₹{m.amount}
+                </td>
               </tr>
             ))}
           </tbody>

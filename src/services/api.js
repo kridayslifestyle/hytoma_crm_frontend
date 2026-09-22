@@ -8,9 +8,13 @@ export const getSalesUsers = async () => {
 
 
 export const getLeads = async () => {
-  const res = await fetch(`${API}/leads`,{
-    credentials:"include"
+  const res = await fetch(`${API}/leads`, {
+    credentials: "include",
   });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || `Failed to load leads (${res.status})`);
+  }
   return res.json();
 };
 

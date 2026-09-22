@@ -19,6 +19,7 @@ export default function Leads() {
   const [personFilter, setPersonFilter] = useState("all");
   const [dateFilter, setDateFilter] = useState("all");
   const [deleteId, setDeleteId] = useState(null);
+  const [error, setError] = useState(null);
 
   const navigate = useNavigate();
   const role = localStorage.getItem("role");
@@ -26,9 +27,14 @@ export default function Leads() {
   const fetchLeads = async () => {
     try {
       const data = await getLeads();
-      setLeads(data);
+      // Guard against a non-array response (e.g. an error payload) so a
+      // bad response can never crash the page on `.filter`/`.map`.
+      setLeads(Array.isArray(data) ? data : []);
+      setError(null);
     } catch (err) {
       console.error(err);
+      setLeads([]);
+      setError(err.message || "Failed to load leads");
     }
   };
 
@@ -138,6 +144,12 @@ export default function Leads() {
           </button>
         </div>
       </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-4 text-sm">
+          {error}
+        </div>
+      )}
 
       {/* Filters */}
       <div className="bg-white p-4 rounded-xl shadow-sm mb-5 flex flex-col md:flex-row flex-wrap gap-3">

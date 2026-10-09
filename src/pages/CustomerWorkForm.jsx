@@ -69,6 +69,10 @@ export default function CustomerWorkForm() {
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState(null);
   const [filter, setFilter] = useState("");
+  // Scheduled Work date filter: "month" (default, current month) | "day" | "all"
+  const [dateMode, setDateMode] = useState("month");
+  const [monthValue, setMonthValue] = useState(todayISO().slice(0, 7)); // YYYY-MM
+  const [dayValue, setDayValue] = useState(todayISO()); // YYYY-MM-DD
   const [msg, setMsg] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [quotationFile, setQuotationFile] = useState(null);
@@ -84,6 +88,26 @@ export default function CustomerWorkForm() {
   const flash = (type, text) => {
     setMsg({ type, text });
     setTimeout(() => setMsg(null), 4000);
+  };
+
+  // Only show records inside the chosen month / day (scheduled_date is YYYY-MM-DD)
+  const visibleRecords = records.filter((r) => {
+    const d = String(r.scheduled_date || "").slice(0, 10);
+    if (dateMode === "month") return monthValue ? d.startsWith(monthValue) : true;
+    if (dateMode === "day") return dayValue ? d === dayValue : true;
+    return true;
+  });
+
+  // Step the month / day back or forward with the arrow buttons
+  const shiftDateFilter = (delta) => {
+    if (dateMode === "month") {
+      const [y, m] = monthValue.split("-").map(Number);
+      const dt = new Date(y, m - 1 + delta, 1);
+      setMonthValue(`${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, "0")}`);
+    } else if (dateMode === "day") {
+      const [y, m, d] = dayValue.split("-").map(Number);
+      setDayValue(toISO(new Date(y, m - 1, d + delta)));
+    }
   };
 
   const loadRecords = async () => {
@@ -700,12 +724,78 @@ export default function CustomerWorkForm() {
             </select>
           </div>
 
+          {/* Date filter: check month by month or day by day */}
+          <div className="flex flex-wrap items-center gap-2 mb-3">
+            <select
+              className="border rounded-lg px-2 py-1 text-sm"
+              value={dateMode}
+              onChange={(e) => setDateMode(e.target.value)}
+            >
+              <option value="month">By month</option>
+              <option value="day">By day</option>
+              <option value="all">All dates</option>
+            </select>
+
+            {dateMode !== "all" && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => shiftDateFilter(-1)}
+                  className="p-1 rounded border hover:bg-gray-50"
+                  title={dateMode === "month" ? "Previous month" : "Previous day"}
+                >
+                  <ChevronLeft size={16} />
+                </button>
+                {dateMode === "month" ? (
+                  <input
+                    type="month"
+                    className="border rounded-lg px-2 py-1 text-sm"
+                    value={monthValue}
+                    onChange={(e) => setMonthValue(e.target.value)}
+                  />
+                ) : (
+                  <input
+                    type="date"
+                    className="border rounded-lg px-2 py-1 text-sm"
+                    value={dayValue}
+                    onChange={(e) => setDayValue(e.target.value)}
+                  />
+                )}
+                <button
+                  type="button"
+                  onClick={() => shiftDateFilter(1)}
+                  className="p-1 rounded border hover:bg-gray-50"
+                  title={dateMode === "month" ? "Next month" : "Next day"}
+                >
+                  <ChevronRight size={16} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMonthValue(todayISO().slice(0, 7));
+                    setDayValue(todayISO());
+                  }}
+                  className="text-xs px-2 py-1 rounded border text-orange-600 border-orange-300 hover:bg-orange-50"
+                >
+                  {dateMode === "month" ? "This month" : "Today"}
+                </button>
+              </>
+            )}
+            <span className="text-xs text-gray-400 ml-auto">
+              {visibleRecords.length} record{visibleRecords.length === 1 ? "" : "s"}
+            </span>
+          </div>
+
           <div className="space-y-3 max-h-[640px] overflow-auto pr-1">
-            {records.length === 0 && (
-              <p className="text-sm text-gray-400">No records yet.</p>
+            {visibleRecords.length === 0 && (
+              <p className="text-sm text-gray-400">
+                {records.length === 0
+                  ? "No records yet."
+                  : "No work scheduled for this period."}
+              </p>
             )}
 
-            {records.map((r) => (
+            {visibleRecords.map((r) => (
               <div key={r.id} className="border rounded-lg p-3">
                 <div className="flex items-start justify-between gap-2">
                   <div>
@@ -748,7 +838,8 @@ export default function CustomerWorkForm() {
                       {r.work_type === "New" && "New installation"}
                       {r.work_type === "Existing" && "Existing / service"}
                       {r.work_type === "SiteVisit" && "Site Visit"}
-                      {r.work_type !== "SiteVisit" && r.km ? ` · ${r.km} km` : ""}
+                      {r.work_type === "SiteInspection" && "Site Inspection"}
+                      {r.work_type !== "SiteVisit" && r.work_type !== "SiteInspection" && r.km ? ` · ${r.km} km` : ""}
                       {r.express_service && (
                         <span className="ml-1 text-orange-600 font-medium">
                           ⚡ Express (₹{r.express_fee || 1500})
@@ -805,7 +896,7 @@ export default function CustomerWorkForm() {
                     <Pencil size={14} />
                   </IconBtn>
 
-                  {r.work_type !== "SiteVisit" && (!r.assigned_installers || r.assigned_installers.length === 0) && (
+                  {r.work_type !== "SiteVisit" && r.work_type !== "SiteInspection" && (!r.assigned_installers || r.assigned_installers.length === 0) && (
                     <button
                       type="button"
                       onClick={() => onAssignInstallers(r.id, r.assigned_installers)}

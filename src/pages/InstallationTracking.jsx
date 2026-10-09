@@ -114,13 +114,20 @@ export default function InstallationTracking({ role, showToast }) {
   const handleUpdate = async (e) => {
     e.preventDefault();
     const statusChanged = updateForm.status !== updateItem.status;
+    // Ticket is already "In Progress" and a new progress note was typed:
+    // log it as another In Progress entry (e.g. material not available,
+    // person unable to attend, work continues).
+    const newProgressEntry =
+      !statusChanged &&
+      updateForm.status === "In Progress" &&
+      updateForm.progressNote.trim() !== "";
     const hasVisit = Boolean(updateForm.siteVisitDate);
-    if (!statusChanged && !hasVisit) {
-      showToast("Change the status or add a site visit date");
+    if (!statusChanged && !newProgressEntry && !hasVisit) {
+      showToast("Change the status, add a progress note, or add a site visit date");
       return;
     }
     const payload = {};
-    if (statusChanged) {
+    if (statusChanged || newProgressEntry) {
       payload.status = updateForm.status;
       payload.statusDate = updateForm.statusDate;
       payload.progressNote = updateForm.progressNote;
@@ -370,8 +377,15 @@ export default function InstallationTracking({ role, showToast }) {
                 </select>
               </div>
 
-              {updateForm.status !== updateItem.status && (
+              {(updateForm.status !== updateItem.status ||
+                updateForm.status === "In Progress") && (
                 <>
+                  {updateForm.status === updateItem.status && (
+                    <p className="text-xs text-gray-500 bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2">
+                      Already In Progress — add a new progress update (e.g. material not
+                      available, person not able to attend). It is saved as another entry.
+                    </p>
+                  )}
                   <div>
                     <label className="text-xs text-gray-500">{dateLabel(updateForm.status)}</label>
                     <input

@@ -16,6 +16,11 @@
 //        Morning / Afternoon slots. On submit: client + the chosen sales
 //        person both get a WhatsApp confirmation naming each other.
 //
+//   Site Inspection
+//     -> calendar shows ALL 7 days (no weekday hidden), Morning / Afternoon
+//        slots. No distance / express / sales-person fields. On submit the
+//        client gets a WhatsApp confirmation.
+//
 //   Report a Complaint
 //     -> no calendar. Reuses the same fields as the standalone Customer
 //        Complaint Form, and submits to the same /complaints/public
@@ -54,7 +59,7 @@ const COMPLAINT_SALES_PERSONS = ["Revathi", "Manoj", "Suresh", "Naveen"];
 const COMPLAINT_TYPES = ["App issues", "Product issues", "Other"];
 
 export default function PublicBookingForm() {
-  // "New" | "Existing" | "SiteVisit" | "Complaint"
+  // "New" | "Existing" | "SiteVisit" | "SiteInspection" | "Complaint"
   const [kind, setKind] = useState("New");
 
   const [form, setForm] = useState({
@@ -88,7 +93,9 @@ export default function PublicBookingForm() {
   const [mediaPreview, setMediaPreview] = useState(null);
 
   const isCalendarFlow = kind !== "Complaint";
-  const workType = kind === "SiteVisit" ? "SiteVisit" : kind; // "New" | "Existing" | "SiteVisit"
+  const workType = kind; // "New" | "Existing" | "SiteVisit" | "SiteInspection"
+  // Site Visit / Site Inspection: every day is open, so no distance or express add-on
+  const noExtras = kind === "SiteVisit" || kind === "SiteInspection";
 
   const setField = (k) => (e) =>
     setForm((f) => ({ ...f, [k]: e?.target ? e.target.value : e }));
@@ -178,8 +185,8 @@ export default function PublicBookingForm() {
         phone: form.phone,
         address: form.address,
         work_type: workType,
-        km: kind === "SiteVisit" ? 0 : form.km || 0,
-        express_service: kind === "SiteVisit" ? false : form.express_service,
+        km: noExtras ? 0 : form.km || 0,
+        express_service: noExtras ? false : form.express_service,
         scheduled_date: form.scheduled_date,
         slot: form.slot,
         ...(kind === "SiteVisit" ? { sales_person: form.sales_person } : {}),
@@ -328,6 +335,7 @@ export default function PublicBookingForm() {
               <option value="New">New installation</option>
               <option value="Existing">Existing problem / service</option>
               <option value="SiteVisit">Site Visit</option>
+              <option value="SiteInspection">Site Inspection</option>
               <option value="Complaint">Report a Complaint</option>
             </select>
           </Labeled>
@@ -391,6 +399,7 @@ export default function PublicBookingForm() {
                   {kind === "New" && "New installs: "}
                   {kind === "Existing" && "Existing/service: "}
                   {kind === "SiteVisit" && "Site visits: "}
+                  {kind === "SiteInspection" && "Site inspection: "}
                   {meta.allowed_days || "…"}
                 </span>
               </div>

@@ -33,6 +33,7 @@ export default function Login() {
         // ✅ Cache role for sidebar/permission checks (Layout.jsx reads this).
         // The JWT itself stays in the HttpOnly cookie — this is just the role string.
         localStorage.setItem("role", data.role);
+        localStorage.setItem("username", data.username || "");
 
         navigate("/");
       } else {

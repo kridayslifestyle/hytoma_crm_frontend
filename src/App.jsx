@@ -27,13 +27,15 @@ import TravelExpenses from "./pages/TravelExpenses";
 import CustomerFeedback from "./pages/CustomerFeedback";
 import SalesDashboard from "./pages/SalesDashboard";
 
-// ✅ Role-based route guard.
-// Inventory is the only page locked down by role (admin, simanta, revathi).
-// Every other page is open to any logged-in user, so RoleRoute is only
-// used to guard /inventory now.
-const RoleRoute = ({ children, allowed }) => {
+// ✅ Route guard for the one restricted page: Inventory (admin, simanta, Revathi).
+// Revathi is stored with role "sales", so she is identified by username.
+const INVENTORY_USERNAMES = ["revathi"];
+const InventoryRoute = ({ children }) => {
   const role = localStorage.getItem("role");
-  if (!allowed.includes(role)) return <Navigate to="/" />;
+  const username = (localStorage.getItem("username") || "").toLowerCase();
+  const allowed =
+    role === "admin" || role === "simanta" || INVENTORY_USERNAMES.includes(username);
+  if (!allowed) return <Navigate to="/" />;
   return children;
 };
 
@@ -144,11 +146,11 @@ function App() {
           path="/inventory"
           element={
             <ProtectedRoute>
-              <RoleRoute allowed={["admin", "simanta", "revathi"]}>
+              <InventoryRoute>
                 <Layout>
                   <Inventory />
                 </Layout>
-              </RoleRoute>
+              </InventoryRoute>
             </ProtectedRoute>
           }
         />

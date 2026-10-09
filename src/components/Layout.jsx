@@ -5,13 +5,20 @@ import { logoutUser } from "../services/api";
 export default function Layout({ children }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const role = localStorage.getItem("role");
+  const username = (localStorage.getItem("username") || "").toLowerCase();
+  // Revathi is stored with role "sales", so she is identified by username.
+  const INVENTORY_USERNAMES = ["revathi"];
 
   // ✅ Permission helper.
   // Inventory is the ONE page restricted by role: admin, simanta, revathi
   // only. Every other page is visible to any logged-in user.
   const can = (page) => {
     if (page === "inventory") {
-      return role === "admin" || role === "simanta" || role === "revathi";
+      return (
+        role === "admin" ||
+        role === "simanta" ||
+        INVENTORY_USERNAMES.includes(username)
+      );
     }
     return Boolean(role);
   };

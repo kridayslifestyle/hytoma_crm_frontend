@@ -164,6 +164,39 @@ export const deleteSocialEnquiry = async (id) => {
   await fetch(`${API}/social-enquiries/${id}`, { method: "DELETE", credentials: "include" });
 };
 
+// INSTALLATION / SERVICE TICKETS
+const jsonOrThrow = async (res, fallback) => {
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || fallback);
+  }
+  return res.json();
+};
+export const getInstallationTickets = async () => {
+  const res = await fetch(`${API}/installation-tickets`, { credentials: "include" });
+  return jsonOrThrow(res, "Failed to load tickets");
+};
+export const addInstallationTicket = async (data) => {
+  const res = await fetch(`${API}/installation-tickets`, {
+    method: "POST", credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  return jsonOrThrow(res, "Failed to create ticket");
+};
+export const updateInstallationTicket = async (id, data) => {
+  const res = await fetch(`${API}/installation-tickets/${id}`, {
+    method: "PUT", credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  return jsonOrThrow(res, "Failed to update ticket");
+};
+export const deleteInstallationTicket = async (id) => {
+  const res = await fetch(`${API}/installation-tickets/${id}`, { method: "DELETE", credentials: "include" });
+  return jsonOrThrow(res, "Failed to delete ticket");
+};
+
 export const getPendingMovements = async () => {
   const res = await fetch(`${import.meta.env.VITE_API_URL}/api/movements/pending`, {
     credentials: "include"

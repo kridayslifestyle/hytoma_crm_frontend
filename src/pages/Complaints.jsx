@@ -7,6 +7,7 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip,
   CartesianGrid, ResponsiveContainer
 } from "recharts";
+import InstallationTracking from "./InstallationTracking";
 
 const COMPLAINT_TYPES = ["App issues", "Product issues", "Other"];
 
@@ -197,16 +198,18 @@ export default function Complaints() {
           <h1 className="text-2xl font-bold text-gray-800">Complaints & Social Media</h1>
           <p className="text-gray-500 text-sm">Track complaints and social media enquiries</p>
         </div>
-        <button
-          onClick={handleOpenAdd}
-          className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm"
-        >
-          + Add {activeTab === "complaints" ? "Complaint" : "Enquiry"}
-        </button>
+        {activeTab !== "installation" && (
+          <button
+            onClick={handleOpenAdd}
+            className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm"
+          >
+            + Add {activeTab === "complaints" ? "Complaint" : "Enquiry"}
+          </button>
+        )}
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 mb-6">
+      <div className="flex flex-wrap gap-2 mb-6">
         <button
           onClick={() => setActiveTab("complaints")}
           className={`px-5 py-2 rounded-lg font-medium text-sm transition ${
@@ -223,7 +226,20 @@ export default function Complaints() {
         >
           📱 Social Media ({socialEnquiries.length})
         </button>
+        <button
+          onClick={() => setActiveTab("installation")}
+          className={`px-5 py-2 rounded-lg font-medium text-sm transition ${
+            activeTab === "installation" ? "bg-orange-500 text-white" : "bg-white border text-gray-600 hover:bg-gray-50"
+          }`}
+        >
+          🛠️ Installation Tracking
+        </button>
       </div>
+
+      {/* ── INSTALLATION TRACKING TAB ── */}
+      {activeTab === "installation" && (
+        <InstallationTracking role={role} showToast={showToast} />
+      )}
 
       {/* ── COMPLAINTS TAB ── */}
       {activeTab === "complaints" && (

@@ -1,1 +1,1 @@
-export const API = "https://hytomacrmbackend.up.railway.app";
+export const API = "https://hytomacrmbackend-production-app.up.railway.app";

@@ -13,6 +13,20 @@ export default function ProtectedRoute({ children }) {
           credentials: "include",
         });
 
+        if (res.ok) {
+          // /me returns the logged-in user's JWT payload ({username, role}).
+          // Re-sync it into localStorage so the sidebar (Layout.jsx) always has
+          // the role, even if this browser/origin never went through the login
+          // form (new deployment, cleared storage, different frontend URL).
+          try {
+            const me = await res.json();
+            if (me?.role) localStorage.setItem("role", me.role);
+            if (me?.username) localStorage.setItem("username", me.username);
+          } catch {
+            /* ignore — auth itself still succeeded */
+          }
+        }
+
         setIsAuth(res.ok);
       } catch {
         setIsAuth(false);

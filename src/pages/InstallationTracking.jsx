@@ -6,7 +6,7 @@ import {
   deleteInstallationTicket,
 } from "../services/api";
 
-const SALES_PERSONS = ["Revathi", "Manoj", "Suresh"];
+const SALES_PERSONS = ["Revathi", "Manoj", "Suresh", "Abhinav"];
 const SERVICE_TYPES = ["Installation", "Complaint"];
 const STATUSES = ["Ticket Accepted", "In Progress", "Ticket Closed"];
 
